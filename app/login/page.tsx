@@ -52,7 +52,9 @@ export default function Login() {
           fullWidth
           margin="normal"
           name="userId"
-          onChange={handleInputChange}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setUser({ ...user, userId: e.target.value })
+          }
           autoFocus
         />
         <TextField
@@ -63,7 +65,9 @@ export default function Login() {
           fullWidth
           margin="normal"
           name="userPw"
-          onChange={handleInputChange}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setUser({ ...user, userPw: e.target.value })
+          }
         />
         <Button
           variant="contained"
