@@ -21,32 +21,35 @@ jobs:
       run: |
         npm install
         npm run build
+
     - name: Build Docker image
       run: |
         docker build -t kingwangjjang-fe:0.0.1 .
+    
+    - name: Tag Docker image for Docker Hub
+      run: |
         docker tag kingwangjjang-fe:0.0.1 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-
 
   deploy:
     needs: build
-    name: deploy
-    runs-on: ubuntu-latest # 실행될 인스턴스 OS와 버전
+    name: Deploy
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Connect to WAS & Execute Application
-        uses: appleboy/ssh-action@master # GitHub제공 액션 사용, ssh로 인스턴스 접속
-        with:
-          host: ${{ secrets.WAS_HOST }}
-          username: ${{ secrets.WAS_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.WAS_SSH_PORT }}
-          script: | # 인스턴스 접속후 실행할 스크립트
-            sudo docker version
-            sudo docker rm -f kingwangjjang-fe || true
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-            sudo docker run -d --name kingwangjjang-fe -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1 
+    - name: Connect to WAS & Execute Application
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.WAS_HOST }}
+        username: ${{ secrets.WAS_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.WAS_SSH_PORT }}
+        script: |
+          sudo docker version
+          sudo docker rm -f kingwangjjang-fe || true
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
+          sudo docker run -d --name kingwangjjang-fe -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
