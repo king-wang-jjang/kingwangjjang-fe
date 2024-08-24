@@ -15,7 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import { TemporaryDrawer } from "@/components/Drawer/TemporaryDrawer";
+import { TemporaryDrawer } from "@/app/components/drawer/TemporaryDrawer";
 import React, { useState } from "react";
 import { AccountMenu } from "./MyPage/AccountMenu";
 

@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
-import Label from "@/app/components/UI/Label";
+import Label from "@/app/components/ui/Label";
 import { theme } from "@/app/styles/theme";
 import anime from 'animejs/lib/anime.es.js';
 
