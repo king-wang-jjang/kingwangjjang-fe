@@ -11,11 +11,12 @@ import { RealtimePost } from "@/components/Post/RealtimePost";
 import { Filter } from "./Filter";
 import { FilterCollectionType } from "@/types/board-type";
 import useInfiniteScrollablePostList from "../hooks/useInfiniteScrollablePostList";
+import { POSTITEMS } from "../_mock/board";
 
 export const ContentWrapper = () => {
   const pageTheme = useTheme();
-  const [postData, setPostData] = useState<RealtimePaginationQuery['realtimePagination']>();
-  const [fiteredPostData, setFiteredPostData] = useState<RealtimePaginationQuery['realtimePagination']>();
+  const [postData, setPostData] = useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
+  const [fiteredPostData, setFiteredPostData] = useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
   const isMobile = useMediaQuery(pageTheme.breakpoints.down("xs"));
   const [filterCollection, setFilterCollection] = useState<FilterCollectionType>();
   const {loadingRef, loading: boardContentsQueryLoading, error: boardContentsQueryError, data: boardContentsData} 
@@ -36,7 +37,7 @@ export const ContentWrapper = () => {
 
   useEffect(()=>{
     // Site이름을 영어 -> 한글
-    const modifiedData = (boardContentsData?.realtimePagination)?.map((value) => {
+    const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value) => {
       if (value?.site === "ygosu") {
         return { ...value, site: "와이고수" };
       } else if (value?.site === "dcinside") {
