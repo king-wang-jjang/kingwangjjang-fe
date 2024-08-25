@@ -6,9 +6,9 @@ import resourcesToBackend from 'i18next-resources-to-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next, I18nextProvider as Provider } from 'react-i18next';
 
-import { localStorageGetItem } from 'src/utils/storage-available';
+import { localStorageGetItem } from '@/app/utils/storage-available';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from '@/app/config-global';
 
 import { i18nOptions, fallbackLng } from './config-locales';
 

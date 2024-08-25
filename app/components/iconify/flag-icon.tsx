@@ -4,8 +4,8 @@ import { forwardRef } from 'react';
 
 import Box from '@mui/material/Box';
 import NoSsr from '@mui/material/NoSsr';
+import { CONFIG } from '@/app/config-global';
 
-import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 

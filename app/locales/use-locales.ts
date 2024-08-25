@@ -4,9 +4,9 @@ import dayjs from 'dayjs';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useRouter } from 'src/routes/hooks';
+import { useRouter } from '@/app/routes/hooks';
 
-import { toast } from 'src/components/snackbar';
+import { toast } from '@/app/components/snackbar';
 
 import { allLangs } from './all-langs';
 import { fallbackLng, changeLangMessages as messages } from './config-locales';
