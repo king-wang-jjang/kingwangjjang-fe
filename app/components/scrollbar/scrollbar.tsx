@@ -41,3 +41,5 @@ export const Scrollbar = forwardRef<HTMLDivElement, ScrollbarProps>(
     </Box>
   )
 );
+
+Scrollbar.displayName = 'Scrollbar'

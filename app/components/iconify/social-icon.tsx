@@ -139,3 +139,5 @@ const instagramSVG = (
     </defs>
   </>
 );
+
+SocialIcon.displayName = 'SocialIcon';

@@ -1,13 +1,13 @@
 'use client'
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import { PostList } from "@/components/Post/PostList";
+import { PostList } from "@/components/post/PostList"
 import { SummaryBoardDocument, RealtimePaginationQuery } from "@/gql/graphql";
 import { useMutation, useQuery } from "@apollo/client";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import { Loading } from "./Loading";
 import { Error } from "./Error";
-import { RealtimePost } from "@/components/Post/RealtimePost";
+import { RealtimePost } from "@/components/post/RealtimePost";
 import { Filter } from "./Filter";
 import { FilterCollectionType } from "@/types/board-type";
 import useInfiniteScrollablePostList from "../hooks/useInfiniteScrollablePostList";
@@ -16,7 +16,7 @@ import { POSTITEMS } from "../_mock/board";
 export const ContentWrapper = () => {
   const pageTheme = useTheme();
   const [postData, setPostData] = useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
-  const [fiteredPostData, setFiteredPostData] = useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
+  const [fiteredPostData, setFiteredPostData] = useState<RealtimePaginationQuery['realtimePagination'] | undefined>(POSTITEMS);
   const isMobile = useMediaQuery(pageTheme.breakpoints.down("xs"));
   const [filterCollection, setFilterCollection] = useState<FilterCollectionType>();
   const {loadingRef, loading: boardContentsQueryLoading, error: boardContentsQueryError, data: boardContentsData} 

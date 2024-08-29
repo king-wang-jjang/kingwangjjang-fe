@@ -32,3 +32,5 @@ export function LocalizationProvider({ children }: Props) {
     </Provider>
   );
 }
+
+// LocalizationProvider.

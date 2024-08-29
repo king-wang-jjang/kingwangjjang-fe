@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material/styles';
-import type { SettingsState } from 'src/components/settings';
+import type { SettingsState } from '@/components/settings';
 
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles';
 
