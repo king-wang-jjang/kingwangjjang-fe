@@ -21,7 +21,7 @@ export const Filter = ({filteredData, setFilteredPostData, postData}: props) => 
     useEffect(() => { filteredData?.site && setFilterItems(filteredData?.site) }, [filteredData]);
     useEffect(() => {
         const filteredPosts = postData && postData.filter(post => post?.site && filterItems.includes(post.site));
-        
+
         setFilteredPostData(filteredPosts);
      }, [filterItems, postData, setFilteredPostData]);
 
@@ -35,9 +35,9 @@ export const Filter = ({filteredData, setFilteredPostData, postData}: props) => 
             </ListItem>
             <Stack direction="row" spacing={1} useFlexGap paddingX="8px">
                 {filteredData && filteredData.site.map((site, index) => (
-                    <FilterChip filterItems={filterItems} 
-                                onClick={(label) => {handleFilter(label)}} 
-                                key={index} label={site}/> 
+                    <FilterChip filterItems={filterItems}
+                                onClick={(label) => {handleFilter(label)}}
+                                key={index} label={site}/>
                 ))}
             </Stack>
         </List>

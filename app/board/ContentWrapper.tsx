@@ -19,12 +19,12 @@ export const ContentWrapper = () => {
   const [fiteredPostData, setFiteredPostData] = useState<RealtimePaginationQuery['realtimePagination'] | undefined>(POSTITEMS);
   const isMobile = useMediaQuery(pageTheme.breakpoints.down("xs"));
   const [filterCollection, setFilterCollection] = useState<FilterCollectionType>();
-  const {loadingRef, loading: boardContentsQueryLoading, error: boardContentsQueryError, data: boardContentsData} 
+  const {loadingRef, loading: boardContentsQueryLoading, error: boardContentsQueryError, data: boardContentsData}
   = useInfiniteScrollablePostList();
 
   const [ summaryBoardMutation, { data: summaryBoardMutationData, loading: summaryBoardMutationLoading, error: summaryBoardMutationError,},]
   = useMutation(SummaryBoardDocument, { refetchQueries: ["BoardContentsByDate"] });
-  
+
   const handleSummaryBoard = (boardId: string, site: string) => {
     summaryBoardMutation({
       variables: { boardId: boardId, site: site },
@@ -55,20 +55,20 @@ export const ContentWrapper = () => {
       modifiedData
         ? modifiedData.map((item) => item?.site).filter(site => typeof site === 'string').map(String)
         : []
-    )); 
-    
+    ));
+
     if (uniqueSite !== undefined) {
       setFilterCollection({ site: uniqueSite });
     }
   },[boardContentsData])
 
   if(isMobile) return boardContentsData?.realtimePagination && <PostList onClickCard={handleSummaryBoard} postItems={postData ?? []} />
-  
+
   return(
     <>
     <Grid container spacing={2} margin={0} paddingY="0"
           position="relative" >
-      <Grid xs={0} md={3} paddingY="0" > 
+      <Grid xs={0} md={3} paddingY="0" >
         {/* 왼쪽 Side */}
         <Box width="100%" bgcolor="white" position="sticky" top="73px" >
           <Filter setFilteredPostData={setFiteredPostData} postData={postData} filteredData={filterCollection} />

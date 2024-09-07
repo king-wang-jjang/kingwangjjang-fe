@@ -30,7 +30,7 @@ export function ImageBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
     handleClosePopover();
 
     if (anchorEl) {
-      // editor?.chain().focus().setImage({ src: url }).run(); 
+      // editor?.chain().focus().setImage({ src: url }).run();
     }
   }, [anchorEl, editor, url]);
 

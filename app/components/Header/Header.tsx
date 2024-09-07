@@ -47,7 +47,7 @@ export const Header = () => {
               variant="h6"
               sx={{ flexGrow: 1, padding: "8px" }}
             >
-              Hello, 
+              Hello,
             </Typography>
             {isMobile ? (
               <IconButton onClick={handleFilterOpen}>
@@ -59,7 +59,7 @@ export const Header = () => {
                 aria-controls={open ? 'account-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
-              > 
+              >
               <Avatar />
             </IconButton>
           </Toolbar>
@@ -67,7 +67,7 @@ export const Header = () => {
         <Toolbar/>
 
       {/* Filter Drawer */}
-      {isMobile ? 
+      {isMobile ?
       <Drawer open={filterOpen} onClose={() => setFilterOpen(false)} anchor="right">
         <TemporaryDrawer />
       </Drawer>

@@ -21,7 +21,7 @@ interface Props extends PostCardType {
 
 export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, onClickToggle, }: Props) => {
   const [expanded, setExpanded] = useState(false);
-  const cardRef = useRef(null); 
+  const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -45,7 +45,7 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
         targets: cardElement,
         translateX: isHovering ? -50 : 0,
         duration: 300,
-        easing: 'easeInOutQuad', 
+        easing: 'easeInOutQuad',
       });
     }
   }, [isHovering]);
@@ -53,7 +53,7 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
   const handleToggle = (boardId: string, site: string) => {
     setExpanded(!expanded);
     if (!expanded) {
-      onClickToggle(boardId, site); 
+      onClickToggle(boardId, site);
     }
   };
 
@@ -71,9 +71,9 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
               <Typography variant="body2" component="div">
                 {title}
               </Typography>
-              
+
             </Tooltip>
-            {isMobile && 
+            {isMobile &&
               <Link href={url} target="_blank"passHref onClick={(e) => e.stopPropagation()}>
                 <LaunchIcon />
               </Link>
@@ -81,7 +81,7 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
           </Box>
           <Box>
             <Collapse in={expanded} timeout="auto" > {/*unmountOnExit*/}
-              <Box sx={{ display: "flex", justifyContent: "space-between", 
+              <Box sx={{ display: "flex", justifyContent: "space-between",
                       alignItems: "center",padding: "5px 0px",}}>
                 <Typography variant="body2" component="div"
                   sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word",}}>

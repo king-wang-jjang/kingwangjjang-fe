@@ -6,7 +6,7 @@ interface props {
 }
 
 const Label = ({label, bgcolor}: props) =>{
-    const width = `${label.length * 14}px`; 
+    const width = `${label.length * 14}px`;
     return (
         <Box sx={{
             width: width,
@@ -16,7 +16,7 @@ const Label = ({label, bgcolor}: props) =>{
             '&:hover': {
               bgcolor: 'primary.dark',
             },
-            display: 'flex', 
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
