@@ -39,13 +39,13 @@ export type ConfigValue = {
 
 export const CONFIG: ConfigValue = {
   site: {
-    name: 'Minimals',
+    name: 'Top',
     serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
     assetURL: process.env.NEXT_PUBLIC_ASSET_URL ?? '',
     basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
     version: packageJson.version,
   },
-  isStaticExport: JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`),
+  isStaticExport: false, //JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`) ?? false,
   /**
    * Auth
    * @method jwt | amplify | firebase | supabase | auth0

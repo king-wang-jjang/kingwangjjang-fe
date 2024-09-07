@@ -92,7 +92,7 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
           </Box>
         </CardContent>
       </Card>
-      <Box sx={{position:"absolute", top:"0", borderRadius:"5px", left:"0", bgcolor:"#3b82f6",width: "100%", height:"100%", boxShadow:"none"}}>
+      <Box sx={{position:"absolute", top:"0", borderRadius:"20px", left:"0", bgcolor:"#3b82f6",width: "100%", height:"100%", boxShadow:"none"}}>
         <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{width:"50px", color:"white"}}/>
