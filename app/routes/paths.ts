@@ -1,6 +1,6 @@
 import { paramCase } from '@/app/utils/change-case';
 
-// import { _id, _postTitles } from 'src/_mock/assets';
+// import { _id, _postTitles } from '@/app/_mock/assets';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ export const paths = {
   post: {
     root: `/post`,
     details: (title: string) => `/post/${paramCase(title)}`,
-    demo: { details: `/post/${paramCase(MOCK_TITLE)}` },
+    // demo: { details: `/post/${paramCase(MOCK_TITLE)}` }, // HJ
   },
   // AUTH
   auth: {
@@ -148,8 +148,8 @@ export const paths = {
       details: (title: string) => `${ROOTS.DASHBOARD}/post/${paramCase(title)}`,
       edit: (title: string) => `${ROOTS.DASHBOARD}/post/${paramCase(title)}/edit`,
       demo: {
-        details: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}`,
-        edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
+        // details: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}`,
+        // edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
       },
     },
     order: {
