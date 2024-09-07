@@ -12,8 +12,7 @@ import {
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
-import Label from "@/app/components/UI/Label";
-import { theme } from "@/app/styles/theme";
+import Label from "@/app/components/ui/Label";
 import anime from 'animejs/lib/anime.es.js';
 
 interface Props extends PostCardType {
@@ -24,8 +23,8 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
   const [expanded, setExpanded] = useState(false);
   const cardRef = useRef(null); 
   const [isHovering, setIsHovering] = useState(false);
-  const pageTheme = useTheme();
-  const isMobile = useMediaQuery(pageTheme.breakpoints.down("sm"));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleMouseOver = () => {
     if(!isMobile){
@@ -64,8 +63,8 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
       <Card ref={cardRef} className={'mb-3'} sx={{ width: "100%", zIndex:"100", position:"relative" }} onClick={ () => handleToggle(id, site) }>
         <CardContent sx={{transform: 'none', display: "flex", flexDirection: "column" }}>
           <Box>
-            <Label label={site} bgcolor={theme.chip.site} />
-            {isNotRealtime && <Label label={rank} bgcolor={theme.chip.rank}/>}
+            <Label label={site} bgcolor={theme.palette.Chip.defaultAvatarColor} />
+            {isNotRealtime && <Label label={rank} bgcolor={theme.palette.Chip.defaultAvatarColor}/>}
           </Box>
           <Box sx={{display: "flex", justifyContent: "space-between", padding: "5px 0px", gap: "5px"}}>
             <Tooltip title={String(createTime)} arrow>
@@ -93,7 +92,7 @@ export const PostCard = ({ id, site, title, url, createTime, GPTAnswer, rank, on
           </Box>
         </CardContent>
       </Card>
-      <Box sx={{position:"absolute", top:"0", borderRadius:"5px", left:"0", bgcolor:"#3b82f6",width: "100%", height:"100%", boxShadow:"none"}}>
+      <Box sx={{position:"absolute", top:"0", borderRadius:"20px", left:"0", bgcolor:"#3b82f6",width: "100%", height:"100%", boxShadow:"none"}}>
         <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{width:"50px", color:"white"}}/>

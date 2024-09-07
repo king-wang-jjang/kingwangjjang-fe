@@ -1,4 +1,3 @@
-import { theme } from "@/app/styles/theme";
 import { Box, Typography } from "@mui/material";
 
 interface props {

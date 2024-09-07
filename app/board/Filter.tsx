@@ -1,7 +1,7 @@
 import { Chip, List, ListItem, Stack, Typography } from '@mui/material'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { FilterCollectionType } from '@/types/board-type'
-import { FilterChip } from '@/components/UI/FilterChip'
+import { FilterChip } from '@/app/components/ui/FilterChip'
 import {RealtimePaginationQuery } from "@/gql/graphql";
 interface props {
     filteredData: FilterCollectionType | undefined // 처음 List를 받아왔을 때 생성되는 FilterCollection 수정하면 안됨
