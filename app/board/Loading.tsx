@@ -1,7 +1,7 @@
-import { Grid, useMediaQuery } from "@mui/material";
-import { theme } from "@/styles/theme";
+import { Grid, useMediaQuery, useTheme } from "@mui/material";
 
 export const Loading = () => {
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   
   return (

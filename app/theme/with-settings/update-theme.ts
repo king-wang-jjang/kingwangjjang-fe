@@ -16,7 +16,7 @@ import { SettingsState } from '@/components/settings';
  * [1] settings @primaryColor
  * [2] settings @contrast
  */
-x
+
 export function updateCoreWithSettings(
   theme: ThemeUpdateOptions,
   settings: SettingsState
