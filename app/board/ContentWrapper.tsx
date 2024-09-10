@@ -1,6 +1,5 @@
 'use client'
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import { PostList } from "@/components/post/PostList"
 import { SummaryBoardDocument, RealtimePaginationQuery } from "@/gql/graphql";
 import { useMutation, useQuery } from "@apollo/client";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
@@ -12,6 +11,7 @@ import { Filter } from "./Filter";
 import { FilterCollectionType } from "@/types/board-type";
 import useInfiniteScrollablePostList from "../hooks/useInfiniteScrollablePostList";
 import { POSTITEMS } from "../_mock/board";
+import { PostList } from "../components/post/PostList";
 
 export const ContentWrapper = () => {
   const pageTheme = useTheme();
