@@ -1,17 +1,30 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
+    "baseUrl": ".",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "esnext",
+      "dom.iterable",
+    ],
     "strict": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "allowJs": true,
     "jsx": "preserve",
+    "module": "esnext",
     "incremental": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "plugins": [
       {
         "name": "next"
@@ -19,6 +32,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
+      "@/app/*": ["./app/*"],
       "@/assets/*": ["./public/*"],
       "@/apis/*": ["./app/apis/*"],
       "@/components/*": ["./app/components/*"],
