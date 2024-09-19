@@ -27,7 +27,7 @@ const nextConfig = {
       use: ['@svgr/webpack'],
     });
 
-    return config;
+  return config;
   },
   ...(isStaticExport === 'true' && {
     output: 'export',
