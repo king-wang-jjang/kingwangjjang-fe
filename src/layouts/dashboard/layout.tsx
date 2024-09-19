@@ -102,58 +102,58 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 This is an info Alert.
               </Alert>
             ),
-            bottomArea: isNavHorizontal ? (
-              <NavHorizontal
-                data={navData}
-                layoutQuery={layoutQuery}
-                cssVars={navColorVars.section}
-              />
-            ) : null,
-            leftArea: (
-              <>
-                {/* -- Nav mobile -- */}
-                <MenuButton
-                  onClick={mobileNavOpen.onTrue}
-                  sx={{
-                    mr: 1,
-                    ml: -1,
-                    [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
-                  }}
-                />
-                <NavMobile
-                  data={navData}
-                  open={mobileNavOpen.value}
-                  onClose={mobileNavOpen.onFalse}
-                  cssVars={navColorVars.section}
-                />
-                {/* -- Logo -- */}
-                {isNavHorizontal && (
-                  <Logo
-                    sx={{
-                      display: 'none',
-                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
-                    }}
-                  />
-                )}
-                {/* -- Divider -- */}
-                {isNavHorizontal && (
-                  <StyledDivider
-                    sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
-                  />
-                )}
-                {/* -- Workspace popover -- */}
-                <WorkspacesPopover
-                  data={_workspaces}
-                  sx={{ color: 'var(--layout-nav-text-primary-color)' }}
-                />
-              </>
-            ),
+            // bottomArea: isNavHorizontal ? (
+            //   <NavHorizontal
+            //     data={navData}
+            //     layoutQuery={layoutQuery}
+            //     cssVars={navColorVars.section}
+            //   />
+            // ) : null,
+            // leftArea: (
+            //   <>
+            //     {/* -- Nav mobile -- */}
+            //     <MenuButton
+            //       onClick={mobileNavOpen.onTrue}
+            //       sx={{
+            //         mr: 1,
+            //         ml: -1,
+            //         [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+            //       }}
+            //     />
+            //     <NavMobile
+            //       data={navData}
+            //       open={mobileNavOpen.value}
+            //       onClose={mobileNavOpen.onFalse}
+            //       cssVars={navColorVars.section}
+            //     />
+            //     {/* -- Logo -- */}
+            //     {isNavHorizontal && (
+            //       <Logo
+            //         sx={{
+            //           display: 'none',
+            //           [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+            //         }}
+            //       />
+            //     )}
+            //     {/* -- Divider -- */}
+            //     {isNavHorizontal && (
+            //       <StyledDivider
+            //         sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
+            //       />
+            //     )}
+            //     {/* -- Workspace popover -- */}
+            //     {/* <WorkspacesPopover
+            //       data={_workspaces}
+            //       sx={{ color: 'var(--layout-nav-text-primary-color)' }}
+            //     /> */}
+            //   </>
+            // ),
             rightArea: (
               <Box display="flex" alignItems="center" gap={{ xs: 0, sm: 0.75 }}>
                 {/* -- Searchbar -- */}
-                <Searchbar data={navData} />
+                {/* <Searchbar data={navData} /> */}
                 {/* -- Language popover -- */}
-                <LanguagePopover
+                {/* <LanguagePopover
                   data={[
                     { value: 'en', label: 'English', countryCode: 'GB' },
                     { value: 'fr', label: 'French', countryCode: 'FR' },
@@ -161,15 +161,15 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                     { value: 'cn', label: 'Chinese', countryCode: 'CN' },
                     { value: 'ar', label: 'Arabic', countryCode: 'SA' },
                   ]}
-                />
+                /> */}
                 {/* -- Notifications popover -- */}
-                <NotificationsDrawer data={_notifications} />
+                {/* <NotificationsDrawer data={_notifications} /> */}
                 {/* -- Contacts popover -- */}
-                <ContactsPopover data={_contacts} />
+                {/* <ContactsPopover data={_contacts} /> */}
                 {/* -- Settings button -- */}
-                <SettingsButton />
+                {/* <SettingsButton /> */}
                 {/* -- Account drawer -- */}
-                <AccountDrawer data={_account} />
+                {/* <AccountDrawer data={_account} /> */}
               </Box>
             ),
           }}
@@ -178,22 +178,22 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
       /** **************************************
        * Sidebar
        *************************************** */
-      sidebarSection={
-        isNavHorizontal ? null : (
-          <NavVertical
-            data={navData}
-            isNavMini={isNavMini}
-            layoutQuery={layoutQuery}
-            cssVars={navColorVars.section}
-            onToggleNav={() =>
-              settings.onUpdateField(
-                'navLayout',
-                settings.navLayout === 'vertical' ? 'mini' : 'vertical'
-              )
-            }
-          />
-        )
-      }
+      // sidebarSection={
+      //   isNavHorizontal ? null : (
+      //     <NavVertical
+      //       data={navData}
+      //       isNavMini={isNavMini}
+      //       layoutQuery={layoutQuery}
+      //       cssVars={navColorVars.section}
+      //       onToggleNav={() =>
+      //         settings.onUpdateField(
+      //           'navLayout',
+      //           settings.navLayout === 'vertical' ? 'mini' : 'vertical'
+      //         )
+      //       }
+      //     />
+      //   )
+      // }
       /** **************************************
        * Footer
        *************************************** */
