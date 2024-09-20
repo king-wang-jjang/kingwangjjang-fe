@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { RealtimePaginationQuery, SummaryBoardDocument } from 'src/__generated__/graphql';
 import { POSTITEMS } from 'src/_mock/_board';
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
+import { IFilterCollection } from 'src/types/board';
 
 export const useBoard = () => {
   const [postData, setPostData] =
@@ -10,7 +11,7 @@ export const useBoard = () => {
   const [filteredPostData, setFilteredPostData] = useState<
     RealtimePaginationQuery['realtimePagination'] | undefined
   >(POSTITEMS);
-  const [filterCollection, setFilterCollection] = useState<FilterCollectionType>();
+  const [filterCollection, setFilterCollection] = useState<IFilterCollection>();
 
   const {
     loadingRef,
