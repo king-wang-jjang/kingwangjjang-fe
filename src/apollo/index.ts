@@ -1,8 +1,8 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
-import { API_URL } from "../constants";
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { CONFIG } from 'src/config-global';
 
 const httpLink = createHttpLink({
-  uri: `${API_URL}/graphql`,
+  uri: `${CONFIG.serverUrl}/graphql`,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -12,5 +12,5 @@ const httpLink = createHttpLink({
 
 export const client = new ApolloClient({
   link: httpLink,
-  cache: new InMemoryCache,
+  cache: new InMemoryCache(),
 });

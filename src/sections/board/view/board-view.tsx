@@ -1,0 +1,76 @@
+'use client';
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Unstable_Grid2/Grid2';
+import { useMediaQuery, useTheme } from '@mui/material';
+
+import { varAlpha } from 'src/theme/styles';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { useBoard } from 'src/hooks/use-board';
+import { Filter } from '../filter';
+import { Loading } from '../loading';
+import { Error } from '../error';
+
+// ----------------------------------------------------------------------
+
+type Props = {
+  title?: string;
+};
+
+export function BoardView({ title = 'Blank' }: Props) {
+  const pageTheme = useTheme();
+  const isMobile = useMediaQuery(pageTheme.breakpoints.down('xs'));
+  const {
+    postData,
+    filteredPostData,
+    setFilteredPostData,
+    filterCollection,
+    loadingRef,
+    boardContentsQueryLoading,
+    boardContentsQueryError,
+    handleSummaryBoard,
+  } = useBoard();
+
+  if (isMobile) {
+    return (
+      <DashboardContent maxWidth="lg">
+        <Typography variant="h4"> {title} </Typography>
+        <PostList onClickCard={handleSummaryBoard} postItems={postData ?? []} />
+      </DashboardContent>
+    );
+  }
+
+  return (
+    <DashboardContent maxWidth="lg">
+      <Typography variant="h4"> {title} </Typography>
+
+      <Grid container spacing={2} margin={0} paddingY="0" position="relative">
+        <Grid xs={0} md={3} paddingY="0">
+          {/* 왼쪽 Side */}
+          <Box width="100%" bgcolor="white" position="sticky" top="73px">
+            <Filter
+              setFilteredPostData={setFilteredPostData}
+              postData={postData}
+              filteredData={filterCollection}
+            />
+          </Box>
+        </Grid>
+        <Grid xs={12} md={6}>
+          <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />
+          {boardContentsQueryLoading && <Loading />}
+          {boardContentsQueryError && (
+            <Error message={boardContentsQueryError.message} isMobile={isMobile} />
+          )}
+          <div ref={loadingRef} />
+        </Grid>
+        <Grid xs={0} md={3} paddingY="0">
+          {/* 오른쪽 Side */}
+          <Box width="100%" bgcolor="white" position="sticky" top="73px">
+            <RealtimePost />
+          </Box>
+        </Grid>
+      </Grid>
+    </DashboardContent>
+  );
+}
