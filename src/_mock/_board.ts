@@ -1,4 +1,4 @@
-import { RealtimePaginationQuery } from '@/gql/graphql';
+import { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 export const POSTITEMS: RealtimePaginationQuery['realtimePagination'] = [
   {

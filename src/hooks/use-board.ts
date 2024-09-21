@@ -1,9 +1,13 @@
+import type { IFilterCollection } from 'src/types/board';
+import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
+
 import { useState, useEffect } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
-import { RealtimePaginationQuery, SummaryBoardDocument } from 'src/__generated__/graphql';
+import { useMutation } from '@apollo/client';
+
 import { POSTITEMS } from 'src/_mock/_board';
+import { SummaryBoardDocument } from 'src/__generated__/graphql';
+
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
-import { IFilterCollection } from 'src/types/board';
 
 export const useBoard = () => {
   const [postData, setPostData] =
@@ -30,22 +34,25 @@ export const useBoard = () => {
   ] = useMutation(SummaryBoardDocument, { refetchQueries: ['BoardContentsByDate'] });
 
   const handleSummaryBoard = (boardId: string, site: string) => {
-    summaryBoardMutation({
-      variables: { boardId: boardId, site: site },
-      refetchQueries: ['BoardContentsByDate'],
-      async onQueryUpdated(observableQuery) {
-        await observableQuery.refetch();
-      },
-    });
+    console.log('handleSummaryBoard', boardId, site);
+    // summaryBoardMutation({
+    //   variables: { boardId: boardId, site: site },
+    //   refetchQueries: ['BoardContentsByDate'],
+    //   async onQueryUpdated(observableQuery) {
+    //     await observableQuery.refetch();
+    //   },
+    // });
   };
 
   useEffect(() => {
     const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value: any) => {
       if (value?.site === 'ygosu') {
         return { ...value, site: '와이고수' };
-      } else if (value?.site === 'dcinside') {
+      }
+      if (value?.site === 'dcinside') {
         return { ...value, site: '디시인사이드' };
-      } else if (value?.site === 'ppomppu') {
+      }
+      if (value?.site === 'ppomppu') {
         return { ...value, site: '뽐뿌' };
       }
       return value;

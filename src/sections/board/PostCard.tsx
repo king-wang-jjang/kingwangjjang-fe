@@ -61,10 +61,10 @@ export const PostCard = ({
     }
   }, [isHovering]);
 
-  const handleToggle = (boardId: string, site: string) => {
+  const handleToggle = (boardId: string, _site: string) => {
     setExpanded(!expanded);
     if (!expanded) {
-      onClickToggle(boardId, site);
+      onClickToggle(boardId, _site);
     }
   };
 
@@ -73,7 +73,6 @@ export const PostCard = ({
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
         ref={cardRef}
-        className={'mb-3'}
         sx={{ width: '100%', zIndex: '100', position: 'relative' }}
         onClick={() => handleToggle(id, site)}
       >
@@ -105,8 +104,6 @@ export const PostCard = ({
           </Box>
           <Box>
             <Collapse in={expanded} timeout="auto">
-              {' '}
-              {/*unmountOnExit*/}
               <Box
                 sx={{
                   display: 'flex',

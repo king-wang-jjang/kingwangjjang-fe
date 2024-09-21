@@ -1,5 +1,7 @@
 'use client';
+
 import { ApolloProvider } from '@apollo/client';
+
 import { client } from 'src/apollo';
 import { DashboardLayout } from 'src/layouts/dashboard';
 

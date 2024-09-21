@@ -2,14 +2,16 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Card, Grid, useMediaQuery, useTheme } from '@mui/material';
+import { Card, Grid, useTheme, useMediaQuery } from '@mui/material';
 
-import { varAlpha } from 'src/theme/styles';
-import { DashboardContent } from 'src/layouts/dashboard';
 import { useBoard } from 'src/hooks/use-board';
-import { Filter } from '../filter';
-import { Loading } from '../loading';
+
+// import { varAlpha } from 'src/theme/styles';
+import { DashboardContent } from 'src/layouts/dashboard';
+
 import { Error } from '../error';
+// import { Filter } from '../filter';
+import { Loading } from '../loading';
 import { PostList } from '../PostList';
 import { RealtimePost } from '../RealtimePost';
 
@@ -68,7 +70,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         <Grid xs={0} md={3} paddingY="0">
           {/* 오른쪽 Side */}
           <Card sx={{ width: '100%', position: 'sticky', top: '73px' }}>
-            {/* <RealtimePost /> */}
+            <RealtimePost />
           </Card>
         </Grid>
       </Grid>
