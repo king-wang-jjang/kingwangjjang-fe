@@ -2,7 +2,7 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Grid, useMediaQuery, useTheme } from '@mui/material';
+import { Card, Grid, useMediaQuery, useTheme } from '@mui/material';
 
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -67,9 +67,9 @@ export function BoardView({ title = 'Blank' }: Props) {
         </Grid>
         <Grid xs={0} md={3} paddingY="0">
           {/* 오른쪽 Side */}
-          <Box width="100%" bgcolor="white" position="sticky" top="73px">
-            <RealtimePost />
-          </Box>
+          <Card sx={{ width: '100%', position: 'sticky', top: '73px' }}>
+            {/* <RealtimePost /> */}
+          </Card>
         </Grid>
       </Grid>
     </DashboardContent>
