@@ -1,6 +1,5 @@
 'use client';
 
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Card, Grid, useTheme, useMediaQuery } from '@mui/material';
 
@@ -9,6 +8,7 @@ import { useBoard } from 'src/hooks/use-board';
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Filter } from '../filter';
 // import { Filter } from '../filter';
 import { Loading } from '../loading';
 import { PostList } from '../PostList';
@@ -50,13 +50,13 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          <Box width="100%" bgcolor="white" position="sticky" top="73px">
-            {/* <Filter
+          <Card>
+            <Filter
               setFilteredPostData={setFilteredPostData}
               postData={postData}
               filteredData={filterCollection}
-            /> */}
-          </Box>
+            />
+          </Card>
         </Grid>
         <Grid item xs={12} md={6}>
           <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />

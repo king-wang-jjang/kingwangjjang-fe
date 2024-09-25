@@ -1,4 +1,5 @@
-import { RealtimePaginationQuery } from 'src/__generated__/graphql';
+import type { IFilterCollection } from 'src/types/board';
+import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 export const POSTITEMS: RealtimePaginationQuery['realtimePagination'] = [
   {
@@ -54,3 +55,8 @@ export const POSTITEMS: RealtimePaginationQuery['realtimePagination'] = [
     GPTAnswer: 'Node.js streams allow handling of streaming data in a more efficient way.',
   },
 ];
+
+// 목업 데이터 생성
+export const SITE_FILTER: IFilterCollection = {
+  site: ['Site A', 'Site B'],
+};
