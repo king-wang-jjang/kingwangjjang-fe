@@ -6,7 +6,7 @@ WORKDIR /usr/app
 # Install dependencies based on the preferred package manager
 COPY ./ ./
 
-RUN yarn install 
+RUN yarn install
 RUN yarn build
 
 EXPOSE 8083
