@@ -9,7 +9,6 @@ import { useBoard } from 'src/hooks/use-board';
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Error } from '../error';
 // import { Filter } from '../filter';
 import { Loading } from '../loading';
 import { PostList } from '../PostList';
@@ -62,9 +61,9 @@ export function BoardView({ title = 'Blank' }: Props) {
         <Grid xs={12} md={6}>
           <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />
           {boardContentsQueryLoading && <Loading />}
-          {boardContentsQueryError && (
+          {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
-          )}
+          )} */}
           <div ref={loadingRef} />
         </Grid>
         <Grid xs={0} md={3} paddingY="0">

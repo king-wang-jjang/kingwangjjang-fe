@@ -1,21 +1,26 @@
+import type { IPostCard } from 'src/types/board';
+
+import Link from 'next/link';
+import { useRef, useState, useEffect } from 'react';
+
+import LaunchIcon from '@mui/icons-material/Launch';
 import {
   Box,
   Card,
-  CardContent,
-  Collapse,
   Tooltip,
-  Typography,
-  useMediaQuery,
+  Collapse,
   useTheme,
+  Typography,
+  CardContent,
+  useMediaQuery,
 } from '@mui/material';
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+
 import { Label } from 'src/components/label';
-import { IPostCard } from 'src/types/board';
-import LaunchIcon from '@mui/icons-material/Launch';
 // import Label from '@/app/components/ui/Label';
 // import anime from 'animejs/lib/anime.es.js';
 import anime from 'animejs/lib/anime.es.js';
+
+import StarIcon from '@mui/icons-material/Star';
 
 interface Props extends IPostCard {
   onClickToggle: (boardId: string, site: string) => void;
@@ -68,7 +73,7 @@ export const PostCard = ({
     }
   };
 
-  const isNotRealtime: boolean = rank !== null;
+  const isRank: boolean = rank !== null;
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
@@ -77,12 +82,15 @@ export const PostCard = ({
         onClick={() => handleToggle(id, site)}
       >
         <CardContent sx={{ transform: 'none', display: 'flex', flexDirection: 'column' }}>
-          {/* <Box>
-            <Label label={site} bgcolor={theme.palette.Chip.defaultAvatarColor} />
-            {isNotRealtime && (
-              <Label label={rank} bgcolor={theme.palette.Chip.defaultAvatarColor} />
+          {/*  'filled' | 'outlined' | 'soft' | 'inverted'; */}
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            <Label color="primary">{site}</Label>
+            {isRank && (
+              <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
+                {rank}
+              </Label>
             )}
-          </Box> */}
+          </Box>
           <Box
             sx={{
               display: 'flex',
