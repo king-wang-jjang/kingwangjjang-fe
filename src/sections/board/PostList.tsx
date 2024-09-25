@@ -1,4 +1,7 @@
-import { RealtimePaginationQuery } from 'src/__generated__/graphql';
+import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
+
+import { Stack } from '@mui/material';
+
 import { PostCard } from './PostCard';
 
 interface Props {
@@ -7,7 +10,7 @@ interface Props {
 }
 
 export const PostList = ({ postItems, onClickCard }: Props) => (
-  <>
+  <Stack spacing={0.8}>
     {postItems &&
       postItems.map(
         (post, index) =>
@@ -25,5 +28,5 @@ export const PostList = ({ postItems, onClickCard }: Props) => (
             />
           )
       )}
-  </>
+  </Stack>
 );

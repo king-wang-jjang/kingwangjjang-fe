@@ -47,8 +47,8 @@ export function BoardView({ title = 'Blank' }: Props) {
     <DashboardContent maxWidth="lg">
       <Typography variant="h4"> {title} </Typography>
 
-      <Grid container spacing={2} margin={0} paddingY="0" position="relative">
-        <Grid xs={0} md={3} paddingY="0">
+      <Grid container spacing={2} position="relative">
+        <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
           <Box width="100%" bgcolor="white" position="sticky" top="73px">
             {/* <Filter
@@ -58,7 +58,7 @@ export function BoardView({ title = 'Blank' }: Props) {
             /> */}
           </Box>
         </Grid>
-        <Grid xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />
           {boardContentsQueryLoading && <Loading />}
           {/* {boardContentsQueryError && (
@@ -66,9 +66,9 @@ export function BoardView({ title = 'Blank' }: Props) {
           )} */}
           <div ref={loadingRef} />
         </Grid>
-        <Grid xs={0} md={3} paddingY="0">
+        <Grid item xs={0} md={3}>
           {/* 오른쪽 Side */}
-          <Card sx={{ width: '100%', position: 'sticky', top: '73px' }}>
+          <Card sx={{ position: 'sticky' }}>
             <RealtimePost />
           </Card>
         </Grid>
