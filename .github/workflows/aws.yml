@@ -19,8 +19,8 @@ jobs:
 
     - name: Install dependencies and build
       run: |
-        npm install
-        npm run build
+        yarn install
+        yarn build
 
     - name: Build Docker image
       run: |

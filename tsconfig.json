@@ -1,35 +1,44 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
+    "baseUrl": ".",
+    "target": "es5",
+    "lib": ["dom", "esnext", "dom.iterable"],
     "strict": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "allowJs": true,
     "jsx": "preserve",
+    "module": "esnext",
     "incremental": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./*"],
-      "@/assets/*": ["./public/*"],
-      "@/apis/*": ["./app/apis/*"],
-      "@/components/*": ["./app/components/*"],
-      "@/hooks/*": ["./app/hooks/*"],
-      "@/pages/*": ["./app/pages/*"],
-      "@/styles/*": ["./app/styles/*"],
-      "@/stores/*": ["./app/stores/*"],
-      "@/types/*": ["./app/types/*"],
-      "@/utils/*": ["./app/utils/*"],
-      "@/gql/*": ["./app/__generated__/*"],
-    }
+    ]
+  },
+  "paths": {
+    "@/*": ["./*"],
+    "@/assets/*": ["./public/*"],
+    "@/apis/*": ["./src/apis/*"],
+    "@/components/*": ["./src/components/*"],
+    "@/hooks/*": ["./src/hooks/*"],
+    "@/pages/*": ["./src/pages/*"],
+    "@/styles/*": ["./src/styles/*"],
+    "@/stores/*": ["./src/stores/*"],
+    "@/types/*": ["./src/types/*"],
+    "@/utils/*": ["./src/utils/*"],
+    "@/gql/*": ["./src/__generated__/*"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
