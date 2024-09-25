@@ -12,7 +12,7 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    // router.push(CONFIG.auth.redirectPath);
+    router.push(CONFIG.auth.redirectPath);
   }, [router]);
 
   return null;
