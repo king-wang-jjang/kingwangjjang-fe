@@ -1,4 +1,3 @@
-import type { IFilterCollection } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useState, useEffect } from 'react';
@@ -15,7 +14,7 @@ export const useBoard = () => {
   const [filteredPostData, setFilteredPostData] = useState<
     RealtimePaginationQuery['realtimePagination'] | undefined
   >(POSTITEMS);
-  const [filterCollection, setFilterCollection] = useState<IFilterCollection>();
+  const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
   const {
     loadingRef,
@@ -73,7 +72,7 @@ export const useBoard = () => {
     );
 
     if (uniqueSite !== undefined) {
-      setFilterCollection({ site: uniqueSite });
+      setFilterCollection(uniqueSite);
     }
   }, [boardContentsData]);
 

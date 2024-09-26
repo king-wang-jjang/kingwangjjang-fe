@@ -1,5 +1,5 @@
+import type { IBoardFilters } from 'src/types/board';
 import type { Dispatch, SetStateAction } from 'react';
-import type { IFilterCollection } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +9,7 @@ import { List, Stack, ListItem, Typography } from '@mui/material';
 import { Label } from 'src/components/label';
 
 interface props {
-  filteredData: IFilterCollection | undefined; // 처음 List를 받아왔을 때 생성되는 FilterCollection 수정하면 안됨
+  filteredData: IBoardFilters | undefined; // 처음 List를 받아왔을 때 생성되는 FilterCollection 수정하면 안됨
   postData: RealtimePaginationQuery['realtimePagination'] | undefined;
   setFilteredPostData: Dispatch<
     SetStateAction<RealtimePaginationQuery['realtimePagination'] | undefined>
@@ -46,7 +46,12 @@ export const Filter = ({ filteredData, setFilteredPostData, postData }: props) =
         </Typography>
       </ListItem>
       <Stack direction="row" spacing={1} useFlexGap paddingX="8px">
-        {filteredData && filteredData.site.map((site, index) => <Label key={index}>{site}</Label>)}
+        {filteredData &&
+          filteredData.site.map((site, index) => (
+            <Label onClick={(event) => handleFilter(site)} key={index}>
+              {site}
+            </Label>
+          ))}
       </Stack>
     </List>
   );
