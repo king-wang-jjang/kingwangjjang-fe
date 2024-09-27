@@ -66,7 +66,7 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
     </>
   );
 
-  const renderEmploymentTypes = (
+  const renderSite = (
     <Box display="flex" flexDirection="column">
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Site
@@ -111,7 +111,7 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
         {renderHead}
 
         <Scrollbar sx={{ px: 2.5, py: 3 }}>
-          <Stack spacing={3}>{renderEmploymentTypes}</Stack>
+          <Stack spacing={3}>{renderSite}</Stack>
         </Scrollbar>
       </Drawer>
     </>

@@ -17,6 +17,7 @@ import { Loading } from '../loading';
 import { PostList } from '../PostList';
 import { RealtimePost } from '../RealtimePost';
 import { BoardFilters } from '../board-filters';
+import { BoardFiltersResult } from '../board-filters-result';
 
 // ----------------------------------------------------------------------
 
@@ -44,6 +45,9 @@ export function BoardView({ title = 'Blank' }: Props) {
   });
 
   const canReset = filters.state.site.length > 0;
+  const renderResults = (
+    <BoardFiltersResult filters={filters} totalResults={filterCollection.length} />
+  );
 
   if (isMobile) {
     return (
@@ -94,6 +98,7 @@ export function BoardView({ title = 'Blank' }: Props) {
             /> */}
           </Card>
           {renderFilters}
+          {canReset && renderResults}
         </Grid>
         <Grid item xs={12} md={6}>
           <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />
@@ -105,7 +110,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         </Grid>
         <Grid item xs={0} md={3}>
           {/* 오른쪽 Side */}
-          <Card sx={{ position: 'sticky' }}>
+          <Card sx={{ position: 'sticky', top: 0 }}>
             <RealtimePost />
           </Card>
         </Grid>
