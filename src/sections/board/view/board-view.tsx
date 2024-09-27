@@ -1,6 +1,7 @@
 'use client';
 
 import type { IBoardFilters } from 'src/types/board';
+import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import Typography from '@mui/material/Typography';
 import { Card, Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
@@ -31,8 +32,8 @@ export function BoardView({ title = 'Blank' }: Props) {
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('xs'));
   const {
     postData,
-    filteredPostData,
-    setFilteredPostData,
+    // postDataFiltered,
+    // setPostDatafiltered,
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
@@ -43,11 +44,11 @@ export function BoardView({ title = 'Blank' }: Props) {
   const filters = useSetState<IBoardFilters>({
     site: [],
   });
+  // const dataFiltered = applyFilter({ inputData: postData, filters: filters.state, sortBy });
+  const dataFiltered = applyFilter({ inputData: postData, filters: filters.state });
 
   const canReset = filters.state.site.length > 0;
-  const renderResults = (
-    <BoardFiltersResult filters={filters} totalResults={filterCollection.length} />
-  );
+  const renderResults = <BoardFiltersResult filters={filters} totalResults={3} />;
 
   if (isMobile) {
     return (
@@ -85,14 +86,12 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   return (
     <DashboardContent maxWidth="lg">
-      <Typography variant="h4"> {title} </Typography>
-
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
           <Card>
             {/* <Filter
-              setFilteredPostData={setFilteredPostData}
+              setPostDatafiltered={setPostDatafiltered}
               postData={postData}
               filteredData={filterCollection}
             /> */}
@@ -101,7 +100,7 @@ export function BoardView({ title = 'Blank' }: Props) {
           {canReset && renderResults}
         </Grid>
         <Grid item xs={12} md={6}>
-          <PostList onClickCard={handleSummaryBoard} postItems={filteredPostData ?? []} />
+          <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
           {boardContentsQueryLoading && <Loading />}
           {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
@@ -118,3 +117,36 @@ export function BoardView({ title = 'Blank' }: Props) {
     </DashboardContent>
   );
 }
+
+// ----------------------------------------------------------------------
+
+type ApplyFilterProps = {
+  inputData: RealtimePaginationQuery['realtimePagination'];
+  filters: IBoardFilters;
+  // sortBy: string;
+};
+
+// const applyFilter = ({ inputData, filters, sortBy }: ApplyFilterProps) => {
+const applyFilter = ({ inputData, filters }: ApplyFilterProps) => {
+  const { site } = filters;
+
+  // // Sort by
+  // if (sortBy === 'latest') {
+  //   inputData = orderBy(inputData, ['createdAt'], ['desc']);
+  // }
+
+  // if (sortBy === 'oldest') {
+  //   inputData = orderBy(inputData, ['createdAt'], ['asc']);
+  // }
+
+  // if (sortBy === 'popular') {
+  //   inputData = orderBy(inputData, ['totalViews'], ['desc']);
+  // }
+
+  // Filters
+  if (site.length) {
+    inputData = inputData.filter((board) => site.includes(board.site));
+  }
+
+  return inputData;
+};
