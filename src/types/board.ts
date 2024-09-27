@@ -8,6 +8,6 @@ export interface IPostCard {
   GPTAnswer: string;
 }
 
-export interface IFilterCollection {
+export interface IBoardFilters {
   site: string[];
 }

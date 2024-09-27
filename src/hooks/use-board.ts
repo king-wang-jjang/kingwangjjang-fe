@@ -1,4 +1,3 @@
-import type { IFilterCollection } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useState, useEffect } from 'react';
@@ -12,10 +11,9 @@ import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 export const useBoard = () => {
   const [postData, setPostData] =
     useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
-  const [filteredPostData, setFilteredPostData] = useState<
-    RealtimePaginationQuery['realtimePagination'] | undefined
-  >(POSTITEMS);
-  const [filterCollection, setFilterCollection] = useState<IFilterCollection>();
+  const [postDataFiltered, setPostDatafiltered] =
+    useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
+  const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
   const {
     loadingRef,
@@ -59,7 +57,7 @@ export const useBoard = () => {
     });
 
     setPostData(modifiedData);
-    setFilteredPostData(modifiedData);
+    // setPostDatafiltered(modifiedData);
 
     const uniqueSite = Array.from(
       new Set(
@@ -73,14 +71,14 @@ export const useBoard = () => {
     );
 
     if (uniqueSite !== undefined) {
-      setFilterCollection({ site: uniqueSite });
+      setFilterCollection(uniqueSite);
     }
   }, [boardContentsData]);
 
   return {
     postData,
-    filteredPostData,
-    setFilteredPostData,
+    postDataFiltered,
+    setPostDatafiltered,
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
