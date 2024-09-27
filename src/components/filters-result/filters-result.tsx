@@ -26,9 +26,9 @@ export function FiltersResult({ totalResults, onReset, sx, children }: FiltersRe
       <Box sx={{ mb: 1.5, typography: 'body2' }}>
         <strong>{totalResults}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          results found
+          개
         </Box>
-      </Box>
+    </Box>
 
       <Box flexGrow={1} gap={1} display="flex" flexWrap="wrap" alignItems="center">
         {children}
@@ -38,7 +38,7 @@ export function FiltersResult({ totalResults, onReset, sx, children }: FiltersRe
           onClick={onReset}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Clear
+          삭제
         </Button>
       </Box>
     </Box>

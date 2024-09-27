@@ -48,7 +48,7 @@ export function BoardView({ title = 'Blank' }: Props) {
   const dataFiltered = applyFilter({ inputData: postData, filters: filters.state });
 
   const canReset = filters.state.site.length > 0;
-  const renderResults = <BoardFiltersResult filters={filters} totalResults={3} />;
+  const renderResults = <BoardFiltersResult filters={filters} totalResults={dataFiltered.length} />;
 
   if (isMobile) {
     return (
