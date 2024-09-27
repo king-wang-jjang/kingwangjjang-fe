@@ -7,7 +7,7 @@ export const RealtimePost = () => (
     <List>
       <ListItem>
         <Typography variant="body1" component="div">
-          실시간 게시글
+          인기게시글
         </Typography>
       </ListItem>
     </List>
