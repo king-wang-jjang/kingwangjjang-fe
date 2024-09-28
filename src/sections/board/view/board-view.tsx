@@ -13,6 +13,8 @@ import { useSetState } from 'src/hooks/use-set-state';
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import SocialLoginButtons from 'src/auth/components/form-oauth';
+
 // import { Filter } from '../filter';
 import { Loading } from '../loading';
 import { PostList } from '../PostList';
@@ -89,7 +91,13 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          
+          {/* <Filter
+              setPostDatafiltered={setPostDatafiltered}
+              postData={postData}
+              filteredData={filterCollection}
+            /> */}
+          {renderFilters}
+          {canReset && renderResults}
           <Card
             sx={{
               width: '100%',
@@ -99,14 +107,6 @@ export function BoardView({ title = 'Blank' }: Props) {
               padding: '15px 0',
             }}
           >
-            {/* <Filter
-              setPostDatafiltered={setPostDatafiltered}
-              postData={postData}
-              filteredData={filterCollection}
-            /> */}
-          </Card>
-          {renderFilters}
-          {canReset && renderResults}
             <SocialLoginButtons />
           </Card>
         </Grid>

@@ -17,16 +17,18 @@ const SocialLoginButtons: React.FC = () => {
   return (
     <Stack direction="column" spacing={0.8}>
       <Button
-        variant="contained"
         size="large"
         startIcon={<GoogleIcon />}
         onClick={handleGoogleLogin}
-        sx={{ backgroundColor: '#4285F4', color: '#fff', width: '200px' }}
+        sx={{
+          backgroundColor: '#4285F4',
+          color: '#fff',
+          width: '200px',
+        }}
       >
         Google 로그인
       </Button>
       <Button
-        variant="contained"
         size="large"
         startIcon={
           <img
@@ -35,7 +37,11 @@ const SocialLoginButtons: React.FC = () => {
           />
         }
         onClick={handleKakaoLogin}
-        sx={{ backgroundColor: '#FEE500', color: '#3C1E1E', width: '200px' }}
+        sx={{
+          backgroundColor: '#FEE500',
+          color: '#3C1E1E',
+          width: '200px',
+        }}
       >
         Kakao 로그인
       </Button>

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const PostList = ({ postItems, onClickCard }: Props) => (
-  <Stack spacing={0.8}>
+  <Stack spacing={2.8}>
     {postItems &&
       postItems.map(
         (post, index) =>
