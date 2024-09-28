@@ -13,11 +13,13 @@ import { useSetState } from 'src/hooks/use-set-state';
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import SocialLoginButtons from 'src/auth/components/form-oauth';
+
 // import { Filter } from '../filter';
-import { Loading } from '../loading';
-import { PostList } from '../PostList';
-import { RealtimePost } from '../RealtimePost';
+import { Loading } from '../board-loading';
+import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
+import { RealtimePost } from '../board-realtime-post';
 import { BoardFiltersResult } from '../board-filters-result';
 
 // ----------------------------------------------------------------------
@@ -32,8 +34,6 @@ export function BoardView({ title = 'Blank' }: Props) {
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('xs'));
   const {
     postData,
-    // postDataFiltered,
-    // setPostDatafiltered,
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
@@ -89,17 +89,23 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          <Card>
-            {/* <Filter
-              setPostDatafiltered={setPostDatafiltered}
-              postData={postData}
-              filteredData={filterCollection}
-            /> */}
+          <Card
+            sx={{
+              width: '100%',
+              position: 'relative',
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '15px 0',
+            }}
+          >
+            <SocialLoginButtons />
           </Card>
-          {renderFilters}
-          {canReset && renderResults}
         </Grid>
         <Grid item xs={12} md={6}>
+          <Card sx={{ position: 'sticky', top: '64px', zIndex: 1000, padding: 2 }}>
+            {renderFilters}
+            {canReset && renderResults}
+          </Card>
           <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
           {boardContentsQueryLoading && <Loading />}
           {/* {boardContentsQueryError && (
@@ -109,7 +115,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         </Grid>
         <Grid item xs={0} md={3}>
           {/* 오른쪽 Side */}
-          <Card sx={{ position: 'sticky', top: 0 }}>
+          <Card sx={{ position: 'sticky', top: '64px' }}>
             <RealtimePost />
           </Card>
         </Grid>

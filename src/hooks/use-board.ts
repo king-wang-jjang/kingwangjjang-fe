@@ -11,8 +11,6 @@ import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 export const useBoard = () => {
   const [postData, setPostData] =
     useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
-  const [postDataFiltered, setPostDatafiltered] =
-    useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
   const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
   const {
@@ -57,7 +55,6 @@ export const useBoard = () => {
     });
 
     setPostData(modifiedData);
-    // setPostDatafiltered(modifiedData);
 
     const uniqueSite = Array.from(
       new Set(
@@ -77,8 +74,6 @@ export const useBoard = () => {
 
   return {
     postData,
-    postDataFiltered,
-    setPostDatafiltered,
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
