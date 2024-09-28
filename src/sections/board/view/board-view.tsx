@@ -89,8 +89,6 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          {renderFilters}
-          {canReset && renderResults}
           <Card
             sx={{
               width: '100%',
@@ -104,6 +102,10 @@ export function BoardView({ title = 'Blank' }: Props) {
           </Card>
         </Grid>
         <Grid item xs={12} md={6}>
+          <Card sx={{ position: 'sticky', top: 0, zIndex: 1000, padding: 2 }}>
+            {renderFilters}
+            {canReset && renderResults}
+          </Card>
           <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
           {boardContentsQueryLoading && <Loading />}
           {/* {boardContentsQueryError && (
