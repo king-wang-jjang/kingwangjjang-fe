@@ -102,7 +102,7 @@ export function BoardView({ title = 'Blank' }: Props) {
           </Card>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Card sx={{ position: 'sticky', top: 0, zIndex: 1000, padding: 2 }}>
+          <Card sx={{ position: 'sticky', top: '64px', zIndex: 1000, padding: 2 }}>
             {renderFilters}
             {canReset && renderResults}
           </Card>
@@ -115,7 +115,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         </Grid>
         <Grid item xs={0} md={3}>
           {/* 오른쪽 Side */}
-          <Card sx={{ position: 'sticky', top: 0 }}>
+          <Card sx={{ position: 'sticky', top: '64px' }}>
             <RealtimePost />
           </Card>
         </Grid>
