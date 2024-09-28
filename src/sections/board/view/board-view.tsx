@@ -34,8 +34,6 @@ export function BoardView({ title = 'Blank' }: Props) {
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('xs'));
   const {
     postData,
-    // postDataFiltered,
-    // setPostDatafiltered,
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
@@ -91,11 +89,6 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          {/* <Filter
-              setPostDatafiltered={setPostDatafiltered}
-              postData={postData}
-              filteredData={filterCollection}
-            /> */}
           {renderFilters}
           {canReset && renderResults}
           <Card
