@@ -2,7 +2,7 @@ import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { Stack } from '@mui/material';
 
-import { PostCard } from './PostCard';
+import { PostCard } from './board-post-card';
 
 interface Props {
   postItems: RealtimePaginationQuery['realtimePagination'];

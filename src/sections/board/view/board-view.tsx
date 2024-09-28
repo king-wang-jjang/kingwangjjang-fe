@@ -16,10 +16,10 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 // import { Filter } from '../filter';
-import { Loading } from '../loading';
-import { PostList } from '../PostList';
-import { RealtimePost } from '../RealtimePost';
+import { Loading } from '../board-loading';
+import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
+import { RealtimePost } from '../board-realtime-post';
 import { BoardFiltersResult } from '../board-filters-result';
 
 // ----------------------------------------------------------------------
