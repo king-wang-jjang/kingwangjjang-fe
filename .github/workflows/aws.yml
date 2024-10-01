@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check Docker username
+        run: echo ${{ secrets.DOCKERHUB_USERNAME }}
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
