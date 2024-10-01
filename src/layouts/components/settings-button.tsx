@@ -51,9 +51,11 @@ export function SettingsButton({ sx, ...other }: SettingsButtonProps) {
 }
 
 export const DarkModeButton = () => {
+  const settings = useSettingsContext();
   const { mode, setMode } = useColorScheme();
 
   const handleColorScheme = () => {
+    settings.onUpdateField('colorScheme', mode === 'light' ? 'dark' : 'light');
     setMode(mode === 'light' ? 'dark' : 'light');
   };
 
