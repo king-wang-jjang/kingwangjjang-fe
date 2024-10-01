@@ -35,8 +35,8 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
 
   deploy:
     needs: build
