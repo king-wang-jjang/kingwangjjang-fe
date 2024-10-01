@@ -29,9 +29,9 @@ jobs:
         run: |
           docker build -t kingwangjjang-fe:0.0.1 .
 
-      # - name: Tag Docker image for Docker Hub
-      #   run: |
-      #     docker tag kingwangjjang-fe:0.0.1 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
+      - name: Tag Docker image for Docker Hub
+        run: |
+          docker tag kingwangjjang-fe:0.0.1 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
 
       - name: Push Docker image to Docker Hub
         run: |
