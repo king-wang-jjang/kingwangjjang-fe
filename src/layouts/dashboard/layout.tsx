@@ -10,30 +10,15 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { _contacts, _notifications } from 'src/_mock';
-
-import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
 import { Main } from './main';
-import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
-import { NavVertical } from './nav-vertical';
-import { NavHorizontal } from './nav-horizontal';
-import { _account } from '../config-nav-account';
-import { Searchbar } from '../components/searchbar';
-import { _workspaces } from '../config-nav-workspace';
-import { MenuButton } from '../components/menu-button';
+import { useNavColorVars } from './styles';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { StyledDivider, useNavColorVars } from './styles';
-import { AccountDrawer } from '../components/account-drawer';
-import { SettingsButton } from '../components/settings-button';
-import { LanguagePopover } from '../components/language-popover';
-import { ContactsPopover } from '../components/contacts-popover';
-import { WorkspacesPopover } from '../components/workspaces-popover';
+import { DarkModeButton } from '../components/settings-button';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
-import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
 
@@ -168,6 +153,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* <ContactsPopover data={_contacts} /> */}
                 {/* -- Settings button -- */}
                 {/* <SettingsButton /> */}
+                <DarkModeButton />
                 {/* -- Account drawer -- */}
                 {/* <AccountDrawer data={_account} /> */}
               </Box>
