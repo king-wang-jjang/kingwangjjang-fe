@@ -6,7 +6,9 @@ import { m } from 'framer-motion';
 
 import Badge from '@mui/material/Badge';
 import SvgIcon from '@mui/material/SvgIcon';
+import { useColorScheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 import { useSettingsContext } from 'src/components/settings/context';
 
@@ -47,3 +49,17 @@ export function SettingsButton({ sx, ...other }: SettingsButtonProps) {
     </IconButton>
   );
 }
+
+export const DarkModeButton = () => {
+  const { mode, setMode } = useColorScheme();
+
+  const handleColorScheme = () => {
+    setMode(mode === 'light' ? 'dark' : 'light');
+  };
+
+  return (
+    <IconButton onClick={handleColorScheme}>
+      <DarkModeIcon />
+    </IconButton>
+  );
+};
