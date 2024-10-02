@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Check Docker username
-        run: echo hwanju1596
+        run: echo ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -31,12 +31,12 @@ jobs:
 
       - name: Tag Docker image for Docker Hub
         run: |
-          docker tag kingwangjjang-fe:0.0.1 hwanju1596/kingwangjjang-fe:0.0.1
+          docker tag kingwangjjang-fe:0.0.1 "${{ secrets.DOCKERHUB_USERNAME }}"/kingwangjjang-fe:0.0.1
 
       - name: Push Docker image to Docker Hub
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "hwanju1596" --password-stdin
-          docker push "hwanju1596/kingwangjjang-fe:0.0.1"
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
 
   deploy:
     needs: build
@@ -54,5 +54,5 @@ jobs:
           script: |
             sudo docker version
             sudo docker rm -f kingwangjjang-fe || true
-            sudo docker pull hwanju1596/kingwangjjang-fe:0.0.1
-            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 hwanju1596/kingwangjjang-fe:0.0.1
+            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}"/kingwangjjang-fe:0.0.1
+            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 "${{ secrets.DOCKERHUB_USERNAME }}"/kingwangjjang-fe:0.0.1
