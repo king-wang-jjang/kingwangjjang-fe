@@ -24,17 +24,27 @@ jobs:
         run: |
           docker build -t kingwangjjang-fe:0.0.1 .
 
+  tag:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Tag Docker image for Docker Hub
         run: |
           docker tag kingwangjjang-fe:0.0.1 "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
 
+  push:
+    needs: tag
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Push Docker image to Docker Hub
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
 
   deploy:
-    needs: build
+    needs: push
     name: Deploy
     runs-on: ubuntu-latest
 
