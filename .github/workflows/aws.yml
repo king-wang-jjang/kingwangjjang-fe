@@ -55,4 +55,4 @@ jobs:
             sudo docker version
             sudo docker rm -f kingwangjjang-fe || true
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-            sudo docker run -d --name kingwangjjang-fe -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
+            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
