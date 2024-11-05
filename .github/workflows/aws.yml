@@ -9,9 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Docker username
-        run: echo ${{ secrets.DOCKERHUB_USERNAME }}
-
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -24,17 +21,8 @@ jobs:
         run: |
           docker build -t kingwangjjang-fe:0.0.1 .
 
-  tag:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Tag Docker image for Docker Hub
-        run: |
-          docker tag kingwangjjang-fe:0.0.1 "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
-
   push:
-    needs: tag
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
