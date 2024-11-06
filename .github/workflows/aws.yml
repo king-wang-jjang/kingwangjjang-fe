@@ -2,54 +2,41 @@ name: AWS CI/CD
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
 
-    - name: Install dependencies and build
-      run: |
-        yarn install
-        yarn build
-
-    - name: Build Docker image
-      run: |
-        docker build -t kingwangjjang-fe:0.0.1 .
-    
-    - name: Tag Docker image for Docker Hub
-      run: |
-        docker tag kingwangjjang-fe:0.0.1 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-
-    - name: Push Docker image to Docker Hub
-      run: |
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-
+      - name: Build Docker image
+        run: |
+          docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1" .
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
   deploy:
     needs: build
     name: Deploy
     runs-on: ubuntu-latest
 
     steps:
-    - name: Connect to WAS & Execute Application
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.WAS_HOST }}
-        username: ${{ secrets.WAS_USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.WAS_SSH_PORT }}
-        script: |
-          sudo docker version
-          sudo docker rm -f kingwangjjang-fe || true
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
-          sudo docker run -d --name kingwangjjang-fe -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
+      - name: Connect to WAS & Execute Application
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            sudo docker version
+            sudo docker rm -f kingwangjjang-fe || true
+            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
+            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
