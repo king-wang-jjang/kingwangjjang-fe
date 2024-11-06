@@ -58,8 +58,8 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  // const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
-  const checkAuthenticated = true ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  // const checkAuthenticated = true ? 'authenticated' : 'unauthenticated';
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
