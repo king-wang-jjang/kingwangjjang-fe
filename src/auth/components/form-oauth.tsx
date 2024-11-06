@@ -24,6 +24,7 @@ const SocialLoginButtons: React.FC = () => {
           backgroundColor: '#4285F4',
           color: '#fff',
           width: '200px',
+          height: '35px'
         }}
       >
         Google 로그인
@@ -41,6 +42,7 @@ const SocialLoginButtons: React.FC = () => {
           backgroundColor: '#FEE500',
           color: '#3C1E1E',
           width: '200px',
+          height: '35px'
         }}
       >
         Kakao 로그인
