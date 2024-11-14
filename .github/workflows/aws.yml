@@ -33,9 +33,8 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
           platforms: |
-            linux/arm64
+            linux/amd64
       
-
   deploy:
     needs: build
     name: Deploy
