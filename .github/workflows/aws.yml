@@ -17,6 +17,10 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Register QEMU
+        run: |
+          docker run --privileged --rm tonistiigi/binfmt --install all
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
