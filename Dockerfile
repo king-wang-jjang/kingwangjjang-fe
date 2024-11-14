@@ -1,10 +1,10 @@
 # 1단계: Node.js 애플리케이션을 빌드합니다.
-FROM node:20-alpine AS build 
+FROM node:20-alpine AS build
 WORKDIR /usr/app
 
 # 의존성만 복사하고 설치 (캐싱 활용)
 COPY package.json yarn.lock ./
-RUN yarn install
+RUN yarn install --ignore-optional
 
 # 나머지 소스 복사 및 빌드
 COPY ./ ./
@@ -18,7 +18,7 @@ WORKDIR /usr/app
 COPY --from=build /usr/app /usr/app
 
 # 의존성 설치 (prod only)
-RUN yarn install --production
+RUN yarn install --production --ignore-optional
 
 # 포트 노출
 EXPOSE 8083
