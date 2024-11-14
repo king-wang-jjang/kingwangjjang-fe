@@ -4,7 +4,7 @@ WORKDIR /usr/app
 
 # 의존성만 복사하고 설치 (캐싱 활용)
 COPY package.json yarn.lock ./
-RUN yarn install --ignore-optional
+RUN yarn install
 
 # 나머지 소스 복사 및 빌드
 COPY ./ ./
@@ -18,7 +18,7 @@ WORKDIR /usr/app
 COPY --from=build /usr/app /usr/app
 
 # 의존성 설치 (prod only)
-RUN yarn install --production --ignore-optional
+RUN yarn install --production
 
 # 포트 노출
 EXPOSE 8083
