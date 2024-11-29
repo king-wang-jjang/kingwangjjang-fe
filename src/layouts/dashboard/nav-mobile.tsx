@@ -38,6 +38,7 @@ export function NavMobile({ data, open, onClose, slots, sx, ...other }: NavMobil
     <Drawer
       open={open}
       onClose={onClose}
+      anchor="right"
       sx={{
         [`& .${drawerClasses.paper}`]: {
           overflow: 'unset',
@@ -47,18 +48,18 @@ export function NavMobile({ data, open, onClose, slots, sx, ...other }: NavMobil
         },
       }}
     >
-      {slots?.topArea ?? (
+      {/* {slots?.topArea ?? (
         <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
           <Logo />
         </Box>
-      )}
+      )} */}
 
       <Scrollbar fillContent>
-        <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} />
-        <NavUpgrade />
+        {/* <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} /> */}
+        {/* <NavUpgrade /> */}
       </Scrollbar>
 
-      {slots?.bottomArea}
+      {/* {slots?.bottomArea} */}
     </Drawer>
   );
 }
