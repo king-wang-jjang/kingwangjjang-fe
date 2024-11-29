@@ -21,6 +21,7 @@ import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
 import { RealtimePost } from '../board-realtime-post';
 import { BoardFiltersResult } from '../board-filters-result';
+import { SplashScreen } from 'src/components/loading-screen';
 
 // ----------------------------------------------------------------------
 
@@ -98,7 +99,8 @@ export function BoardView({ title = 'Blank' }: Props) {
               padding: '15px 0',
             }}
           >
-            <SocialLoginButtons />
+            {/* <SocialLoginButtons /> */}
+            <SplashScreen/>
           </Card>
         </Grid>
         <Grid item xs={12} md={6}>
