@@ -40,7 +40,7 @@ export const PostCard = ({
   const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -104,11 +104,6 @@ export const PostCard = ({
                 {title}
               </Typography>
             </Tooltip>
-            {isMobile && (
-              <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
-                <LaunchIcon />
-              </Link>
-            )}
           </Box>
           <Box>
             <Collapse in={expanded} timeout="auto">
@@ -128,6 +123,16 @@ export const PostCard = ({
                   {GPTAnswer}
                 </Typography>
               </Box>
+              { isMobile && (
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '100%', marginTop: '10px' }}>
+                    <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
+                        <LaunchIcon />
+                    </Link> 
+                  </Box>
+                )
+              }
+
+              
             </Collapse>
           </Box>
         </CardContent>

@@ -31,7 +31,7 @@ type Props = {
 export function BoardView({ title = 'Blank' }: Props) {
   const openFilters = useBoolean();
   const pageTheme = useTheme();
-  const isMobile = useMediaQuery(pageTheme.breakpoints.down('xs'));
+  const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const {
     postData,
     filterCollection,
@@ -46,18 +46,8 @@ export function BoardView({ title = 'Blank' }: Props) {
   });
   // const dataFiltered = applyFilter({ inputData: postData, filters: filters.state, sortBy });
   const dataFiltered = applyFilter({ inputData: postData, filters: filters.state });
-
   const canReset = filters.state.site.length > 0;
   const renderResults = <BoardFiltersResult filters={filters} totalResults={dataFiltered.length} />;
-
-  if (isMobile) {
-    return (
-      <DashboardContent maxWidth="lg">
-        <Typography variant="h4"> {title} </Typography>
-        <PostList onClickCard={handleSummaryBoard} postItems={postData ?? []} />
-      </DashboardContent>
-    );
-  }
   const renderFilters = (
     <Stack
       spacing={3}
@@ -83,23 +73,33 @@ export function BoardView({ title = 'Blank' }: Props) {
       </Stack>
     </Stack>
   );
+  
+  // Mobile
+  if (isMobile) {
+    return (
+      <DashboardContent maxWidth="lg">
+        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
+      </DashboardContent>
+    );
+  }
 
+  // PC 
   return (
     <DashboardContent maxWidth="lg">
       <Grid container spacing={2} position="relative">
         <Grid item xs={0} md={3}>
           {/* 왼쪽 Side */}
-          <Card
-            sx={{
-              width: '100%',
-              position: 'relative',
-              display: 'flex',
-              justifyContent: 'center',
-              padding: '15px 0',
-            }}
-          >
-            <SocialLoginButtons />
-          </Card>
+            <Card
+              sx={{
+                width: '100%',
+                position: 'relative',
+                display: 'flex',
+                justifyContent: 'center',
+                padding: '15px 0',
+              }}
+            >
+              <SocialLoginButtons />
+            </Card>
         </Grid>
         <Grid item xs={12} md={6}>
           <Card sx={{ position: 'sticky', top: '64px', zIndex: 1000, padding: 2 }}>
