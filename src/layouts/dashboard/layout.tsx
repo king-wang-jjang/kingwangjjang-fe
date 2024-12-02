@@ -14,11 +14,20 @@ import { useSettingsContext } from 'src/components/settings';
 
 import { Main } from './main';
 import { layoutClasses } from '../classes';
-import { useNavColorVars } from './styles';
+import { StyledDivider, useNavColorVars } from './styles';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { DarkModeButton } from '../components/settings-button';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
+import { AccountDrawer } from '../components/account-drawer';
+import { _account } from '../config-nav-account';
+import { Searchbar } from '../components/searchbar';
+import { Logo } from 'src/components/logo';
+import { NavMobile } from './nav-mobile';
+import { MenuButton } from '../components/menu-button';
+import { NavHorizontal } from './nav-horizontal';
+import { WorkspacesPopover } from '../components/workspaces-popover';
+import { _workspaces } from '../config-nav-workspace';
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +51,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
 
   const navColorVars = useNavColorVars(theme, settings);
 
-  const layoutQuery: Breakpoint = 'lg';
+  const layoutQuery: Breakpoint = 'md';
 
   const navData = data?.nav ?? dashboardNavData;
 
@@ -87,52 +96,52 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 This is an info Alert.
               </Alert>
             ),
-            // bottomArea: isNavHorizontal ? (
-            //   <NavHorizontal
-            //     data={navData}
-            //     layoutQuery={layoutQuery}
-            //     cssVars={navColorVars.section}
-            //   />
-            // ) : null,
-            // leftArea: (
-            //   <>
-            //     {/* -- Nav mobile -- */}
-            //     <MenuButton
-            //       onClick={mobileNavOpen.onTrue}
-            //       sx={{
-            //         mr: 1,
-            //         ml: -1,
-            //         [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
-            //       }}
-            //     />
-            //     <NavMobile
-            //       data={navData}
-            //       open={mobileNavOpen.value}
-            //       onClose={mobileNavOpen.onFalse}
-            //       cssVars={navColorVars.section}
-            //     />
-            //     {/* -- Logo -- */}
-            //     {isNavHorizontal && (
-            //       <Logo
-            //         sx={{
-            //           display: 'none',
-            //           [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
-            //         }}
-            //       />
-            //     )}
-            //     {/* -- Divider -- */}
-            //     {isNavHorizontal && (
-            //       <StyledDivider
-            //         sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
-            //       />
-            //     )}
-            //     {/* -- Workspace popover -- */}
-            //     {/* <WorkspacesPopover
-            //       data={_workspaces}
-            //       sx={{ color: 'var(--layout-nav-text-primary-color)' }}
-            //     /> */}
-            //   </>
-            // ),
+            bottomArea: isNavHorizontal ? (
+              <NavHorizontal
+                data={navData}
+                layoutQuery={layoutQuery}
+                cssVars={navColorVars.section}
+              />
+            ) : null,
+            leftArea: (
+              <>
+                {/* -- Nav mobile -- */}
+                {/* <MenuButton
+                  onClick={mobileNavOpen.onTrue}
+                  sx={{
+                    mr: 1,
+                    ml: -1,
+                    [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+                  }}
+                />
+                <NavMobile
+                  data={navData}
+                  open={mobileNavOpen.value}
+                  onClose={mobileNavOpen.onFalse}
+                  cssVars={navColorVars.section}
+                />  */}
+                {/* -- Logo -- */}
+                {/* {isNavHorizontal && (
+                  <Logo
+                    sx={{
+                      display: 'none',
+                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+                    }}
+                  />
+                )} */}
+                {/* -- Divider -- */}
+                {/* {isNavHorizontal && (
+                  <StyledDivider
+                    sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
+                  />
+                )} */}
+                {/* -- Workspace popover -- */}
+                {/* <WorkspacesPopover
+                  data={_workspaces}
+                  sx={{ color: 'var(--layout-nav-text-primary-color)' }}
+                />  */}
+              </>
+            ),
             rightArea: (
               <Box display="flex" alignItems="center" gap={{ xs: 0, sm: 0.75 }}>
                 {/* -- Searchbar -- */}
@@ -156,6 +165,20 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 <DarkModeButton />
                 {/* -- Account drawer -- */}
                 {/* <AccountDrawer data={_account} /> */}
+                <MenuButton
+                  onClick={mobileNavOpen.onTrue}
+                  sx={{
+                    mr: 1,
+                    ml: -1,
+                    [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+                  }}
+                />
+                <NavMobile
+                  data={navData}
+                  open={mobileNavOpen.value}
+                  onClose={mobileNavOpen.onFalse}
+                  cssVars={navColorVars.section}
+                /> 
               </Box>
             ),
           }}
