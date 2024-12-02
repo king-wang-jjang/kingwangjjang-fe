@@ -102,10 +102,8 @@ export function BoardView({ title = 'Blank' }: Props) {
             </Card>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Card sx={{ position: 'sticky', top: '64px', zIndex: 1000, padding: 2 }}>
             {renderFilters}
-            {canReset && renderResults}
-          </Card>
+            {canReset}
           <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
           {boardContentsQueryLoading && <Loading />}
           {/* {boardContentsQueryError && (
