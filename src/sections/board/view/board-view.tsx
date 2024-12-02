@@ -78,6 +78,8 @@ export function BoardView({ title = 'Blank' }: Props) {
   if (isMobile) {
     return (
       <DashboardContent maxWidth="lg">
+        {renderFilters}
+        {canReset}
         <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
       </DashboardContent>
     );
@@ -113,9 +115,9 @@ export function BoardView({ title = 'Blank' }: Props) {
         </Grid>
         <Grid item xs={0} md={3}>
           {/* 오른쪽 Side */}
-          <Card sx={{ position: 'sticky', top: '64px' }}>
+          {/* <Card sx={{ position: 'sticky', top: '64px' }}>
             <RealtimePost />
-          </Card>
+          </Card> */}
         </Grid>
       </Grid>
     </DashboardContent>

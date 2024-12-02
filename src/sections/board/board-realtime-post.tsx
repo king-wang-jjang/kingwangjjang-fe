@@ -2,19 +2,24 @@ import React from 'react';
 
 import { List, ListItem, Typography } from '@mui/material';
 
-export const RealtimePost = () => (
-  <>
-    <List>
-      <ListItem>
-        <Typography variant="body1" component="div">
-          인기게시글
-        </Typography>
-      </ListItem>
-    </List>
-    <List>
-      <ListItem>test1</ListItem>
-      <ListItem>test2</ListItem>
-      <ListItem>test3</ListItem>
-    </List>
-  </>
-);
+import { PostList } from './board-post-list';
+
+export const RealtimePost = () => {
+  const postItems: any['postItems'] = [];
+  const onClickCard: any['onClickCard'] = () => {};
+
+  return (
+    <>
+      <List>
+        <ListItem>
+          <Typography variant="body1" component="div">
+            인기게시글
+          </Typography>
+        </ListItem>
+      </List>
+      <List>
+        <PostList postItems={postItems} onClickCard={onClickCard} />
+      </List>
+    </>
+  );
+};
