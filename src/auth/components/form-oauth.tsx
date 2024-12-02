@@ -15,7 +15,7 @@ const SocialLoginButtons: React.FC = () => {
   };
 
   return (
-    <Stack direction="column" spacing={0.8}>
+    <Stack direction="column" spacing={0.3} width="100%" alignItems="center">
       <Button
         size="large"
         startIcon={<GoogleIcon />}
@@ -23,7 +23,9 @@ const SocialLoginButtons: React.FC = () => {
         sx={{
           backgroundColor: '#4285F4',
           color: '#fff',
-          width: '200px',
+          width: '90%',
+          height: '30px',
+          
         }}
       >
         Google 로그인
@@ -40,7 +42,8 @@ const SocialLoginButtons: React.FC = () => {
         sx={{
           backgroundColor: '#FEE500',
           color: '#3C1E1E',
-          width: '200px',
+          width: '90%',
+          height: '30px'
         }}
       >
         Kakao 로그인
