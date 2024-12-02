@@ -10,24 +10,24 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
 import { Main } from './main';
+import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
-import { StyledDivider, useNavColorVars } from './styles';
+import { _account } from '../config-nav-account';
+import { NavHorizontal } from './nav-horizontal';
+import { Searchbar } from '../components/searchbar';
+import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { DarkModeButton } from '../components/settings-button';
-import { navData as dashboardNavData } from '../config-nav-dashboard';
-import { AccountDrawer } from '../components/account-drawer';
-import { _account } from '../config-nav-account';
-import { Searchbar } from '../components/searchbar';
-import { Logo } from 'src/components/logo';
-import { NavMobile } from './nav-mobile';
 import { MenuButton } from '../components/menu-button';
-import { NavHorizontal } from './nav-horizontal';
+import { StyledDivider, useNavColorVars } from './styles';
+import { AccountDrawer } from '../components/account-drawer';
+import { DarkModeButton } from '../components/settings-button';
 import { WorkspacesPopover } from '../components/workspaces-popover';
-import { _workspaces } from '../config-nav-workspace';
+import { navData as dashboardNavData } from '../config-nav-dashboard';
 
 // ----------------------------------------------------------------------
 
