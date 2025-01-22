@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 // export const SUMMARY_BOARD_MUTATION = gql`
 //   mutation SummaryBoard($boardId: String!, $site: String!) {
 //     summaryBoard(boardId: $boardId, site: $site) {
-//       GPTAnswer
+//       gptAnswer
 //       Tag
 //       boardId
 //       site

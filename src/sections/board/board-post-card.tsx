@@ -23,7 +23,7 @@ import anime from 'animejs/lib/anime.es.js';
 import StarIcon from '@mui/icons-material/Star';
 
 interface Props extends IPostCard {
-  onClickToggle: (boardId: string, site: string) => void;
+  onClickToggle: (boardId: string[], site: string) => void;
 }
 
 export const PostCard = ({
@@ -32,8 +32,8 @@ export const PostCard = ({
   title,
   url,
   createTime,
-  GPTAnswer,
-  rank,
+  gptAnswer,
+  // rank,
   onClickToggle,
 }: Props) => {
   const [expanded, setExpanded] = useState(false);
@@ -66,14 +66,14 @@ export const PostCard = ({
     }
   }, [isHovering]);
 
-  const handleToggle = (boardId: string, _site: string) => {
+  const handleToggle = (boardId: string[], _site: string) => {
     setExpanded(!expanded);
     if (!expanded) {
       onClickToggle(boardId, _site);
     }
   };
 
-  const isRank: boolean = rank !== null;
+  const isRank: boolean = false; // rank !== null;
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
@@ -87,7 +87,7 @@ export const PostCard = ({
             <Label color="primary">{site}</Label>
             {isRank && (
               <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
-                {rank}
+                {/* {rank} */}
               </Label>
             )}
           </Box>
@@ -120,7 +120,7 @@ export const PostCard = ({
                   component="div"
                   sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
                 >
-                  {GPTAnswer}
+                  {gptAnswer}
                 </Typography>
               </Box>
               { isMobile && (

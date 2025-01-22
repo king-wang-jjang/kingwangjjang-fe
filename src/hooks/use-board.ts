@@ -29,7 +29,7 @@ export const useBoard = () => {
   //   },
   // ] = useMutation(SummaryBoardDocument, { refetchQueries: ['BoardContentsByDate'] });
 
-  const handleSummaryBoard = (boardId: string, site: string) => {
+  const handleSummaryBoard = (boardId: string[], site: string) => {
     console.log('handleSummaryBoard', boardId, site);
     // summaryBoardMutation({
     //   variables: { boardId: boardId, site: site },
