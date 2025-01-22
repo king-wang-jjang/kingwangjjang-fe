@@ -19,7 +19,9 @@
     "dev:ts": "yarn dev & yarn ts:watch",
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",
-    "start:out": "npx serve@latest out -p 8083"
+    "start:out": "npx serve@latest out -p 8083",
+    "compile": "graphql-codegen",
+    "watch": "graphql-codegen -w"
   },
   "engines": {
     "node": "20.x"
@@ -28,8 +30,8 @@
   "dependencies": {
     "@apollo/client": "^3.11.8",
     "@emotion/cache": "^11.13.1",
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fontsource-variable/dm-sans": "^5.0.7",
     "@fontsource-variable/inter": "^5.0.20",
     "@fontsource-variable/nunito-sans": "^5.0.15",
@@ -49,7 +51,7 @@
     "axios": "^1.7.4",
     "dayjs": "^1.11.13",
     "framer-motion": "^11.3.29",
-    "graphql": "^16.9.0",
+    "graphql": "^16.10.0",
     "next": "^14.2.5",
     "nprogress": "^0.2.0",
     "react": "^18.3.1",
@@ -61,6 +63,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/client-preset": "^4.5.1",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@svgr/webpack": "^8.1.0",
     "@types/animejs": "^3.1.12",
     "@types/autosuggest-highlight": "^3.2.3",
@@ -84,6 +89,6 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-unused-imports": "^3.2.0",
     "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.7.3"
   }
 }

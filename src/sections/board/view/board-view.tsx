@@ -1,9 +1,7 @@
 'use client';
 
 import type { IBoardFilters } from 'src/types/board';
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
-import Typography from '@mui/material/Typography';
 import { Card, Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
@@ -21,6 +19,7 @@ import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
 import { RealtimePost } from '../board-realtime-post';
 import { BoardFiltersResult } from '../board-filters-result';
+import { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 // ----------------------------------------------------------------------
 

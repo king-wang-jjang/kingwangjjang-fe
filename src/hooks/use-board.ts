@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 
 import { POSTITEMS } from 'src/_mock/_board';
-import { SummaryBoardDocument } from 'src/__generated__/graphql';
+// import { SummaryBoardDocument } from 'src/__generated__/graphql';
 
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
@@ -20,14 +20,14 @@ export const useBoard = () => {
     data: boardContentsData,
   } = useInfiniteScrollablePostList();
 
-  const [
-    summaryBoardMutation,
-    {
-      data: summaryBoardMutationData,
-      loading: summaryBoardMutationLoading,
-      error: summaryBoardMutationError,
-    },
-  ] = useMutation(SummaryBoardDocument, { refetchQueries: ['BoardContentsByDate'] });
+  // const [
+  //   summaryBoardMutation,
+  //   {
+  //     data: summaryBoardMutationData,
+  //     loading: summaryBoardMutationLoading,
+  //     error: summaryBoardMutationError,
+  //   },
+  // ] = useMutation(SummaryBoardDocument, { refetchQueries: ['BoardContentsByDate'] });
 
   const handleSummaryBoard = (boardId: string, site: string) => {
     console.log('handleSummaryBoard', boardId, site);
