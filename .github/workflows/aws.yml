@@ -23,8 +23,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Login docker hub
+        uses: docker/login-action@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -34,13 +37,19 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
           platforms: |
             linux/arm64
-      
-  deploy:
+            linux/amd64
+
+  run:
     needs: build
-    name: Deploy
+    name: Run
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_SERVER_URL=${{ variables.NEXT_PUBLIC_SERVER_URL }}" >> .env
+
       - name: Connect to WAS & Execute Application
         uses: appleboy/ssh-action@master
         with:
