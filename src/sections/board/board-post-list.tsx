@@ -6,7 +6,7 @@ import { PostCard } from './board-post-card';
 
 interface Props {
   postItems: RealtimePaginationQuery['realtimePagination'];
-  onClickCard: (boardId: string, stie: string) => void;
+  onClickCard: (boardId: string[], site: string) => void;
 }
 
 export const PostList = ({ postItems, onClickCard }: Props) => (
@@ -18,13 +18,13 @@ export const PostList = ({ postItems, onClickCard }: Props) => (
             <PostCard
               key={index}
               onClickToggle={onClickCard}
-              id={post.boardId as string}
-              rank={post.rank as string}
+              id={post.boardId}
+              // rank={post.rank && post.rank as string}
               site={post.site as string}
               title={post.title as string}
               url={post.url as string}
               createTime={post.createTime}
-              GPTAnswer={post.GPTAnswer as string}
+              gptAnswer={post.gptAnswer as string}
             />
           )
       )}

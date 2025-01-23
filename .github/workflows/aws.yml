@@ -23,8 +23,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Login docker hub
+        uses: docker/login-action@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -34,13 +37,30 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1
           platforms: |
             linux/arm64
-      
-  deploy:
+            linux/amd64
+
+  run:
     needs: build
-    name: Deploy
+    name: Run
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_SERVER_URL=https://api.top1.kr" >> .env
+
+      - name: Upload secrets,docker-compose to WAS instance
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: ".env,docker-compose.yml"
+          target: "/home/ubuntu/kingwangjjang/fe/"
+          overwrite: true
+
       - name: Connect to WAS & Execute Application
         uses: appleboy/ssh-action@master
         with:
@@ -49,7 +69,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.WAS_SSH_PORT }}
           script: |
-            sudo docker version
-            sudo docker rm -f kingwangjjang-fe || true
-            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
-            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
+              sudo docker version
+              cd kingwangjjang/fe
+              sudo docker-compose down
+              sudo docker rmi hwanju1596/kingwangjjang-fe:0.0.1 -f
+              sudo docker-compose up -d
+      # sudo docker network connect kingwangjjang-network kingwangjjang-fe

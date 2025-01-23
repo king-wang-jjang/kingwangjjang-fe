@@ -18,32 +18,43 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  boardId: Scalars['String']['output'];
+  site: Scalars['String']['output'];
+};
+
 export type Daily = {
   __typename?: 'Daily';
-  GPTAnswer?: Maybe<Scalars['String']['output']>;
   boardId: Scalars['String']['output'];
   createTime: Scalars['DateTime']['output'];
+  gptAnswer?: Maybe<Scalars['String']['output']>;
   rank?: Maybe<Scalars['String']['output']>;
   site: Scalars['String']['output'];
   title: Scalars['String']['output'];
   url: Scalars['String']['output'];
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  summaryBoard: Summary;
-};
-
-
-export type MutationSummaryBoardArgs = {
-  boardId: Scalars['String']['input'];
-  site: Scalars['String']['input'];
+export type Like = {
+  __typename?: 'Like';
+  NOWLIKE: Scalars['Int']['output'];
+  boardId: Scalars['String']['output'];
+  site: Scalars['String']['output'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  comment: Comment;
   dailyPagination: Array<Daily>;
-  realtimePagination: Array<RealTime>;
+  getLike: Like;
+  getViews: View;
+  realtimePagination: Array<Realtime>;
+};
+
+
+export type QueryCommentArgs = {
+  boardId: Scalars['String']['input'];
+  site: Scalars['String']['input'];
 };
 
 
@@ -52,44 +63,47 @@ export type QueryDailyPaginationArgs = {
 };
 
 
+export type QueryGetLikeArgs = {
+  boardId: Scalars['String']['input'];
+  site: Scalars['String']['input'];
+};
+
+
+export type QueryGetViewsArgs = {
+  boardId: Scalars['String']['input'];
+  site: Scalars['String']['input'];
+};
+
+
 export type QueryRealtimePaginationArgs = {
   index?: Scalars['Int']['input'];
 };
 
-export type RealTime = {
-  __typename?: 'RealTime';
-  GPTAnswer?: Maybe<Scalars['String']['output']>;
-  boardId: Scalars['String']['output'];
+export type Realtime = {
+  __typename?: 'Realtime';
+  Id?: Maybe<Scalars['String']['output']>;
+  boardId: Array<Scalars['String']['output']>;
+  contents?: Maybe<Scalars['String']['output']>;
   createTime: Scalars['DateTime']['output'];
-  rank?: Maybe<Scalars['String']['output']>;
+  gptAnswer?: Maybe<Scalars['String']['output']>;
   site: Scalars['String']['output'];
   title: Scalars['String']['output'];
   url: Scalars['String']['output'];
 };
 
-export type Summary = {
-  __typename?: 'Summary';
-  GPTAnswer: Scalars['String']['output'];
-  Tag: Array<Scalars['String']['output']>;
+export type View = {
+  __typename?: 'View';
+  NOWVIEW: Scalars['Int']['output'];
   boardId: Scalars['String']['output'];
   site: Scalars['String']['output'];
 };
-
-export type SummaryBoardMutationVariables = Exact<{
-  boardId: Scalars['String']['input'];
-  site: Scalars['String']['input'];
-}>;
-
-
-export type SummaryBoardMutation = { __typename?: 'Mutation', summaryBoard: { __typename?: 'Summary', GPTAnswer: string, Tag: Array<string>, boardId: string, site: string } };
 
 export type RealtimePaginationQueryVariables = Exact<{
   index?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type RealtimePaginationQuery = { __typename?: 'Query', realtimePagination: Array<{ __typename?: 'RealTime', boardId: string, rank?: string | null, site: string, title: string, url: string, createTime: any, GPTAnswer?: string | null }> };
+export type RealtimePaginationQuery = { __typename?: 'Query', realtimePagination: Array<{ __typename?: 'Realtime', boardId: Array<string>, site: string, title: string, url: string, createTime: any, gptAnswer?: string | null }> };
 
 
-export const SummaryBoardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SummaryBoard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"boardId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"site"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"summaryBoard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"boardId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"boardId"}}},{"kind":"Argument","name":{"kind":"Name","value":"site"},"value":{"kind":"Variable","name":{"kind":"Name","value":"site"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GPTAnswer"}},{"kind":"Field","name":{"kind":"Name","value":"Tag"}},{"kind":"Field","name":{"kind":"Name","value":"boardId"}},{"kind":"Field","name":{"kind":"Name","value":"site"}}]}}]}}]} as unknown as DocumentNode<SummaryBoardMutation, SummaryBoardMutationVariables>;
-export const RealtimePaginationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RealtimePagination"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"index"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"realtimePagination"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"index"},"value":{"kind":"Variable","name":{"kind":"Name","value":"index"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"boardId"}},{"kind":"Field","name":{"kind":"Name","value":"rank"}},{"kind":"Field","name":{"kind":"Name","value":"site"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"createTime"}},{"kind":"Field","name":{"kind":"Name","value":"GPTAnswer"}}]}}]}}]} as unknown as DocumentNode<RealtimePaginationQuery, RealtimePaginationQueryVariables>;
+export const RealtimePaginationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RealtimePagination"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"index"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"realtimePagination"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"index"},"value":{"kind":"Variable","name":{"kind":"Name","value":"index"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"boardId"}},{"kind":"Field","name":{"kind":"Name","value":"site"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"createTime"}},{"kind":"Field","name":{"kind":"Name","value":"gptAnswer"}}]}}]}}]} as unknown as DocumentNode<RealtimePaginationQuery, RealtimePaginationQueryVariables>;
