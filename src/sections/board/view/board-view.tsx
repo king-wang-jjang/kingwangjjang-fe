@@ -3,7 +3,6 @@
 import type { IBoardFilters } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
-import Typography from '@mui/material/Typography';
 import { Card, Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
