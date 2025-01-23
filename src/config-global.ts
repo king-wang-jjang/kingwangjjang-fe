@@ -35,7 +35,7 @@ export type ConfigValue = {
 export const CONFIG: ConfigValue = {
   appName: 'Top',
   appVersion: packageJson.version,
-  serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
+  serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.top1.kr',
   assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',
   isStaticExport: JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`),
   /**
