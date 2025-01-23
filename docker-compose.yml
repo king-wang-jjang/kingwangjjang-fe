@@ -1,0 +1,18 @@
+version: "3.3"
+
+networks:
+  kingwangjjang-network:
+    driver: bridge
+
+services:
+  kingwangjjang-fe:
+    image: hwanju1596/kingwangjjang-fe:0.0.1
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+    volumes:
+      - ./log:/home/ubuntu/kingwangjjang/logs
+    networks:
+      - kingwangjjang-network
+

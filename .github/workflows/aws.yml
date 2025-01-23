@@ -48,7 +48,18 @@ jobs:
       - uses: actions/checkout@v3
       - name: Create .env file
         run: |
-          echo "NEXT_PUBLIC_SERVER_URL=${{ variables.NEXT_PUBLIC_SERVER_URL }}" >> .env
+          echo "NEXT_PUBLIC_SERVER_URL=https://api.top1.kr" >> .env
+
+      - name: Upload secrets,docker-compose to WAS instance
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: ".env,docker-compose.yml"
+          target: "/home/ubuntu/kingwangjjang/fe/"
+          overwrite: true
 
       - name: Connect to WAS & Execute Application
         uses: appleboy/ssh-action@master
@@ -58,7 +69,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.WAS_SSH_PORT }}
           script: |
-            sudo docker version
-            sudo docker rm -f kingwangjjang-fe || true
-            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
-            sudo docker run -d --name kingwangjjang-fe -p 8083:8083 "${{ secrets.DOCKERHUB_USERNAME }}/kingwangjjang-fe:0.0.1"
+              sudo docker version
+              cd kingwangjjang
+              sudo docker-compose down
+              sudo docker rmi hwanju1596/kingwangjjang-fe:0.0.1 -f
+              sudo docker-compose up -d
+      # sudo docker network connect kingwangjjang-network kingwangjjang-fe
