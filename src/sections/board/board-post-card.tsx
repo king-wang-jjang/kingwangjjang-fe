@@ -121,6 +121,8 @@ export const PostCard = ({
                   sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
                 >
                   {gptAnswer}
+                  <br/>
+                  {id[0]}, {id[1]}
                 </Typography>
               </Box>
               { isMobile && (
