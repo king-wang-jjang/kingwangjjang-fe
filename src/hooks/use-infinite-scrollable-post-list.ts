@@ -1,5 +1,6 @@
-import { ApolloError, useQuery } from '@apollo/client';
-import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@apollo/client';
+import { useRef, useState, useEffect } from 'react';
+
 import { RealtimePaginationDocument } from '../__generated__/graphql';
 
 const useInfiniteScrollablePostList = () => {
