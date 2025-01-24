@@ -21,11 +21,11 @@ const SocialLoginButtons: React.FC = () => {
         startIcon={<GoogleIcon />}
         onClick={handleGoogleLogin}
         sx={{
+          display: 'none',
           backgroundColor: '#4285F4',
           color: '#fff',
           width: '90%',
           height: '30px',
-          
         }}
       >
         Google 로그인
@@ -43,7 +43,7 @@ const SocialLoginButtons: React.FC = () => {
           backgroundColor: '#FEE500',
           color: '#3C1E1E',
           width: '90%',
-          height: '30px'
+          height: '30px',
         }}
       >
         Kakao 로그인
