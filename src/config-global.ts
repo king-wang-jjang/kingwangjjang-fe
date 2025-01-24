@@ -33,7 +33,7 @@ export type ConfigValue = {
 // ----------------------------------------------------------------------
 
 export const CONFIG: ConfigValue = {
-  appName: 'Top',
+  appName: '마약',
   appVersion: packageJson.version,
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.top1.kr',
   assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',

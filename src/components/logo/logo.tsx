@@ -10,6 +10,7 @@ import { useTheme } from '@mui/material/styles';
 import { RouterLink } from 'src/routes/components';
 
 import { logoClasses } from './classes';
+import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
 
     /*
     * OR using local (public folder)
-    *
+    */
     const singleLogo = (
       <Box
         alt="Single logo"
@@ -55,8 +56,7 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
         height="100%"
       />
     );
-    *
-    */
+   /*
 
     const singleLogo = (
       <svg
@@ -187,7 +187,7 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
         </defs>
       </svg>
     );
-
+*/
     const baseSize = {
       width: width ?? 40,
       height: height ?? 40,
