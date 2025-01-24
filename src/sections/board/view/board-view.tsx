@@ -15,7 +15,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 // import { Filter } from '../filter';
-import { Loading } from '../board-loading';
 import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
 import { BoardFiltersResult } from '../board-filters-result';
@@ -88,13 +87,13 @@ export function BoardView({ title = 'Blank' }: Props) {
   return (
     <DashboardContent maxWidth="lg">
       <Grid container spacing={2} position="relative">
-        <Grid item xs={0} md={3}>
+        <Grid item md={3}>
           {/* 왼쪽 Side */}
           <Card
             sx={{
               width: '100%',
               position: 'relative',
-              display: 'flex',
+              display: isMobile ? 'flex' : 'none',
               justifyContent: 'center',
               padding: '15px 0',
             }}
@@ -102,11 +101,11 @@ export function BoardView({ title = 'Blank' }: Props) {
             <SocialLoginButtons />
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid md={6}>
           {renderFilters}
           {canReset}
           <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
-          {boardContentsQueryLoading && <Loading />}
+          {/* {boardContentsQueryLoading && <Loading />} */}
           {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
           )} */}
