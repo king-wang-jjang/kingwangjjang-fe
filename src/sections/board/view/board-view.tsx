@@ -15,10 +15,8 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 // import { Filter } from '../filter';
-import { Loading } from '../board-loading';
 import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
-import { RealtimePost } from '../board-realtime-post';
 import { BoardFiltersResult } from '../board-filters-result';
 
 // ----------------------------------------------------------------------
@@ -72,7 +70,7 @@ export function BoardView({ title = 'Blank' }: Props) {
       </Stack>
     </Stack>
   );
-  
+
   // Mobile
   if (isMobile) {
     return (
@@ -80,33 +78,34 @@ export function BoardView({ title = 'Blank' }: Props) {
         {renderFilters}
         {canReset}
         <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
+        <div ref={loadingRef} />
       </DashboardContent>
     );
   }
 
-  // PC 
+  // PC
   return (
     <DashboardContent maxWidth="lg">
       <Grid container spacing={2} position="relative">
-        <Grid item xs={0} md={3}>
+        <Grid item md={3}>
           {/* 왼쪽 Side */}
-            <Card
-              sx={{
-                width: '100%',
-                position: 'relative',
-                display: 'flex',
-                justifyContent: 'center',
-                padding: '15px 0',
-              }}
-            >
-              <SocialLoginButtons />
-            </Card>
+          <Card
+            sx={{
+              width: '100%',
+              position: 'relative',
+              display: isMobile ? 'flex' : 'none',
+              justifyContent: 'center',
+              padding: '15px 0',
+            }}
+          >
+            <SocialLoginButtons />
+          </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
-            {renderFilters}
-            {canReset}
+        <Grid md={6}>
+          {renderFilters}
+          {canReset}
           <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
-          {boardContentsQueryLoading && <Loading />}
+          {/* {boardContentsQueryLoading && <Loading />} */}
           {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
           )} */}
