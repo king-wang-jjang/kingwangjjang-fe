@@ -83,7 +83,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
               },
             },
             container: {
-              maxWidth: false,
+              maxWidth: 'lg',
               sx: {
                 ...(isNavVertical && { px: { [layoutQuery]: 5 } }),
               },
@@ -92,8 +92,8 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
           sx={header?.sx}
           slots={{
             topArea: (
-              <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                This is an info Alert.
+              <Alert severity="info" sx={{ borderRadius: 0 }}>
+                페이지 테스트 중 입니다. 
               </Alert>
             ),
             bottomArea: isNavHorizontal ? (
@@ -105,6 +105,11 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
             ) : null,
             leftArea: (
               <>
+               <Logo
+                    sx={{
+                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+                    }}
+                  />
                 {/* -- Nav mobile -- */}
                 {/* <MenuButton
                   onClick={mobileNavOpen.onTrue}
