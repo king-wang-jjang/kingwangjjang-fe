@@ -93,7 +93,7 @@ export function BoardView({ title = 'Blank' }: Props) {
             sx={{
               width: '100%',
               position: 'relative',
-              display: isMobile ? 'flex' : 'none',
+              display: isMobile ? 'none' : 'flex',
               justifyContent: 'center',
               padding: '15px 0',
             }}

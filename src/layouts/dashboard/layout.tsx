@@ -16,17 +16,14 @@ import { useSettingsContext } from 'src/components/settings';
 import { Main } from './main';
 import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
-import { _account } from '../config-nav-account';
+import { useNavColorVars } from './styles';
 import { NavHorizontal } from './nav-horizontal';
-import { Searchbar } from '../components/searchbar';
-import { _workspaces } from '../config-nav-workspace';
+import { _account } from '../config-nav-account';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { MenuButton } from '../components/menu-button';
-import { StyledDivider, useNavColorVars } from './styles';
 import { AccountDrawer } from '../components/account-drawer';
 import { DarkModeButton } from '../components/settings-button';
-import { WorkspacesPopover } from '../components/workspaces-popover';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
 
 // ----------------------------------------------------------------------
@@ -93,7 +90,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
           slots={{
             topArea: (
               <Alert severity="info" sx={{ borderRadius: 0 }}>
-                페이지 테스트 중 입니다. 
+                페이지 테스트 중 입니다.
               </Alert>
             ),
             bottomArea: isNavHorizontal ? (
@@ -105,26 +102,12 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
             ) : null,
             leftArea: (
               <>
-               <Logo
-                    sx={{
-                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
-                    }}
-                  />
-                {/* -- Nav mobile -- */}
-                {/* <MenuButton
-                  onClick={mobileNavOpen.onTrue}
+                <Logo
                   sx={{
-                    mr: 1,
-                    ml: -1,
-                    [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+                    [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
                   }}
                 />
-                <NavMobile
-                  data={navData}
-                  open={mobileNavOpen.value}
-                  onClose={mobileNavOpen.onFalse}
-                  cssVars={navColorVars.section}
-                />  */}
+
                 {/* -- Logo -- */}
                 {/* {isNavHorizontal && (
                   <Logo
@@ -169,7 +152,16 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* <SettingsButton /> */}
                 <DarkModeButton />
                 {/* -- Account drawer -- */}
-                {/* <AccountDrawer data={_account} /> */}
+                <AccountDrawer
+                  data={_account}
+                  sx={{
+                    mr: 1,
+                    ml: -1,
+                    [theme.breakpoints.down(layoutQuery)]: { display: 'none' },
+                  }}
+                />
+
+                {/* -- Nav mobile -- */}
                 <MenuButton
                   onClick={mobileNavOpen.onTrue}
                   sx={{
@@ -183,7 +175,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                   open={mobileNavOpen.value}
                   onClose={mobileNavOpen.onFalse}
                   cssVars={navColorVars.section}
-                /> 
+                />
               </Box>
             ),
           }}
