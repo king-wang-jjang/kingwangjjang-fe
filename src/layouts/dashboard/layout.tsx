@@ -152,14 +152,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* <SettingsButton /> */}
                 <DarkModeButton />
                 {/* -- Account drawer -- */}
-                <AccountDrawer
-                  data={_account}
-                  sx={{
-                    mr: 1,
-                    ml: -1,
-                    [theme.breakpoints.down(layoutQuery)]: { display: 'none' },
-                  }}
-                />
+                <AccountDrawer data={_account} />
 
                 {/* -- Nav mobile -- */}
                 <MenuButton

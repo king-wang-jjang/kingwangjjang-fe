@@ -13,9 +13,6 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
-import { _account } from '../config-nav-account';
-import { AccountDrawer } from '../components/account-drawer';
-
 // ----------------------------------------------------------------------
 
 type NavMobileProps = NavSectionProps & {
@@ -60,13 +57,6 @@ export function NavMobile({ data, open, onClose, slots, sx, ...other }: NavMobil
       )}
 
       <Scrollbar fillContent>
-        <AccountDrawer
-          data={_account}
-          sx={{
-            display: 'flex',
-            [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
-          }}
-        />
         {/* <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} /> */}
         {/* <NavUpgrade /> */}
         <SocialLoginButtons />
