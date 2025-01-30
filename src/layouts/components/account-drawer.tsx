@@ -19,6 +19,8 @@ import { useRouter, usePathname } from 'src/routes/hooks';
 
 import { _mock } from 'src/_mock';
 import { varAlpha } from 'src/theme/styles';
+import { useNavStore } from 'src/store/nav-store';
+import { useAuthStore } from 'src/store/auth-store';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -53,9 +55,17 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
 
   const [open, setOpen] = useState(false);
 
+  const { isAuthenticated } = useAuthStore();
+  const { isNavMobileOpen, closeNavMobile } = useNavStore();
+
   const handleOpenDrawer = useCallback(() => {
-    setOpen(true);
-  }, []);
+    if (!isAuthenticated) {
+      console.log('인증이 되지 않았습니다.');
+      useNavStore.getState().toggleNavMobile();
+    } else {
+      setOpen(true);
+    }
+  }, [isAuthenticated]);
 
   const handleCloseDrawer = useCallback(() => {
     setOpen(false);

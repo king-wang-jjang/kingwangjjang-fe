@@ -1,5 +1,3 @@
-import type { NavSectionProps } from 'src/components/nav-section';
-
 import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
@@ -10,6 +8,7 @@ import { usePathname } from 'src/routes/hooks';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
+import { type NavSectionProps } from 'src/components/nav-section';
 
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 

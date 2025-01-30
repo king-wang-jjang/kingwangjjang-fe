@@ -10,6 +10,8 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useNavStore } from 'src/store/nav-store';
+
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
@@ -55,6 +57,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
   const isNavMini = settings.navLayout === 'mini';
   const isNavHorizontal = settings.navLayout === 'horizontal';
   const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+  const { isNavMobileOpen, closeNavMobile } = useNavStore();
 
   return (
     <LayoutSection
@@ -156,7 +159,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
 
                 {/* -- Nav mobile -- */}
                 <MenuButton
-                  onClick={mobileNavOpen.onTrue}
+                  onClick={() => useNavStore.getState().toggleNavMobile()}
                   sx={{
                     mr: 1,
                     ml: -1,
@@ -165,8 +168,8 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 />
                 <NavMobile
                   data={navData}
-                  open={mobileNavOpen.value}
-                  onClose={mobileNavOpen.onFalse}
+                  open={isNavMobileOpen}
+                  onClose={closeNavMobile} // 닫기 핸들러
                   cssVars={navColorVars.section}
                 />
               </Box>
