@@ -10,8 +10,6 @@ import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
 import { type NavSectionProps } from 'src/components/nav-section';
 
-import SocialLoginButtons from 'src/auth/components/form-oauth';
-
 // ----------------------------------------------------------------------
 
 type NavMobileProps = NavSectionProps & {
@@ -58,7 +56,7 @@ export function NavMobile({ data, open, onClose, slots, sx, ...other }: NavMobil
       <Scrollbar fillContent>
         {/* <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} /> */}
         {/* <NavUpgrade /> */}
-        <SocialLoginButtons />
+        {/* <SocialLoginButtons /> */}
       </Scrollbar>
 
       {slots?.bottomArea}

@@ -3,7 +3,7 @@
 import type { IBoardFilters } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
-import { Card, Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
+import { Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -11,8 +11,6 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
-
-import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 // import { Filter } from '../filter';
 import { PostList } from '../board-post-list';
@@ -89,7 +87,7 @@ export function BoardView({ title = 'Blank' }: Props) {
       <Grid container spacing={2} position="relative">
         <Grid item md={3}>
           {/* 왼쪽 Side */}
-          <Card
+          {/* <Card
             sx={{
               width: '100%',
               position: 'relative',
@@ -99,7 +97,7 @@ export function BoardView({ title = 'Blank' }: Props) {
             }}
           >
             <SocialLoginButtons />
-          </Card>
+          </Card> */}
         </Grid>
         <Grid md={6}>
           {renderFilters}

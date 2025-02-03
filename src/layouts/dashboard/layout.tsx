@@ -11,9 +11,12 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useNavStore } from 'src/store/nav-store';
+import { useAuthStore } from 'src/store/auth-store';
 
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
+
+import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 import { Main } from './main';
 import { NavMobile } from './nav-mobile';
@@ -154,9 +157,13 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* -- Settings button -- */}
                 {/* <SettingsButton /> */}
                 <DarkModeButton />
-                {/* -- Account drawer -- */}
-                <AccountDrawer data={_account} />
-
+                {/* -- Account drawer -- */}{' '}
+                {/* ✅ 인증된 사용자는 AccountDrawer 표시, 인증되지 않으면 로그 출력 */}
+                {useAuthStore.getState().isAuthenticated ? (
+                  <AccountDrawer data={_account} />
+                ) : (
+                  <SocialLoginButtons />
+                )}
                 {/* -- Nav mobile -- */}
                 <MenuButton
                   onClick={() => useNavStore.getState().toggleNavMobile()}
