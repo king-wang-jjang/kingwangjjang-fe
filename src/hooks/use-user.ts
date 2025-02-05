@@ -1,4 +1,4 @@
-import type { Query, UserType, QueryGetUserArgs } from 'src/__generated__/graphql';
+import type { Query, QueryGetUserArgs } from 'src/__generated__/graphql';
 
 import { gql, useQuery } from '@apollo/client';
 
@@ -15,16 +15,30 @@ const GET_USER = gql`
   }
 `;
 
-// export const useUser = (userId: QueryGetUserArgs['userId']) => {
-export const useUser = () => {
-  const { data, loading, error } = useQuery<Query, QueryGetUserArgs>(GET_USER, {
-    // variables: { userId },
-    // skip: !userId,
-    fetchPolicy: 'cache-first',
-  });
+const GET_ME = gql`
+  query GetMe {
+    getUser {
+      Id
+      authOrganization
+      createTime
+      nickname
+      profileImage
+      userId
+    }
+  }
+`;
+
+export const useUser = (userId?: QueryGetUserArgs['userId']) => {
+  const { data, loading, error } = useQuery<Query, QueryGetUserArgs>(
+    userId ? GET_USER : GET_ME, // 🔹 userId가 없으면 GetMe 호출
+    {
+      variables: userId ? { userId } : undefined,
+      fetchPolicy: 'cache-first',
+    }
+  );
 
   return {
-    user: data?.getUser as UserType | null, // 올바른 타입 지정
+    user: data?.getUser ?? null,
     loading,
     error,
   };

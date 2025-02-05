@@ -29,6 +29,8 @@ export function BoardView({ title = 'Blank' }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const {user} = useUser();
+
+  console.log("user", user);
   const {
     postData,
     filterCollection,
