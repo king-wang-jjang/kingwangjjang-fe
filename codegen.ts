@@ -1,12 +1,14 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
-import { CONFIG } from './src/config-global';
+// import { CONFIG } from './src/config-global';
 
 
 const config: CodegenConfig = {
-  // schema: `${CONFIG.serverUrl}/boardservice/graphql`,
-  schema: `https://api.top1.kr/boardservice/graphql`,
-  // this assumes that all your source files are in a top-level `src/` directory - you might need to adjust this to your file structure
+  schema: [
+    `http://localhost:33330/boardservice/graphql`,  // Board Service
+    `http://localhost:33330/user/graphql`           // User Service
+  ],
+
   documents: ['src/**/*.{ts,tsx}'],
   generates: {
     './src/__generated__/': {

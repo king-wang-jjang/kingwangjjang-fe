@@ -12,7 +12,7 @@ const SocialLoginButtons: React.FC = () => {
 
   const handleKakaoLogin = async () => {
     try {
-      window.location.href = 'http://localhost:33330/auth/login';
+      window.location.href = 'http://localhost:33330/login';
     } catch (error) {
       console.error('Error during Kakao login:', error);
     }
