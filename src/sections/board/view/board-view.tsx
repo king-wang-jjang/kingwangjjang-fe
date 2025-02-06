@@ -3,12 +3,16 @@
 import type { IBoardFilters } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
+import { useEffect } from 'react';
+
 import { Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
 
+import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { useAuthStore } from 'src/store/auth-store';
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -27,7 +31,14 @@ export function BoardView({ title = 'Blank' }: Props) {
   const openFilters = useBoolean();
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
-  // const { user } = useUser();
+  const { user } = useUser();
+  const { login } = useAuthStore();
+
+  useEffect(() => {
+    if (user) {
+      login(user);
+    }
+  }, [user, login]);
 
   const {
     postData,

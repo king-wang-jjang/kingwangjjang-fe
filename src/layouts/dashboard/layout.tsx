@@ -3,6 +3,8 @@
 import type { NavSectionProps } from 'src/components/nav-section';
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
+import { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
@@ -45,6 +47,13 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, header, data }: DashboardLayoutProps) {
+  const { user, login } = useAuthStore();
+  useEffect(() => {
+    if (user) {
+      console.log('User state updated:', user);
+    }
+  }, [user]);
+
   const theme = useTheme();
 
   const mobileNavOpen = useBoolean();
@@ -158,12 +167,14 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* <SettingsButton /> */}
                 <DarkModeButton />
                 {/* -- Account drawer -- */}{' '}
-                {/* ✅ 인증된 사용자는 AccountDrawer 표시, 인증되지 않으면 로그 출력 */}
-                {useAuthStore.getState().isAuthenticated ? (
-                  <AccountDrawer data={_account} />
-                ) : (
-                  <SocialLoginButtons />
-                )}
+                {(() => {
+                  const { isAuthenticated } = useAuthStore.getState();
+                  return isAuthenticated ? (
+                    <AccountDrawer data={_account} />
+                  ) : (
+                    <SocialLoginButtons />
+                  );
+                })()}
                 {/* -- Nav mobile -- */}
                 <MenuButton
                   onClick={() => useNavStore.getState().toggleNavMobile()}
