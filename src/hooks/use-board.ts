@@ -1,7 +1,6 @@
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useState, useEffect } from 'react';
-import { useMutation } from '@apollo/client';
 
 import { POSTITEMS } from 'src/_mock/_board';
 // import { SummaryBoardDocument } from 'src/__generated__/graphql';
@@ -27,7 +26,10 @@ export const useBoard = () => {
   //     loading: summaryBoardMutationLoading,
   //     error: summaryBoardMutationError,
   //   },
-  // ] = useMutation(SummaryBoardDocument, { refetchQueries: ['BoardContentsByDate'] });
+  // ] = useMutation(SummaryBoardDocument, {
+  //   client: boardServiceClient,
+  //   refetchQueries: ['BoardContentsByDate'],
+  // });
 
   const handleSummaryBoard = (boardId: string[], site: string) => {
     console.log('handleSummaryBoard', boardId, site);
@@ -42,16 +44,16 @@ export const useBoard = () => {
 
   useEffect(() => {
     const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value: any) => {
-      if (value?.site === 'ygosu') {
-        return { ...value, site: '와이고수' };
+      switch (value?.site) {
+        case 'ygosu':
+          return { ...value, site: '와이고수' };
+        case 'dcinside':
+          return { ...value, site: '디시인사이드' };
+        case 'ppomppu':
+          return { ...value, site: '뽐뿌' };
+        default:
+          return value;
       }
-      if (value?.site === 'dcinside') {
-        return { ...value, site: '디시인사이드' };
-      }
-      if (value?.site === 'ppomppu') {
-        return { ...value, site: '뽐뿌' };
-      }
-      return value;
     });
 
     setPostData(modifiedData);
@@ -59,15 +61,13 @@ export const useBoard = () => {
     const uniqueSite = Array.from(
       new Set(
         modifiedData
-          ? modifiedData
-              .map((item) => item?.site)
-              .filter((site) => typeof site === 'string')
-              .map(String)
-          : []
+          .map((item) => item?.site)
+          .filter((site) => typeof site === 'string')
+          .map(String)
       )
     );
 
-    if (uniqueSite !== undefined) {
+    if (uniqueSite.length > 0) {
       setFilterCollection(uniqueSite);
     }
   }, [boardContentsData]);

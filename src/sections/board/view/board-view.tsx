@@ -16,7 +16,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
 import { BoardFiltersResult } from '../board-filters-result';
-import { useUser } from 'src/hooks/use-user';
 
 // ----------------------------------------------------------------------
 
@@ -28,9 +27,8 @@ export function BoardView({ title = 'Blank' }: Props) {
   const openFilters = useBoolean();
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
-  const {user} = useUser();
+  // const { user } = useUser();
 
-  console.log("user", user);
   const {
     postData,
     filterCollection,
