@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { UserType } from '../auth/types'; // User 타입이 정의된 파일에서 import
+import type { UserType } from '../types';
 
 interface AuthState {
   user: UserType | null;
