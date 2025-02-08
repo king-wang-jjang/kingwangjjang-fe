@@ -6,28 +6,23 @@ import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import { paths } from 'src/routes/paths';
 import { useRouter, usePathname } from 'src/routes/hooks';
 
-import { _mock } from 'src/_mock';
 import { varAlpha } from 'src/theme/styles';
+import { useNavStore } from 'src/store/nav-store';
+import { useAuthStore } from 'src/store/auth-store';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
 
 import { useMockedUser } from 'src/auth/hooks';
 
-import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
 
@@ -53,9 +48,17 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
 
   const [open, setOpen] = useState(false);
 
+  const { isAuthenticated } = useAuthStore();
+  const { isNavMobileOpen, closeNavMobile } = useNavStore();
+
   const handleOpenDrawer = useCallback(() => {
-    setOpen(true);
-  }, []);
+    if (!isAuthenticated) {
+      console.log('인증이 되지 않았습니다.');
+      useNavStore.getState().toggleNavMobile();
+    } else {
+      setOpen(true);
+    }
+  }, [isAuthenticated]);
 
   const handleCloseDrawer = useCallback(() => {
     setOpen(false);
@@ -118,11 +121,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {user?.email}
+              {user?.id}
             </Typography>
           </Stack>
 
-          <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center" sx={{ p: 3 }}>
+          {/* <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center" sx={{ p: 3 }}>
             {[...Array(3)].map((_, index) => (
               <Tooltip
                 key={_mock.fullName(index + 1)}
@@ -146,9 +149,9 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                 <Iconify icon="mingcute:add-line" />
               </IconButton>
             </Tooltip>
-          </Stack>
+          </Stack> */}
 
-          <Stack
+          {/* <Stack
             sx={{
               py: 3,
               px: 2.5,
@@ -186,11 +189,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                 </MenuItem>
               );
             })}
-          </Stack>
+          </Stack> */}
 
-          <Box sx={{ px: 2.5, py: 3 }}>
+          {/* <Box sx={{ px: 2.5, py: 3 }}>
             <UpgradeBlock />
-          </Box>
+          </Box> */}
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

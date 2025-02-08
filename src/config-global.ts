@@ -35,6 +35,8 @@ export type ConfigValue = {
 export const CONFIG: ConfigValue = {
   appName: '마약',
   appVersion: packageJson.version,
+  // serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.top1.kr',
+  // serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:33330',
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.마약.kr',
   assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',
   isStaticExport: JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`),

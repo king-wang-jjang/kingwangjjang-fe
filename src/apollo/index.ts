@@ -2,16 +2,18 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
 import { CONFIG } from 'src/config-global';
 
-const httpLink = createHttpLink({
-  uri: `${CONFIG.serverUrl}/boardservice/graphql`,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-  credentials: 'include',
-});
+const createApolloClient = (uri: string) =>
+  new ApolloClient({
+    link: createHttpLink({
+      uri,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }),
+    cache: new InMemoryCache(),
+  });
 
-export const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-});
+export const boardServiceClient = createApolloClient(`${CONFIG.serverUrl}/boardservice/graphql`);
+export const userServiceClient = createApolloClient(`${CONFIG.serverUrl}/user/graphql`);

@@ -3,6 +3,8 @@
 import type { NavSectionProps } from 'src/components/nav-section';
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
+import { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
@@ -10,23 +12,25 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useNavStore } from 'src/store/nav-store';
+import { useAuthStore } from 'src/store/auth-store';
+
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
+
+import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 import { Main } from './main';
 import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
-import { _account } from '../config-nav-account';
+import { useNavColorVars } from './styles';
 import { NavHorizontal } from './nav-horizontal';
-import { Searchbar } from '../components/searchbar';
-import { _workspaces } from '../config-nav-workspace';
+import { _account } from '../config-nav-account';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { MenuButton } from '../components/menu-button';
-import { StyledDivider, useNavColorVars } from './styles';
 import { AccountDrawer } from '../components/account-drawer';
 import { DarkModeButton } from '../components/settings-button';
-import { WorkspacesPopover } from '../components/workspaces-popover';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
 
 // ----------------------------------------------------------------------
@@ -43,6 +47,13 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, header, data }: DashboardLayoutProps) {
+  const { user, login } = useAuthStore();
+  useEffect(() => {
+    if (user) {
+      console.log('User state updated:', user);
+    }
+  }, [user]);
+
   const theme = useTheme();
 
   const mobileNavOpen = useBoolean();
@@ -58,6 +69,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
   const isNavMini = settings.navLayout === 'mini';
   const isNavHorizontal = settings.navLayout === 'horizontal';
   const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+  const { isNavMobileOpen, closeNavMobile } = useNavStore();
 
   return (
     <LayoutSection
@@ -93,7 +105,7 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
           slots={{
             topArea: (
               <Alert severity="info" sx={{ borderRadius: 0 }}>
-                페이지 테스트 중 입니다. 
+                페이지 테스트 중 입니다.
               </Alert>
             ),
             bottomArea: isNavHorizontal ? (
@@ -105,26 +117,12 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
             ) : null,
             leftArea: (
               <>
-               <Logo
-                    sx={{
-                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
-                    }}
-                  />
-                {/* -- Nav mobile -- */}
-                {/* <MenuButton
-                  onClick={mobileNavOpen.onTrue}
+                <Logo
                   sx={{
-                    mr: 1,
-                    ml: -1,
-                    [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+                    [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
                   }}
                 />
-                <NavMobile
-                  data={navData}
-                  open={mobileNavOpen.value}
-                  onClose={mobileNavOpen.onFalse}
-                  cssVars={navColorVars.section}
-                />  */}
+
                 {/* -- Logo -- */}
                 {/* {isNavHorizontal && (
                   <Logo
@@ -168,10 +166,18 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 {/* -- Settings button -- */}
                 {/* <SettingsButton /> */}
                 <DarkModeButton />
-                {/* -- Account drawer -- */}
-                {/* <AccountDrawer data={_account} /> */}
+                {/* -- Account drawer -- */}{' '}
+                {(() => {
+                  const { isAuthenticated } = useAuthStore.getState();
+                  return isAuthenticated ? (
+                    <AccountDrawer data={_account} />
+                  ) : (
+                    <SocialLoginButtons />
+                  );
+                })()}
+                {/* -- Nav mobile -- */}
                 <MenuButton
-                  onClick={mobileNavOpen.onTrue}
+                  onClick={() => useNavStore.getState().toggleNavMobile()}
                   sx={{
                     mr: 1,
                     ml: -1,
@@ -180,10 +186,10 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 />
                 <NavMobile
                   data={navData}
-                  open={mobileNavOpen.value}
-                  onClose={mobileNavOpen.onFalse}
+                  open={isNavMobileOpen}
+                  onClose={closeNavMobile} // 닫기 핸들러
                   cssVars={navColorVars.section}
-                /> 
+                />
               </Box>
             ),
           }}

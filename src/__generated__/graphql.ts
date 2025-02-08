@@ -35,6 +35,12 @@ export type Daily = {
   url: Scalars['String']['output'];
 };
 
+export type FilterType = {
+  __typename?: 'FilterType';
+  key: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type Like = {
   __typename?: 'Like';
   NOWLIKE: Scalars['Int']['output'];
@@ -42,11 +48,25 @@ export type Like = {
   site: Scalars['String']['output'];
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  createUser: UserType;
+};
+
+
+export type MutationCreateUserArgs = {
+  authOrganization: Scalars['String']['input'];
+  nickname: Scalars['String']['input'];
+  profileImage: Scalars['String']['input'];
+  userId: Scalars['Int']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   comment: Comment;
   dailyPagination: Array<Daily>;
   getLike: Like;
+  getUser?: Maybe<UserType>;
   getViews: View;
   realtimePagination: Array<Realtime>;
 };
@@ -66,6 +86,11 @@ export type QueryDailyPaginationArgs = {
 export type QueryGetLikeArgs = {
   boardId: Scalars['String']['input'];
   site: Scalars['String']['input'];
+};
+
+
+export type QueryGetUserArgs = {
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -89,6 +114,17 @@ export type Realtime = {
   site: Scalars['String']['output'];
   title: Scalars['String']['output'];
   url: Scalars['String']['output'];
+};
+
+export type UserType = {
+  __typename?: 'UserType';
+  Id?: Maybe<Scalars['String']['output']>;
+  authOrganization?: Maybe<Scalars['String']['output']>;
+  createTime: Scalars['DateTime']['output'];
+  filter?: Maybe<FilterType>;
+  nickname?: Maybe<Scalars['String']['output']>;
+  profileImage?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 export type View = {

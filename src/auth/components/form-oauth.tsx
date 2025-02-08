@@ -10,8 +10,12 @@ const SocialLoginButtons: React.FC = () => {
     console.log('Google login');
   };
 
-  const handleKakaoLogin = () => {
-    console.log('Kakao login');
+  const handleKakaoLogin = async () => {
+    try {
+      window.location.href = `${CONFIG.serverUrl}/login`;
+    } catch (error) {
+      console.error('Error during Kakao login:', error);
+    }
   };
 
   return (
@@ -31,7 +35,7 @@ const SocialLoginButtons: React.FC = () => {
         Google 로그인
       </Button>
       <Button
-        size="large"
+        size="small"
         startIcon={
           <img
             src={`${CONFIG.assetsDir}/assets/icons/brands/ic-brand-kakao.svg`}
@@ -42,11 +46,11 @@ const SocialLoginButtons: React.FC = () => {
         sx={{
           backgroundColor: '#FEE500',
           color: '#3C1E1E',
-          width: '90%',
           height: '30px',
+          fontSize: '12px',
         }}
       >
-        Kakao 로그인
+        로그인
       </Button>
     </Stack>
   );

@@ -2,13 +2,15 @@
 
 import { ApolloProvider } from '@apollo/client';
 
-import { client } from 'src/apollo';
 import { DashboardLayout } from 'src/layouts/dashboard';
+import { userServiceClient, boardServiceClient } from 'src/apollo';
 
 export default function BoardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ApolloProvider client={client}>
-      <DashboardLayout>{children}</DashboardLayout>
+    <ApolloProvider client={boardServiceClient}>
+      <ApolloProvider client={userServiceClient}>
+        <DashboardLayout>{children}</DashboardLayout>
+      </ApolloProvider>
     </ApolloProvider>
   );
 }
