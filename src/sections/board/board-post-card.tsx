@@ -83,7 +83,7 @@ export const PostCard = ({
       >
         <CardContent sx={{ transform: 'none', display: 'flex', flexDirection: 'column' }}>
           {/*  'filled' | 'outlined' | 'soft' | 'inverted'; */}
-          <Box display="flex" flexWrap="wrap" gap={1}>
+          <Box display="flex" flexWrap="wrap" gap={0}>
             <Label color="primary">{site}</Label>
             {isRank && (
               <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
@@ -95,8 +95,7 @@ export const PostCard = ({
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              padding: '5px 0px',
-              gap: '5px',
+              padding: '0px 0px',
             }}
           >
             <Tooltip title={String(createTime)} arrow>
@@ -112,7 +111,7 @@ export const PostCard = ({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: '5px 0px',
+                  padding: '2px 0px',
                 }}
               >
                 <Typography
