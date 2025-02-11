@@ -15,6 +15,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n    }\n  }\n": types.RealtimePaginationDocument,
+    "\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n": types.GetUserDocument,
+    "\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n": types.GetMeDocument,
 };
 
 /**
@@ -35,6 +37,14 @@ export function gql(source: string): unknown;
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n    }\n  }\n"): (typeof documents)["\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"): (typeof documents)["\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"): (typeof documents)["\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
