@@ -20,6 +20,7 @@ export const REALTIME_PAGINATION_QUERY = gql`
       url
       createTime
       gptAnswer
+      thumbnail
     }
   }
 `;

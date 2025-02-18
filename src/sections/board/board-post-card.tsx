@@ -22,6 +22,8 @@ import anime from 'animejs/lib/anime.es.js';
 
 import StarIcon from '@mui/icons-material/Star';
 
+import { CONFIG } from 'src/config-global';
+
 interface Props extends IPostCard {
   onClickToggle: (boardId: string[], site: string) => void;
 }
@@ -32,6 +34,7 @@ export const PostCard = ({
   title,
   url,
   createTime,
+  thumbnail,
   gptAnswer,
   // rank,
   onClickToggle,
@@ -74,36 +77,49 @@ export const PostCard = ({
   };
 
   const isRank: boolean = false; // rank !== null;
+  const defaultThumbnail = `${CONFIG.assetsDir}/logo/logo-default.svg`;
+  const thumbnailSrc = thumbnail || defaultThumbnail;
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
         ref={cardRef}
-        sx={{ width: '100%', zIndex: '100', position: 'relative' }}
+        sx={{ width: '100%', zIndex: '100', position: 'relative', display: 'flex', alignItems: 'center' }}
         onClick={() => handleToggle(id, site)}
       >
-        <CardContent sx={{ transform: 'none', display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ gap: '15px', transform: 'none', display: 'flex', flexDirection: 'row', flexGrow: 1 }}>
           {/*  'filled' | 'outlined' | 'soft' | 'inverted'; */}
-          <Box display="flex" flexWrap="wrap" gap={0}>
-            <Label color="primary">{site}</Label>
-            {isRank && (
-              <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
-                {/* {rank} */}
-              </Label>
-            )}
-          </Box>
           <Box
+            component="img"
+            src={thumbnailSrc}
+            alt="thumbnail"
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '0px 0px',
+              width: 60, // 썸네일 크기 조정
+              height: 60,
+              objectFit: 'cover',
+              borderRadius: '8px',
             }}
-          >
-            <Tooltip title={String(createTime)} arrow>
-              <Typography variant="body2" component="div">
-                {title}
-              </Typography>
-            </Tooltip>
+          />
+          <Box display="flex" flexDirection="column" gap={0}>
+            <Box display="flex" flexWrap="wrap" gap={0}>
+              <Label color="primary">{site}</Label>
+              {isRank && (
+                <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
+                  {/* {rank} */}
+                </Label>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px', }} >
+              <Box display="flex" flexDirection="column" flexGrow={1}>
+                <Tooltip title={String(createTime)} arrow>
+                  <Typography variant="body2" component="div">
+                    {title}
+                  </Typography>
+                </Tooltip>
+              </Box>
+            </Box>
           </Box>
+        
+          
           <Box>
             <Collapse in={expanded} timeout="auto">
               <Box
@@ -132,8 +148,6 @@ export const PostCard = ({
                   </Box>
                 )
               }
-
-              
             </Collapse>
           </Box>
         </CardContent>

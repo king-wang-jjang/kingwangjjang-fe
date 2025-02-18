@@ -25,6 +25,7 @@ export const PostList = ({ postItems, onClickCard }: Props) => (
               url={post.url as string}
               createTime={post.createTime}
               gptAnswer={post.gptAnswer as string}
+              thumbnail={post.thumbnail as string}
             />
           )
       )}
