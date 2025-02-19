@@ -1,7 +1,15 @@
+// next.config.mjs
+import nextPwa from 'next-pwa';
+
+const withPWA = nextPwa({
+  dest: 'public',
+  // disable: process.env.NODE_ENV === 'development' || 'false' === 'true',
+  disable: false,
+});
+
 /**
  * @type {import('next').NextConfig}
  */
-
 const isStaticExport = 'false';
 
 const nextConfig = {
@@ -25,7 +33,6 @@ const nextConfig = {
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
-
     return config;
   },
   ...(isStaticExport === 'true' && {
@@ -33,4 +40,4 @@ const nextConfig = {
   }),
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);
