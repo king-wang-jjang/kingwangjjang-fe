@@ -4,6 +4,7 @@ export interface IPostCard {
   site: string;
   title: string;
   url: string;
+  thumbnail: string;
   createTime: Date;
   gptAnswer: string;
 }

@@ -9,6 +9,7 @@ export type ConfigValue = {
   appVersion: string;
   serverUrl: string;
   assetsDir: string;
+  imageServerUrl:string;
   isStaticExport: boolean;
   auth: {
     method: 'jwt' | 'amplify' | 'firebase' | 'supabase' | 'auth0';
@@ -39,6 +40,7 @@ export const CONFIG: ConfigValue = {
   // serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:33330',
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.마약.kr',
   assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',
+  imageServerUrl: process.env.NEXT_PUBLIC_IMAGE_SERVER_URL ?? 'https://images.마약.kr',
   isStaticExport: JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`),
   /**
    * Auth
