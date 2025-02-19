@@ -43,7 +43,7 @@ const MuiCardContent: Components<Theme>['MuiCardContent'] = {
   /** **************************************
    * STYLE
    *************************************** */
-  styleOverrides: { root: ({ theme }) => ({ padding: theme.spacing(3) }) },
+  styleOverrides: { root: ({ theme }) => ({ padding: theme.spacing(1)}) },
 };
 
 // ----------------------------------------------------------------------

@@ -1,30 +1,20 @@
-import type { IPostCard } from 'src/types/board';
-
-import Link from 'next/link';
 import { useRef, useState, useEffect } from 'react';
-
+import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+import Link from 'next/link';
 import LaunchIcon from '@mui/icons-material/Launch';
-import {
-  Box,
-  Card,
-  Tooltip,
-  Collapse,
-  useTheme,
-  Typography,
-  CardContent,
-  useMediaQuery,
-} from '@mui/material';
-
 import { Label } from 'src/components/label';
-// import Label from '@/app/components/ui/Label';
-// import anime from 'animejs/lib/anime.es.js';
+import { CONFIG } from 'src/config-global';
 import anime from 'animejs/lib/anime.es.js';
-
 import StarIcon from '@mui/icons-material/Star';
 
-import { CONFIG } from 'src/config-global';
-
-interface Props extends IPostCard {
+interface Props {
+  id: string[];
+  site: string;
+  title: string;
+  url: string;
+  createTime: string;
+  thumbnail: string;
+  gptAnswer: string;
   onClickToggle: (boardId: string[], site: string) => void;
 }
 
@@ -36,7 +26,6 @@ export const PostCard = ({
   createTime,
   thumbnail,
   gptAnswer,
-  // rank,
   onClickToggle,
 }: Props) => {
   const [expanded, setExpanded] = useState(false);
@@ -76,39 +65,51 @@ export const PostCard = ({
     }
   };
 
-  const isRank: boolean = false; // rank !== null;
-  const defaultThumbnail = `${CONFIG.assetsDir}/logo/logo-default.svg`;
-  const thumbnailSrc = thumbnail || defaultThumbnail;
+
+  const thumbnailSrc = thumbnail
+  ? `${CONFIG.imageServerUrl}/${thumbnail}`
+  : '/logo/logo-default.svg'; // 로컬 경로로 대체
+
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
         ref={cardRef}
-        sx={{ width: '100%', zIndex: '100', position: 'relative', display: 'flex', alignItems: 'center' }}
+        sx={{
+          width: '100%',
+          zIndex: '100',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column', // 세로 정렬로 변경
+        }}
         onClick={() => handleToggle(id, site)}
       >
-        <CardContent sx={{ gap: '15px', transform: 'none', display: 'flex', flexDirection: 'row', flexGrow: 1 }}>
-          {/*  'filled' | 'outlined' | 'soft' | 'inverted'; */}
+        <CardContent
+          sx={{
+            gap: '15px',
+            transform: 'none',
+            display: 'flex',
+            flexDirection: 'row', // 이미지와 제목은 여전히 가로 배치
+            flexGrow: 1,
+            alignItems: 'center',
+          }}
+        >
           <Box
             component="img"
             src={thumbnailSrc}
             alt="thumbnail"
             sx={{
-              width: 60, // 썸네일 크기 조정
-              height: 60,
-              objectFit: 'cover',
+              width: 80,
+              height: 80,
+              objectFit: 'contain',
               borderRadius: '8px',
             }}
           />
           <Box display="flex" flexDirection="column" gap={0}>
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
-              {isRank && (
-                <Label color="secondary" startIcon={<StarIcon fontSize="small" />}>
-                  {/* {rank} */}
-                </Label>
-              )}
+              {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px', }} >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
               <Box display="flex" flexDirection="column" flexGrow={1}>
                 <Tooltip title={String(createTime)} arrow>
                   <Typography variant="body2" component="div">
@@ -118,40 +119,39 @@ export const PostCard = ({
               </Box>
             </Box>
           </Box>
-        
-          
-          <Box>
-            <Collapse in={expanded} timeout="auto">
+        </CardContent>
+
+        {/* Collapse 영역을 세로로 확장 */}
+        <Collapse in={expanded} timeout="auto">
+          <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography
+              variant="body2"
+              component="div"
+              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+            >
+              {gptAnswer}
+              <br />
+              {id[0]}, {id[1]}
+            </Typography>
+            {isMobile && (
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '2px 0px',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-end',
+                  width: '100%',
+                  marginTop: '10px',
                 }}
               >
-                <Typography
-                  variant="body2"
-                  component="div"
-                  sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-                >
-                  {gptAnswer}
-                  <br/>
-                  {id[0]}, {id[1]}
-                </Typography>
+                <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
+                  <LaunchIcon />
+                </Link>
               </Box>
-              { isMobile && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '100%', marginTop: '10px' }}>
-                    <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
-                        <LaunchIcon />
-                    </Link> 
-                  </Box>
-                )
-              }
-            </Collapse>
-          </Box>
-        </CardContent>
+            )}
+          </CardContent>
+        </Collapse>
       </Card>
+
       <Box
         sx={{
           position: 'absolute',
