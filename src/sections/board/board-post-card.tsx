@@ -79,7 +79,7 @@ export const PostCard = ({
           zIndex: '100',
           position: 'relative',
           display: 'flex',
-          flexDirection: 'column', // 세로 정렬로 변경
+          flexDirection: 'column',
         }}
         onClick={() => handleToggle(id, site)}
       >
@@ -88,8 +88,7 @@ export const PostCard = ({
             gap: '15px',
             transform: 'none',
             display: 'flex',
-            flexDirection: 'row', // 이미지와 제목은 여전히 가로 배치
-            flexGrow: 1,
+            flexDirection: 'row',
             alignItems: 'center',
           }}
         >
@@ -98,10 +97,12 @@ export const PostCard = ({
             src={thumbnailSrc}
             alt="thumbnail"
             sx={{
-              width: 80,
-              height: 80,
-              objectFit: 'contain',
+              width: '80px',
+              height: '80px',
+              objectFit: 'cover',
+              objectPosition: 'center',
               borderRadius: '8px',
+              display: 'block',
             }}
           />
           <Box display="flex" flexDirection="column" gap={0}>
