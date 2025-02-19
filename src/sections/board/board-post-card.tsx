@@ -112,7 +112,7 @@ export const PostCard = ({
             <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
               <Box display="flex" flexDirection="column" flexGrow={1}>
                 <Tooltip title={String(createTime)} arrow>
-                  <Typography variant="body2" component="div">
+                  <Typography variant="body1" component="div">
                     {title}
                   </Typography>
                 </Tooltip>
