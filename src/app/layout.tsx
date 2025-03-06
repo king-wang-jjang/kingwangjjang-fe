@@ -30,6 +30,7 @@ export const metadata = {
       url: `${CONFIG.assetsDir}/favicon.ico`,
     },
   ],
+  manifest: '/manifest.json', // ✅ manifest.json 추가
 };
 
 type Props = {
@@ -39,6 +40,9 @@ type Props = {
 export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" /> {/* ✅ 추가 */}
+      </head>
       <body>
         <InitColorSchemeScript
           defaultMode={schemeConfig.defaultMode}
