@@ -1,11 +1,14 @@
-import { useRef, useState, useEffect } from 'react';
-import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
 import Link from 'next/link';
-import LaunchIcon from '@mui/icons-material/Launch';
-import { Label } from 'src/components/label';
-import { CONFIG } from 'src/config-global';
 import anime from 'animejs/lib/anime.es.js';
+import { useRef, useState, useEffect } from 'react';
+
 import StarIcon from '@mui/icons-material/Star';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+
+import { CONFIG } from 'src/config-global';
+
+import { Label } from 'src/components/label';
 
 interface Props {
   id: string[];
@@ -79,7 +82,7 @@ export const PostCard = ({
           zIndex: '100',
           position: 'relative',
           display: 'flex',
-          flexDirection: 'column', // 세로 정렬로 변경
+          flexDirection: 'column',
         }}
         onClick={() => handleToggle(id, site)}
       >
@@ -88,22 +91,10 @@ export const PostCard = ({
             gap: '15px',
             transform: 'none',
             display: 'flex',
-            flexDirection: 'row', // 이미지와 제목은 여전히 가로 배치
-            flexGrow: 1,
+            flexDirection: 'row',
             alignItems: 'center',
           }}
         >
-          <Box
-            component="img"
-            src={thumbnailSrc}
-            alt="thumbnail"
-            sx={{
-              width: 80,
-              height: 80,
-              objectFit: 'contain',
-              borderRadius: '8px',
-            }}
-          />
           <Box display="flex" flexDirection="column" gap={0}>
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
@@ -119,6 +110,20 @@ export const PostCard = ({
               </Box>
             </Box>
           </Box>
+          <Box
+            component="img"
+            src={thumbnailSrc}
+            alt="thumbnail"
+            sx={{
+              width: '80px',
+              height: '80px',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              borderRadius: '8px',
+              display: 'block',
+              marginLeft: 'auto',
+            }}
+          />
         </CardContent>
 
         {/* Collapse 영역을 세로로 확장 */}

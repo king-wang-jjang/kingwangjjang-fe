@@ -31,28 +31,36 @@ export const Label = forwardRef<HTMLSpanElement, LabelProps>(
 
     return (
       <StyledLabel
-        ref={ref}
-        component="span"
-        className={labelClasses.root.concat(className ? ` ${className}` : '')}
-        ownerState={{ color, variant }}
-        sx={{ ...(startIcon && { pl: 0.75 }), ...(endIcon && { pr: 0.75 }), ...sx }}
-        theme={theme}
-        {...other}
-      >
-        {startIcon && (
-          <Box component="span" className={labelClasses.icon} sx={{ mr: 0.75, ...iconStyles }}>
-            {startIcon}
-          </Box>
-        )}
+      ref={ref}
+      component="span"
+      className={labelClasses.root.concat(className ? ` ${className}` : '')}
+      ownerState={{ color, variant }}
+      sx={{
+        fontSize: '0.50rem', // 글자 크기 줄이기
+        padding: '1px 3px', // 내부 패딩 줄이기
+        height: '15px', // 높이 줄이기
+        lineHeight: 1, // 줄 간격 줄이기
+        ...(startIcon && { pl: 0.5 }), // 왼쪽 패딩 줄이기
+        ...(endIcon && { pr: 0.5 }), // 오른쪽 패딩 줄이기
+        ...sx,
+      }}
+      theme={theme}
+      {...other}
+    >
+      {startIcon && (
+        <Box component="span" className={labelClasses.icon} sx={{ mr: 0.5, ...iconStyles }}>
+          {startIcon}
+        </Box>
+      )}
 
-        {typeof children === 'string' ? sentenceCase(children) : children}
+      {typeof children === 'string' ? sentenceCase(children) : children}
 
-        {endIcon && (
-          <Box component="span" className={labelClasses.icon} sx={{ ml: 0.75, ...iconStyles }}>
-            {endIcon}
-          </Box>
-        )}
-      </StyledLabel>
+      {endIcon && (
+        <Box component="span" className={labelClasses.icon} sx={{ ml: 0.5, ...iconStyles }}>
+          {endIcon}
+        </Box>
+      )}
+    </StyledLabel>
     );
   }
 );

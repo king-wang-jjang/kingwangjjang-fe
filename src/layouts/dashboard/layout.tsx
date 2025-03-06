@@ -179,8 +179,6 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
                 <MenuButton
                   onClick={() => useNavStore.getState().toggleNavMobile()}
                   sx={{
-                    mr: 1,
-                    ml: -1,
                     [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
                   }}
                 />
