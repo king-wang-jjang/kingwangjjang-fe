@@ -1,11 +1,14 @@
-import { useRef, useState, useEffect } from 'react';
-import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
 import Link from 'next/link';
-import LaunchIcon from '@mui/icons-material/Launch';
-import { Label } from 'src/components/label';
-import { CONFIG } from 'src/config-global';
 import anime from 'animejs/lib/anime.es.js';
+import { useRef, useState, useEffect } from 'react';
+
 import StarIcon from '@mui/icons-material/Star';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+
+import { CONFIG } from 'src/config-global';
+
+import { Label } from 'src/components/label';
 
 interface Props {
   id: string[];
@@ -92,6 +95,21 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
+          <Box display="flex" flexDirection="column" gap={0}>
+            <Box display="flex" flexWrap="wrap" gap={0}>
+              <Label color="primary">{site}</Label>
+              {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
+              <Box display="flex" flexDirection="column" flexGrow={1}>
+                <Tooltip title={String(createTime)} arrow>
+                  <Typography variant="body2" component="div">
+                    {title}
+                  </Typography>
+                </Tooltip>
+              </Box>
+            </Box>
+          </Box>
           <Box
             component="img"
             src={thumbnailSrc}
@@ -103,23 +121,9 @@ export const PostCard = ({
               objectPosition: 'center',
               borderRadius: '8px',
               display: 'block',
+              marginLeft: 'auto',
             }}
           />
-          <Box display="flex" flexDirection="column" gap={0}>
-            <Box display="flex" flexWrap="wrap" gap={0}>
-              <Label color="primary">{site}</Label>
-              {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
-              <Box display="flex" flexDirection="column" flexGrow={1}>
-                <Tooltip title={String(createTime)} arrow>
-                  <Typography variant="body1" component="div">
-                    {title}
-                  </Typography>
-                </Tooltip>
-              </Box>
-            </Box>
-          </Box>
         </CardContent>
 
         {/* Collapse 영역을 세로로 확장 */}
