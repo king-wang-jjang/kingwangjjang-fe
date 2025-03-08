@@ -88,7 +88,7 @@ export function BoardView({ title = 'Blank' }: Props) {
       <DashboardContent maxWidth="lg">
         {renderFilters}
         {canReset}
-        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
+        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} loading={boardContentsQueryLoading} />
         <div ref={loadingRef} />
       </DashboardContent>
     );

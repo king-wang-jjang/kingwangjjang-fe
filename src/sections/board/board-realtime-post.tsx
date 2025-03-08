@@ -18,7 +18,7 @@ export const RealtimePost = () => {
         </ListItem>
       </List>
       <List>
-        <PostList postItems={postItems} onClickCard={onClickCard} />
+        <PostList postItems={postItems} onClickCard={onClickCard} loading={false} />
       </List>
     </>
   );
