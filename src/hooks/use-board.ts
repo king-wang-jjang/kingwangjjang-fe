@@ -32,6 +32,7 @@ export const useBoard = () => {
   // });
 
   const handleSummaryBoard = (boardId: string[], site: string) => {
+    
     console.log('handleSummaryBoard', boardId, site);
     // summaryBoardMutation({
     //   variables: { boardId: boardId, site: site },
@@ -81,3 +82,7 @@ export const useBoard = () => {
     handleSummaryBoard,
   };
 };
+function markAsRead(arg0: string) {
+  throw new Error('Function not implemented.');
+}
+

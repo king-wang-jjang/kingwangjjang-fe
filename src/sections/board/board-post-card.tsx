@@ -2,13 +2,13 @@ import Link from 'next/link';
 import anime from 'animejs/lib/anime.es.js';
 import { useRef, useState, useEffect } from 'react';
 
-import StarIcon from '@mui/icons-material/Star';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 
 import { Label } from 'src/components/label';
+import { useReadStore } from 'src/store/read-store';
 
 interface Props {
   id: string[];
@@ -36,6 +36,8 @@ export const PostCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isRead, markAsRead } = useReadStore();
+  const readStatus = isRead(id[0], id[1], site); 
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -47,6 +49,11 @@ export const PostCard = ({
     if (!isMobile) {
       setIsHovering(false);
     }
+  };
+
+  const handleLinkClick = (e: React.MouseEvent, boardId: string[], _site: string) => {
+    e.stopPropagation(); 
+    markAsRead(boardId[0], boardId[1], site);
   };
 
   useEffect(() => {
@@ -64,6 +71,7 @@ export const PostCard = ({
   const handleToggle = (boardId: string[], _site: string) => {
     setExpanded(!expanded);
     if (!expanded) {
+      markAsRead(boardId[0], boardId[1], site);
       onClickToggle(boardId, _site);
     }
   };
@@ -95,7 +103,7 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box display="flex" flexDirection="column" gap={0}>
+          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.5 : 1}}>
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
@@ -148,7 +156,7 @@ export const PostCard = ({
                   marginTop: '10px',
                 }}
               >
-                <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
+                <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
                   <LaunchIcon />
                 </Link>
               </Box>
@@ -169,7 +177,7 @@ export const PostCard = ({
           boxShadow: 'none',
         }}
       >
-        <Link href={url} target="_blank" passHref onClick={(e) => e.stopPropagation()}>
+        <Link href={url} target="_blank" passHref onClick={ (e) => handleLinkClick(e, id, site)}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{ width: '50px', color: 'white' }} />
           </Box>
