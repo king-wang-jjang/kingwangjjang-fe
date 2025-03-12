@@ -1,33 +1,34 @@
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
-
 import { Stack } from '@mui/material';
+
+import { PostCardSkeleton } from 'src/components/loading-screen/PostCardSkeleton';
 
 import { PostCard } from './board-post-card';
 
 interface Props {
-  postItems: RealtimePaginationQuery['realtimePagination'];
+  postItems?: any[];
   onClickCard: (boardId: string[], site: string) => void;
+  loading: boolean;
 }
 
-export const PostList = ({ postItems, onClickCard }: Props) => (
+export const PostList = ({ postItems, onClickCard, loading }: Props) => (
   <Stack spacing={1}>
-    {postItems &&
-      postItems.map(
-        (post, index) =>
-          post && (
-            <PostCard
-              key={index}
-              onClickToggle={onClickCard}
-              id={post.boardId}
-              // rank={post.rank && post.rank as string}
-              site={post.site as string}
-              title={post.title as string}
-              url={post.url as string}
-              createTime={post.createTime}
-              gptAnswer={post.gptAnswer as string}
-              thumbnail={post.thumbnail as string}
-            />
-          )
-      )}
+    {loading
+      ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
+      : postItems?.map(
+          (post, index) =>
+            post && (
+              <PostCard
+                key={index}
+                onClickToggle={onClickCard}
+                id={post.boardId}
+                site={post.site as string}
+                title={post.title as string}
+                url={post.url as string}
+                createTime={post.createTime}
+                gptAnswer={post.gptAnswer as string}
+                thumbnail={post.thumbnail as string}
+              />
+            )
+        )}
   </Stack>
 );

@@ -5,7 +5,7 @@ import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useEffect } from 'react';
 
-import { Grid, Stack, useTheme, useMediaQuery } from '@mui/material';
+import { Grid, Stack, useTheme, useMediaQuery, Skeleton } from '@mui/material';
 
 import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
@@ -88,7 +88,7 @@ export function BoardView({ title = 'Blank' }: Props) {
       <DashboardContent maxWidth="lg">
         {renderFilters}
         {canReset}
-        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
+        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} loading={boardContentsQueryLoading} />
         <div ref={loadingRef} />
       </DashboardContent>
     );
@@ -115,7 +115,12 @@ export function BoardView({ title = 'Blank' }: Props) {
         <Grid md={6}>
           {renderFilters}
           {canReset}
-          <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} />
+          <PostList 
+            onClickCard={handleSummaryBoard} 
+            postItems={dataFiltered} 
+            loading={boardContentsQueryLoading} 
+          />
+          <Skeleton/>
           {/* {boardContentsQueryLoading && <Loading />} */}
           {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
