@@ -97,17 +97,6 @@ export const PostCard = ({
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   };
 
-  // ⏳ 1분마다 시간 갱신
-  useEffect(() => {
-    setTimeAgo(calculateTimeAgo()); // 초기 설정
-
-    const interval = setInterval(() => {
-      setTimeAgo(calculateTimeAgo());
-    }, 60000); // 1분마다 업데이트
-
-    return () => clearInterval(interval); // 언마운트 시 정리
-  }, [createTime]);
-
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
       <Card
@@ -198,7 +187,6 @@ export const PostCard = ({
           </Box>
         </Link>
       </Box>
-
     </Box>
   );
 };
