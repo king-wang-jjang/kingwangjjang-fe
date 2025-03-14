@@ -82,7 +82,3 @@ export const useBoard = () => {
     handleSummaryBoard,
   };
 };
-function markAsRead(arg0: string) {
-  throw new Error('Function not implemented.');
-}
-
