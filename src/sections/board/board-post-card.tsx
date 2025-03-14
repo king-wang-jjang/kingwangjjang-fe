@@ -91,6 +91,7 @@ export const PostCard = ({
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
+          cursor: 'pointer',
         }}
         onClick={() => handleToggle(id, site)}
       >
@@ -103,7 +104,7 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.5 : 1}}>
+          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.6 : 1}}>
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
