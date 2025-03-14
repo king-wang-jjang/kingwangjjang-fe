@@ -15,7 +15,7 @@ interface Props {
   site: string;
   title: string;
   url: string;
-  createTime: string;
+  createTime: string; // 생성 시간 (ISO 형식)
   thumbnail: string;
   gptAnswer: string;
   onClickToggle: (boardId: string[], site: string) => void;
@@ -34,6 +34,8 @@ export const PostCard = ({
   const [expanded, setExpanded] = useState(false);
   const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [timeAgo, setTimeAgo] = useState('');
+  
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
@@ -76,10 +78,35 @@ export const PostCard = ({
     }
   };
 
-
   const thumbnailSrc = thumbnail
-  ? `${CONFIG.imageServerUrl}/${thumbnail}`
-  : '/logo/logo-default.svg'; // 로컬 경로로 대체
+    ? `${CONFIG.imageServerUrl}/${thumbnail}`
+    : '/logo/logo-default.svg'; // 로컬 경로로 대체
+
+  // 🕒 남은 시간을 계산하는 함수
+  const calculateTimeAgo = () => {
+    const createdTime = new Date(createTime);
+    const now = new Date();
+    const diffMs = now.getTime() - createdTime.getTime(); // 밀리초 차이
+    const diffMinutes = Math.floor(diffMs / 60000); // 분 단위로 변환
+
+    if (diffMinutes < 5) return '방금';
+    if (diffMinutes < 60) return `${diffMinutes}분 전`;
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    const remainingMinutes = diffMinutes % 60;
+    return `${diffHours}시간 ${remainingMinutes}분 전`;
+  };
+
+  // ⏳ 1분마다 시간 갱신
+  useEffect(() => {
+    setTimeAgo(calculateTimeAgo()); // 초기 설정
+
+    const interval = setInterval(() => {
+      setTimeAgo(calculateTimeAgo());
+    }, 60000); // 1분마다 업데이트
+
+    return () => clearInterval(interval); // 언마운트 시 정리
+  }, [createTime]);
 
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
@@ -104,18 +131,19 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.6 : 1}}>
+          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.6 : 1 }}>
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
               <Box display="flex" flexDirection="column" flexGrow={1}>
-                <Tooltip title={String(createTime)} arrow>
-                  <Typography variant="body2" component="div">
-                    {title}
-                  </Typography>
-                </Tooltip>
+                <Typography variant="body2" component="div">
+                  {title}
+                </Typography>
+                <Typography variant="caption" component="div" color="text.secondary">
+                  {timeAgo}
+                </Typography>
               </Box>
             </Box>
           </Box>
@@ -135,28 +163,15 @@ export const PostCard = ({
           />
         </CardContent>
 
-        {/* Collapse 영역을 세로로 확장 */}
         <Collapse in={expanded} timeout="auto">
           <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              variant="body2"
-              component="div"
-              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-            >
+            <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
               {gptAnswer}
               <br />
               {id[0]}, {id[1]}
             </Typography>
             {isMobile && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'flex-end',
-                  width: '100%',
-                  marginTop: '10px',
-                }}
-              >
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '100%', marginTop: '10px' }}>
                 <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
                   <LaunchIcon />
                 </Link>
@@ -165,25 +180,6 @@ export const PostCard = ({
           </CardContent>
         </Collapse>
       </Card>
-
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '0',
-          borderRadius: '20px',
-          left: '0',
-          bgcolor: '#3b82f6',
-          width: '100%',
-          height: '100%',
-          boxShadow: 'none',
-        }}
-      >
-        <Link href={url} target="_blank" passHref onClick={ (e) => handleLinkClick(e, id, site)}>
-          <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
-            <LaunchIcon sx={{ width: '50px', color: 'white' }} />
-          </Box>
-        </Link>
-      </Box>
     </Box>
   );
 };

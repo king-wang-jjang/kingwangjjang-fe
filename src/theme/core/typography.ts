@@ -95,7 +95,7 @@ export const typography: TypographyOptions = {
   },
   caption: {
     lineHeight: 1.5,
-    fontSize: pxToRem(12),
+    fontSize: pxToRem(9),
   },
   overline: {
     fontWeight: 700,
