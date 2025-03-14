@@ -180,6 +180,25 @@ export const PostCard = ({
           </CardContent>
         </Collapse>
       </Card>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '0',
+          borderRadius: '20px',
+          left: '0',
+          bgcolor: '#3b82f6',
+          width: '100%',
+          height: '100%',
+          boxShadow: 'none',
+        }}
+      >
+        <Link href={url} target="_blank" passHref onClick={ (e) => handleLinkClick(e, id, site)}>
+          <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
+            <LaunchIcon sx={{ width: '50px', color: 'white' }} />
+          </Box>
+        </Link>
+      </Box>
+
     </Box>
   );
 };
