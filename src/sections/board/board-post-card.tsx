@@ -96,6 +96,10 @@ export const PostCard = ({
     const remainingMinutes = diffMinutes % 60;
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   };
+  
+  useEffect(() => {
+    setTimeAgo(calculateTimeAgo());
+  }, []);
 
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
