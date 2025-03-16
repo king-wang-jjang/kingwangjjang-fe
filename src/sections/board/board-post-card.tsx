@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import anime from 'animejs/lib/anime.es.js';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Box, Card, Tooltip, Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Card,  Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
+import { useReadStore } from 'src/store/read-store';
 
 import { Label } from 'src/components/label';
-import { useReadStore } from 'src/store/read-store';
 
 interface Props {
   id: string[];
@@ -81,9 +81,8 @@ export const PostCard = ({
   const thumbnailSrc = thumbnail
     ? `${CONFIG.imageServerUrl}/${thumbnail}`
     : '/logo/logo-default.svg'; // 로컬 경로로 대체
-
   // 🕒 남은 시간을 계산하는 함수
-  const calculateTimeAgo = () => {
+  const calculateTimeAgo = useCallback(() => {
     const createdTime = new Date(createTime);
     const now = new Date();
     const diffMs = now.getTime() - createdTime.getTime(); // 밀리초 차이
@@ -95,11 +94,11 @@ export const PostCard = ({
     const diffHours = Math.floor(diffMinutes / 60);
     const remainingMinutes = diffMinutes % 60;
     return `${diffHours}시간 ${remainingMinutes}분 전`;
-  };
+  }, [createTime]);
   
   useEffect(() => {
     setTimeAgo(calculateTimeAgo());
-  }, []);
+  }, [calculateTimeAgo]);
 
   return (
     <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
