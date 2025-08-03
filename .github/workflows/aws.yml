@@ -3,6 +3,7 @@ name: ORACLE ARM64 CI/CD
 on:
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 jobs:
   build:
