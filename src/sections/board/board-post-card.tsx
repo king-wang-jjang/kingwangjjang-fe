@@ -5,6 +5,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import LaunchIcon from '@mui/icons-material/Launch';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Card,
@@ -13,6 +14,8 @@ import {
   Typography,
   CardContent,
   useMediaQuery,
+  Modal,
+  IconButton,
 } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
@@ -46,6 +49,7 @@ export const PostCard = ({
   const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -87,6 +91,15 @@ export const PostCard = ({
       markAsRead(boardId[0], boardId[1], site);
       onClickToggle(boardId, _site);
     }
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageModalOpen(true);
+  };
+
+  const handleCloseImageModal = () => {
+    setImageModalOpen(false);
   };
 
   const thumbnailSrc = thumbnail
@@ -149,45 +162,48 @@ export const PostCard = ({
               <Typography variant="body2" component="div">
                 {title}
               </Typography>
-              <Typography variant="caption" component="div" color="text.secondary">
-                {timeAgo}
-              </Typography>
+                             <Typography variant="caption" component="div" color="text.secondary">
+                 {timeAgo}
+               </Typography>
+               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                   <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                   <Typography variant="caption" component="span" color="text.secondary">
+                     0
+                   </Typography>
+                 </Box>
+                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                   <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                   <Typography variant="caption" component="span" color="text.secondary">
+                     0
+                   </Typography>
+                 </Box>
+               </Box>
             </Box>
           </Box>
-          {/* 오른쪽 그룹: 좋아요/댓글 + 썸네일 (끝자락 고정) */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                <Typography variant="caption" component="span" color="text.secondary">
-                  0
-                </Typography>
-              </Box>
-              <Typography variant="caption" component="div" color="text.secondary">
-                •
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                <Typography variant="caption" component="span" color="text.secondary">
-                  0
-                </Typography>
-              </Box>
-            </Box>
-            <Box
-              component="img"
-              src={thumbnailSrc}
-              alt="thumbnail"
-              sx={{
-                width: '80px',
-                height: '80px',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                borderRadius: '8px',
-                display: 'block',
-                flexShrink: 0,
-              }}
-            />
-          </Box>
+                     {/* 오른쪽 그룹: 썸네일 (끝자락 고정) */}
+           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+             <Box
+               component="img"
+               src={thumbnailSrc}
+               alt="thumbnail"
+               onClick={handleImageClick}
+               sx={{
+                 width: '80px',
+                 height: '80px',
+                 objectFit: 'cover',
+                 objectPosition: 'center',
+                 borderRadius: '8px',
+                 display: 'block',
+                 flexShrink: 0,
+                 cursor: 'pointer',
+                 transition: 'transform 0.2s ease-in-out',
+                 '&:hover': {
+                   transform: 'scale(1.05)',
+                 },
+               }}
+             />
+           </Box>
         </CardContent>
 
         <Collapse in={expanded} timeout="auto">
@@ -246,6 +262,61 @@ export const PostCard = ({
           </Box>
         </Link>
       </Box>
+
+      {/* 이미지 모달 */}
+      <Modal
+        open={imageModalOpen}
+        onClose={handleCloseImageModal}
+        aria-labelledby="image-modal-title"
+        aria-describedby="image-modal-description"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            overflow: 'hidden',
+          }}
+        >
+          <IconButton
+            onClick={handleCloseImageModal}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              color: 'white',
+              zIndex: 1,
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.7)',
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Box
+            component="img"
+            src={thumbnailSrc}
+            alt="thumbnail"
+            sx={{
+              width: '100%',
+              height: 'auto',
+              maxHeight: '90vh',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </Box>
+      </Modal>
     </Box>
   );
 };
