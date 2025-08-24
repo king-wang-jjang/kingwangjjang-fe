@@ -3,12 +3,23 @@ import anime from 'animejs/lib/anime.es.js';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Box, Card,  Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import {
+  Box,
+  Card,
+  Collapse,
+  useTheme,
+  Typography,
+  CardContent,
+  useMediaQuery,
+} from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 
 import { Label } from 'src/components/label';
+import { CommentSection } from 'src/components/comment';
 
 interface Props {
   id: string[];
@@ -35,11 +46,11 @@ export const PostCard = ({
   const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
-  const readStatus = isRead(id[0], id[1], site); 
+  const readStatus = isRead(id[0], id[1], site);
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -54,7 +65,7 @@ export const PostCard = ({
   };
 
   const handleLinkClick = (e: React.MouseEvent, boardId: string[], _site: string) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     markAsRead(boardId[0], boardId[1], site);
   };
 
@@ -95,7 +106,7 @@ export const PostCard = ({
     const remainingMinutes = diffMinutes % 60;
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   }, [createTime]);
-  
+
   useEffect(() => {
     setTimeAgo(calculateTimeAgo());
   }, [calculateTimeAgo]);
@@ -123,48 +134,93 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.6 : 1 }}>
+          <Box
+            component="div"
+            display="flex"
+            flexDirection="column"
+            gap={0}
+            sx={{ opacity: readStatus ? 0.6 : 1 }}
+          >
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '0px 0px' }}>
-              <Box display="flex" flexDirection="column" flexGrow={1}>
-                <Typography variant="body2" component="div">
-                  {title}
+            <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
+              <Typography variant="body2" component="div">
+                {title}
+              </Typography>
+              <Typography variant="caption" component="div" color="text.secondary">
+                {timeAgo}
+              </Typography>
+            </Box>
+          </Box>
+          {/* 오른쪽 그룹: 좋아요/댓글 + 썸네일 (끝자락 고정) */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography variant="caption" component="span" color="text.secondary">
+                  0
                 </Typography>
-                <Typography variant="caption" component="div" color="text.secondary">
-                  {timeAgo}
+              </Box>
+              <Typography variant="caption" component="div" color="text.secondary">
+                •
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography variant="caption" component="span" color="text.secondary">
+                  0
                 </Typography>
               </Box>
             </Box>
+            <Box
+              component="img"
+              src={thumbnailSrc}
+              alt="thumbnail"
+              sx={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: '8px',
+                display: 'block',
+                flexShrink: 0,
+              }}
+            />
           </Box>
-          <Box
-            component="img"
-            src={thumbnailSrc}
-            alt="thumbnail"
-            sx={{
-              width: '80px',
-              height: '80px',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              borderRadius: '8px',
-              display: 'block',
-              marginLeft: 'auto',
-            }}
-          />
         </CardContent>
 
         <Collapse in={expanded} timeout="auto">
           <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            <Typography
+              variant="body2"
+              component="div"
+              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', mb: 2 }}
+            >
               {gptAnswer}
               <br />
               {id[0]}, {id[1]}
             </Typography>
+
+            {/* 댓글 섹션 */}
+            <CommentSection postId={`${id[0]}-${id[1]}`} currentUser="사용자" />
+
             {isMobile && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '100%', marginTop: '10px' }}>
-                <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-end',
+                  width: '100%',
+                  marginTop: '10px',
+                }}
+              >
+                <Link
+                  href={url}
+                  target="_blank"
+                  passHref
+                  onClick={(e) => handleLinkClick(e, id, site)}
+                >
                   <LaunchIcon />
                 </Link>
               </Box>
@@ -184,7 +240,7 @@ export const PostCard = ({
           boxShadow: 'none',
         }}
       >
-        <Link href={url} target="_blank" passHref onClick={ (e) => handleLinkClick(e, id, site)}>
+        <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{ width: '50px', color: 'white' }} />
           </Box>
