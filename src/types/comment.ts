@@ -5,6 +5,8 @@ export interface Comment {
   createdAt: string;
   likes: number;
   isLiked?: boolean;
+  parentId?: string | null;
+  replies?: Comment[];
 }
 
 export interface CommentFormData {

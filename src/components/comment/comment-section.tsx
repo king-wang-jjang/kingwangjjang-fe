@@ -1,9 +1,11 @@
+import type { Comment, CommentFormData } from 'src/types/comment';
+
 import { useState } from 'react';
-import { Box, Collapse, IconButton, Typography, Chip } from '@mui/material';
-import { ChatBubbleOutline, ChatBubble } from '@mui/icons-material';
-import { Comment, CommentFormData } from 'src/types/comment';
-import { CommentForm } from './CommentForm';
-import { CommentList } from './CommentList';
+
+import { Box, Typography } from '@mui/material';
+
+import { CommentForm } from './comment-form';
+import { CommentList } from './comment-list';
 
 interface CommentSectionProps {
   postId: string;
@@ -24,15 +26,14 @@ export const CommentSection = ({
   onDeleteComment,
   currentUser = '사용자',
 }: CommentSectionProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
-  const [localCommentCount, setLocalCommentCount] = useState(commentCount);
 
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const isReply = (c: Comment) => Boolean(c.parentId);
+  const rootComments = localComments.filter((c) => !isReply(c));
+  const getReplies = (parentId: string) => localComments.filter((c) => c.parentId === parentId);
+  const totalCount = localComments.length;
 
-  const handleAddComment = async (data: CommentFormData) => {
+  const handleAddComment = async (data: CommentFormData, parentId?: string) => {
     if (!onAddComment) {
       // API가 연결되지 않은 경우 로컬에서 처리
       const newComment: Comment = {
@@ -42,17 +43,16 @@ export const CommentSection = ({
         createdAt: new Date().toISOString(),
         likes: 0,
         isLiked: false,
+        parentId: parentId ?? null,
       };
 
       setLocalComments((prev) => [newComment, ...prev]);
-      setLocalCommentCount((prev) => prev + 1);
       return;
     }
 
     try {
       await onAddComment(data);
-      // API 성공 후 로컬 상태 업데이트
-      setLocalCommentCount((prev) => prev + 1);
+      // API 성공 후 로컬 상태 업데이트 (필요 시 서버 응답 반영)
     } catch (error) {
       console.error('댓글 작성 실패:', error);
     }
@@ -92,7 +92,6 @@ export const CommentSection = ({
     if (!onDeleteComment) {
       // API가 연결되지 않은 경우 로컬에서 처리
       setLocalComments((prev) => prev.filter((comment) => comment.id !== commentId));
-      setLocalCommentCount((prev) => prev - 1);
       return;
     }
 
@@ -100,58 +99,33 @@ export const CommentSection = ({
       await onDeleteComment(commentId);
       // API 성공 후 로컬 상태 업데이트
       setLocalComments((prev) => prev.filter((comment) => comment.id !== commentId));
-      setLocalCommentCount((prev) => prev - 1);
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
     }
   };
 
   return (
-    <Box>
-      {/* 댓글 토글 버튼 */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          cursor: 'pointer',
-          py: 1,
-          px: 1,
-          borderRadius: 1,
-          '&:hover': { bgcolor: 'action.hover' },
-        }}
-        onClick={handleToggle}
-      >
-        <IconButton size="small" sx={{ color: 'text.secondary' }}>
-          {isExpanded ? <ChatBubble /> : <ChatBubbleOutline />}
-        </IconButton>
-        <Typography variant="body2" color="text.secondary">
-          댓글
-        </Typography>
-        {localCommentCount > 0 && (
-          <Chip label={localCommentCount} size="small" sx={{ height: 20, fontSize: '0.75rem' }} />
-        )}
-      </Box>
-
-      {/* 댓글 섹션 */}
-      <Collapse in={isExpanded} timeout="auto">
-        <Box sx={{ pl: 4, pr: 1 }}>
-          {/* 댓글 작성 폼 */}
-          <CommentForm
-            onSubmit={handleAddComment}
-            currentUser={currentUser}
-            placeholder="이 게시글에 대한 의견을 남겨보세요..."
-            buttonText="댓글 작성"
-          />
-
-          {/* 댓글 목록 */}
-          <CommentList
-            comments={localComments}
-            onLike={handleLikeComment}
-            onDelete={handleDeleteComment}
-          />
+    <Box onClick={(e) => e.stopPropagation()}>
+      <Box sx={{ pl: 2, pr: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <Typography variant="h6" component="div">댓글 {totalCount}개</Typography>
         </Box>
-      </Collapse>
+
+        <CommentForm
+          onSubmit={(data) => handleAddComment(data)}
+          currentUser={currentUser}
+          placeholder="댓글 추가..."
+          variant="composer"
+        />
+
+        <CommentList
+          comments={rootComments}
+          getReplies={getReplies}
+          onLike={handleLikeComment}
+          onDelete={handleDeleteComment}
+          onReply={(parentId, content) => handleAddComment({ content }, parentId)}
+        />
+      </Box>
     </Box>
   );
 };

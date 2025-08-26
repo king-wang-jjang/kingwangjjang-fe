@@ -1,5 +1,5 @@
-export { CommentSection } from './CommentSection';
-export { CommentList } from './CommentList';
-export { CommentItem } from './CommentItem';
-export { CommentForm } from './CommentForm';
+export { CommentSection } from './comment-section';
+export { CommentList } from './comment-list';
+export { CommentItem } from './comment-item';
+export { CommentForm } from './comment-form';
 export type { Comment, CommentFormData } from 'src/types/comment';
