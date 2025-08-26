@@ -2,27 +2,27 @@ import Link from 'next/link';
 import anime from 'animejs/lib/anime.es.js';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
+import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Card,
+  Modal,
   Collapse,
   useTheme,
+  IconButton,
   Typography,
   CardContent,
   useMediaQuery,
-  Modal,
-  IconButton,
 } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 
 import { Label } from 'src/components/label';
-import { CommentSection } from 'src/components/comment';
+import { CommentDrawer } from 'src/components/comment';
 
 interface Props {
   id: string[];
@@ -50,6 +50,7 @@ export const PostCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [commentOpen, setCommentOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -100,6 +101,15 @@ export const PostCard = ({
 
   const handleCloseImageModal = () => {
     setImageModalOpen(false);
+  };
+
+  const handleOpenComments = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCommentOpen(true);
+  };
+
+  const handleCloseComments = () => {
+    setCommentOpen(false);
   };
 
   const thumbnailSrc = thumbnail
@@ -166,7 +176,7 @@ export const PostCard = ({
                  {timeAgo}
                </Typography>
                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={handleOpenComments}>
                    <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                    <Typography variant="caption" component="span" color="text.secondary">
                      0
@@ -217,9 +227,6 @@ export const PostCard = ({
               <br />
               {id[0]}, {id[1]}
             </Typography>
-
-            {/* 댓글 섹션 */}
-            <CommentSection postId={`${id[0]}-${id[1]}`} currentUser="사용자" />
 
             {isMobile && (
               <Box
@@ -317,6 +324,14 @@ export const PostCard = ({
           />
         </Box>
       </Modal>
+
+      <CommentDrawer
+        open={commentOpen}
+        onClose={handleCloseComments}
+        postId={`${id[0]}-${id[1]}`}
+        currentUser="사용자"
+        title="댓글"
+      />
     </Box>
   );
 };
