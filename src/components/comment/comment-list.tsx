@@ -23,7 +23,7 @@ export const CommentList = ({
 }: CommentListProps) => {
   if (!comments || comments.length === 0) {
     return (
-      <Box sx={{ py: 2, textAlign: 'center', color: 'text.secondary' }}>
+      <Box sx={{ py: 3, textAlign: 'center', color: 'text.secondary' }}>
         <Typography variant="caption">{emptyMessage}</Typography>
       </Box>
     );
@@ -31,9 +31,9 @@ export const CommentList = ({
 
   return (
     <Box>
-      <Divider sx={{ my: 1 }} />
+      <Divider sx={{ my: 1.5 }} />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
         {comments.map((comment, index) => {
           const children = getReplies ? getReplies(comment.id) : [];
           return (
@@ -45,7 +45,7 @@ export const CommentList = ({
                 onReply={onReply}
                 replies={children}
               />
-              {index < comments.length - 1 && <Divider sx={{ my: 0.5 }} />}
+              {index < comments.length - 1 && <Divider sx={{ my: 0.75 }} />}
             </Box>
           );
         })}

@@ -54,28 +54,28 @@ export const CommentForm = ({
       component="form"
       onSubmit={handleSubmit}
       onClick={(e) => e.stopPropagation()}
-      sx={{ display: 'flex', gap: 1.5, py: 1.5 }}
+      sx={{ display: 'flex', gap: 1.25, py: 1.25 }}
     >
-      <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.875rem' }}>
+      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
         {currentUser.charAt(0).toUpperCase()}
       </Avatar>
 
       <Box sx={{ flex: 1 }}>
         <TextField
           multiline
-          minRows={isActive ? 2 : 1}
-          maxRows={6}
+          minRows={isActive ? 3 : 2}
+          maxRows={8}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onFocus={() => setIsActive(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          variant="standard"
+          variant="outlined"
           fullWidth
+          size="small"
           sx={{
-            '& .MuiInputBase-root': {
-              px: 1,
-              pb: 0.5,
+            '& .MuiOutlinedInput-root': {
+              py: 0.5,
             },
           }}
           autoFocus={autoFocus}

@@ -58,8 +58,7 @@ export function CommentDrawer({
           <DragHandleIcon sx={{ color: 'text.disabled' }} />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="subtitle1">{title}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <IconButton size="small" onClick={onClose}>
             <CloseIcon />
           </IconButton>

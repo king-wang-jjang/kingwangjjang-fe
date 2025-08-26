@@ -106,11 +106,7 @@ export const CommentSection = ({
 
   return (
     <Box onClick={(e) => e.stopPropagation()}>
-      <Box sx={{ pl: 2, pr: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Typography variant="h6" component="div">댓글 {totalCount}개</Typography>
-        </Box>
-
+      <Box sx={{ pl: 2, pr: 1.5 }}>
         <CommentForm
           onSubmit={(data) => handleAddComment(data)}
           currentUser={currentUser}
