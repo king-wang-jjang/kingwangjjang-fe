@@ -15,5 +15,5 @@ const createApolloClient = (uri: string) =>
     cache: new InMemoryCache(),
   });
 
-export const boardServiceClient = createApolloClient(`${CONFIG.serverUrl}/boardservice/graphql`);
-export const userServiceClient = createApolloClient(`${CONFIG.serverUrl}/user/graphql`);
+export const boardServiceClient = createApolloClient(`${CONFIG.serverUrl}/boardservice/board-graphql`);
+export const userServiceClient = createApolloClient(`${CONFIG.serverUrl}/user/user-graphql`);
