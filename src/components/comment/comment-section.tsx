@@ -1,6 +1,6 @@
 import type { Comment, CommentFormData } from 'src/types/comment';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Box, Typography } from '@mui/material';
 
@@ -12,6 +12,7 @@ interface CommentSectionProps {
   comments?: Comment[];
   commentCount?: number;
   onAddComment?: (data: CommentFormData) => Promise<void>;
+  onAddReply?: (parentId: string, content: string) => Promise<void>;
   onLikeComment?: (commentId: string) => Promise<void>;
   onDeleteComment?: (commentId: string) => Promise<void>;
   currentUser?: string;
@@ -22,11 +23,16 @@ export const CommentSection = ({
   comments = [],
   commentCount = 0,
   onAddComment,
+  onAddReply,
   onLikeComment,
   onDeleteComment,
   currentUser = '사용자',
 }: CommentSectionProps) => {
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
+
+  useEffect(() => {
+    setLocalComments(comments);
+  }, [comments]);
 
   const isReply = (c: Comment) => Boolean(c.parentId);
   const rootComments = localComments.filter((c) => !isReply(c));
@@ -51,7 +57,11 @@ export const CommentSection = ({
     }
 
     try {
-      await onAddComment(data);
+      if (parentId && onAddReply) {
+        await onAddReply(parentId, data.content);
+      } else {
+        await onAddComment(data);
+      }
       // API 성공 후 로컬 상태 업데이트 (필요 시 서버 응답 반영)
     } catch (error) {
       console.error('댓글 작성 실패:', error);

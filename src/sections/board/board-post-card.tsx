@@ -329,6 +329,7 @@ export const PostCard = ({
         open={commentOpen}
         onClose={handleCloseComments}
         postId={`${id[0]}-${id[1]}`}
+        site={site}
         currentUser="사용자"
         title="댓글"
       />

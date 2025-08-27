@@ -14,11 +14,13 @@ import {
 } from '@mui/material';
 
 import { CommentSection } from './comment-section';
+import { useComments } from 'src/hooks/use-comments';
 
 interface CommentDrawerProps {
   open: boolean;
   onClose: () => void;
   postId: string;
+  site?: string;
   currentUser?: string;
   initialComments?: Comment[];
   title?: string;
@@ -29,6 +31,7 @@ export function CommentDrawer({
   open,
   onClose,
   postId,
+  site,
   currentUser = '사용자',
   initialComments = [],
   title = '댓글',
@@ -44,6 +47,15 @@ export function CommentDrawer({
     }),
     []
   );
+
+  const [boardIdA, boardIdB] = postId.split('-');
+  const boardId = boardIdA && boardIdB ? `${boardIdA}-${boardIdB}` : postId;
+
+  const { comments, loading, addComment, addReply } = useComments({
+    boardId,
+    site: site ?? '',
+    currentUserId: currentUser,
+  });
 
   return (
     <Drawer
@@ -76,8 +88,10 @@ export function CommentDrawer({
         <Box sx={{ px: 0, flex: 1, overflow: 'auto' }}>
           <CommentSection
             postId={postId}
-            comments={initialComments}
+            comments={comments}
             currentUser={currentUser}
+            onAddComment={async ({ content }) => addComment(content)}
+            onAddReply={async (parentId, content) => addReply(parentId, content)}
           />
         </Box>
       </Box>
