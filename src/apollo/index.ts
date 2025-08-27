@@ -17,3 +17,4 @@ const createApolloClient = (uri: string) =>
 
 export const boardServiceClient = createApolloClient(`${CONFIG.serverUrl}/boardservice/board-graphql`);
 export const userServiceClient = createApolloClient(`${CONFIG.serverUrl}/user/user-graphql`);
+export const commentServiceClient = createApolloClient(`${CONFIG.serverUrl}/commentservice/comment-graphql`);

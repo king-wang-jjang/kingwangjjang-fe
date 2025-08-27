@@ -21,7 +21,19 @@ export type Scalars = {
 export type Comment = {
   __typename?: 'Comment';
   boardId: Scalars['String']['output'];
+  comments: Array<CommentEntry>;
   site: Scalars['String']['output'];
+};
+
+export type CommentEntry = {
+  __typename?: 'CommentEntry';
+  Id: Scalars['String']['output'];
+  boardId: Scalars['String']['output'];
+  comment: Scalars['String']['output'];
+  reply: Array<ReplyEntry>;
+  site: Scalars['String']['output'];
+  timestamp: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type Daily = {
@@ -50,8 +62,27 @@ export type Like = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addComment: Comment;
+  addReply: CommentEntry;
   createUser: UserType;
   search: Array<Realtime>;
+};
+
+
+export type MutationAddCommentArgs = {
+  boardId: Scalars['String']['input'];
+  comment: Scalars['String']['input'];
+  site: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+export type MutationAddReplyArgs = {
+  boardId: Scalars['String']['input'];
+  parentComment: Scalars['String']['input'];
+  reply: Scalars['String']['input'];
+  site: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -70,6 +101,7 @@ export type MutationSearchArgs = {
 export type Query = {
   __typename?: 'Query';
   comment: Comment;
+  comments: Comment;
   dailyPagination: Array<Daily>;
   getLike: Like;
   getUser?: Maybe<UserType>;
@@ -79,6 +111,12 @@ export type Query = {
 
 
 export type QueryCommentArgs = {
+  boardId: Scalars['String']['input'];
+  site: Scalars['String']['input'];
+};
+
+
+export type QueryCommentsArgs = {
   boardId: Scalars['String']['input'];
   site: Scalars['String']['input'];
 };
@@ -121,6 +159,15 @@ export type Realtime = {
   thumbnail?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   url: Scalars['String']['output'];
+};
+
+export type ReplyEntry = {
+  __typename?: 'ReplyEntry';
+  boardId: Scalars['String']['output'];
+  comment: Scalars['String']['output'];
+  site: Scalars['String']['output'];
+  timestamp: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type SearchInput = {
