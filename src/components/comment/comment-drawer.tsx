@@ -55,6 +55,7 @@ export function CommentDrawer({
     boardId,
     site: site ?? '',
     currentUserId: currentUser,
+    enabled: open,
   });
 
   return (

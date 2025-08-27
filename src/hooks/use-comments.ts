@@ -1,21 +1,22 @@
-import { useCallback, useMemo } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMemo, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 
 import { commentServiceClient } from 'src/apollo';
-
-import { ADD_COMMENT, ADD_REPLY, GET_COMMENTS } from 'src/apollo/comment-gql';
+import { ADD_REPLY, ADD_COMMENT, GET_COMMENTS } from 'src/apollo/comment-gql';
 
 type UseCommentsParams = {
   boardId: string;
   site: string;
   currentUserId: string;
+  enabled?: boolean;
 };
 
-export const useComments = ({ boardId, site, currentUserId }: UseCommentsParams) => {
+export const useComments = ({ boardId, site, currentUserId, enabled = true }: UseCommentsParams) => {
   const { data, loading, error, refetch } = useQuery(GET_COMMENTS, {
     client: commentServiceClient,
     variables: { boardId, site },
     fetchPolicy: 'cache-and-network',
+    skip: !enabled,
   });
 
   const [addCommentMutation, { loading: addingComment }] = useMutation(ADD_COMMENT, {
