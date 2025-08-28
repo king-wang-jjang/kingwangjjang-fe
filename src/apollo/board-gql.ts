@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 // export const SUMMARY_BOARD_MUTATION = gql`
 //   mutation SummaryBoard($boardId: String!, $site: String!) {
@@ -14,12 +14,14 @@ import { gql } from "@apollo/client";
 export const REALTIME_PAGINATION_QUERY = gql`
   query RealtimePagination($index: Int) {
     realtimePagination(index: $index) {
-      boardId
-      site
+      Id
+      category
+      no
       title
       url
-      createTime
+      contents
       gptAnswer
+      createTime
       thumbnail
     }
   }

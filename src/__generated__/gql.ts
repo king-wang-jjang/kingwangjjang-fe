@@ -14,12 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 const documents = {
-    "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n      thumbnail\n    }\n  }\n": types.RealtimePaginationDocument,
-    "\n  query GetComments($boardId: String!, $site: String!) {\n    comments(boardId: $boardId, site: $site) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n": types.GetCommentsDocument,
-    "\n  mutation AddComment(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $comment: String!\n  ) {\n    addComment(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      comment: $comment\n    ) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n": types.AddCommentDocument,
-    "\n  mutation AddReply(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $parentComment: String!\n    $reply: String!\n  ) {\n    addReply(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      parentComment: $parentComment\n      reply: $reply\n    ) {\n      Id\n      boardId\n      site\n      userId\n      comment\n      timestamp\n      reply {\n        boardId\n        site\n        userId\n        comment\n        timestamp\n      }\n    }\n  }\n": types.AddReplyDocument,
-    "\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n": types.GetUserDocument,
-    "\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n": types.GetMeDocument,
+    "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      title\n      url\n      contents\n      gptAnswer\n      createTime\n      thumbnail\n    }\n  }\n": types.RealtimePaginationDocument,
+    "\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n": types.GetCommentDocument,
 };
 
 /**
@@ -39,27 +35,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n      thumbnail\n    }\n  }\n"): (typeof documents)["\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      boardId\n      site\n      title\n      url\n      createTime\n      gptAnswer\n      thumbnail\n    }\n  }\n"];
+export function gql(source: "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      title\n      url\n      contents\n      gptAnswer\n      createTime\n      thumbnail\n    }\n  }\n"): (typeof documents)["\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      title\n      url\n      contents\n      gptAnswer\n      createTime\n      thumbnail\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetComments($boardId: String!, $site: String!) {\n    comments(boardId: $boardId, site: $site) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetComments($boardId: String!, $site: String!) {\n    comments(boardId: $boardId, site: $site) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation AddComment(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $comment: String!\n  ) {\n    addComment(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      comment: $comment\n    ) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation AddComment(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $comment: String!\n  ) {\n    addComment(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      comment: $comment\n    ) {\n      boardId\n      site\n      comments {\n        Id\n        boardId\n        site\n        userId\n        comment\n        timestamp\n        reply {\n          boardId\n          site\n          userId\n          comment\n          timestamp\n        }\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation AddReply(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $parentComment: String!\n    $reply: String!\n  ) {\n    addReply(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      parentComment: $parentComment\n      reply: $reply\n    ) {\n      Id\n      boardId\n      site\n      userId\n      comment\n      timestamp\n      reply {\n        boardId\n        site\n        userId\n        comment\n        timestamp\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation AddReply(\n    $boardId: String!\n    $site: String!\n    $userId: String!\n    $parentComment: String!\n    $reply: String!\n  ) {\n    addReply(\n      boardId: $boardId\n      site: $site\n      userId: $userId\n      parentComment: $parentComment\n      reply: $reply\n    ) {\n      Id\n      boardId\n      site\n      userId\n      comment\n      timestamp\n      reply {\n        boardId\n        site\n        userId\n        comment\n        timestamp\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"): (typeof documents)["\n  query GetUser($userId: String) {\n    getUser(userId: $userId) {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"): (typeof documents)["\n  query GetMe {\n    getUser {\n      Id\n      authOrganization\n      createTime\n      nickname\n      profileImage\n      userId\n    }\n  }\n"];
+export function gql(source: "\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n"): (typeof documents)["\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
