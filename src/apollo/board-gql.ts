@@ -20,7 +20,6 @@ export const REALTIME_PAGINATION_QUERY = gql`
       site
       title
       url
-      contents
       gptAnswer
       createTime
       thumbnail
