@@ -17,9 +17,9 @@ export const REALTIME_PAGINATION_QUERY = gql`
       Id
       category
       no
+      site
       title
       url
-      contents
       gptAnswer
       createTime
       thumbnail

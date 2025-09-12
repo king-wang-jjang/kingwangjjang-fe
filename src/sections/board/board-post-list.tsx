@@ -6,7 +6,7 @@ import { PostCard } from './board-post-card';
 
 interface Props {
   postItems?: any[];
-  onClickCard: (boardId: string[], site: string) => void;
+  onClickCard: (boardId: string, site: string) => void;
   loading: boolean;
 }
 
@@ -20,7 +20,7 @@ export const PostList = ({ postItems, onClickCard, loading }: Props) => (
               <PostCard
                 key={index}
                 onClickToggle={onClickCard}
-                id={post.boardId}
+                boardId={post.Id || ''}
                 site={post.site as string}
                 title={post.title as string}
                 url={post.url as string}

@@ -25,18 +25,18 @@ import { Label } from 'src/components/label';
 import { CommentDrawer } from 'src/components/comment';
 
 interface Props {
-  id: string[];
+  boardId: string;
   site: string;
   title: string;
   url: string;
   createTime: string; // 생성 시간 (ISO 형식)
   thumbnail: string;
   gptAnswer: string;
-  onClickToggle: (boardId: string[], site: string) => void;
+  onClickToggle: (boardId: string, site: string) => void;
 }
 
 export const PostCard = ({
-  id,
+  boardId,
   site,
   title,
   url,
@@ -86,7 +86,7 @@ export const PostCard = ({
     }
   }, [isHovering]);
 
-  const handleToggle = (boardId: string[], _site: string) => {
+  const handleToggle = (_boardId: string) => {
     setExpanded(!expanded);
     if (!expanded) {
       markAsRead(boardId[0], boardId[1], site);
@@ -130,6 +130,7 @@ export const PostCard = ({
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   }, [createTime]);
 
+
   useEffect(() => {
     setTimeAgo(calculateTimeAgo());
   }, [calculateTimeAgo]);
@@ -146,7 +147,7 @@ export const PostCard = ({
           flexDirection: 'column',
           cursor: 'pointer',
         }}
-        onClick={() => handleToggle(id, site)}
+        onClick={() => boardId && handleToggle(boardId)}
       >
         <CardContent
           sx={{
@@ -157,6 +158,13 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
+          <Box
+            component="div"
+            display="flex"
+            flexDirection="column"
+            gap={0}
+            sx={{ opacity: readStatus ? 0.6 : 1 }}
+          >
           <Box
             component="div"
             display="flex"
@@ -225,7 +233,7 @@ export const PostCard = ({
             >
               {gptAnswer}
               <br />
-              {id[0]}, {id[1]}
+              {boardId}, {site}
             </Typography>
 
             {isMobile && (
