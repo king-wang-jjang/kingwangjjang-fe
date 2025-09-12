@@ -28,46 +28,10 @@ export const useComments = ({ boardId, site, currentUserId, enabled = true }: Us
   // });
 
   const comments = useMemo(() => data?.comments?.comments ?? [], [data]);
-
-  const addComment = useCallback(
-    async (content: string) => {
-      await addCommentMutation({
-        variables: {
-          boardId,
-          site,
-          userId: currentUserId,
-          comment: content,
-        },
-      });
-      await refetch();
-    },
-    [addCommentMutation, boardId, site, currentUserId, refetch]
-  );
-
-  const addReply = useCallback(
-    async (parentComment: string, reply: string) => {
-      await addReplyMutation({
-        variables: {
-          boardId,
-          site,
-          userId: currentUserId,
-          parentComment,
-          reply,
-        },
-      });
-      await refetch();
-    },
-    [addReplyMutation, boardId, site, currentUserId, refetch]
-  );
-
   return {
     comments,
     loading,
     error,
-    addComment,
-    addingComment,
-    addReply,
-    addingReply,
     refetch,
   };
 };

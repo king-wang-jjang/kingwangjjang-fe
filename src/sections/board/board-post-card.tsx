@@ -29,7 +29,7 @@ interface Props {
   site: string;
   title: string;
   url: string;
-  createTime: string; // 생성 시간 (ISO 형식)
+  createTime: string;
   thumbnail: string;
   gptAnswer: string;
   onClickToggle: (boardId: string, site: string) => void;
@@ -55,7 +55,7 @@ export const PostCard = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
-  const readStatus = isRead(id[0], id[1], site);
+  const readStatus = isRead(boardId);
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -69,9 +69,9 @@ export const PostCard = ({
     }
   };
 
-  const handleLinkClick = (e: React.MouseEvent, boardId: string[], _site: string) => {
+  const handleLinkClick = (e: React.MouseEvent, _boardId: string, _site: string) => {
     e.stopPropagation();
-    markAsRead(boardId[0], boardId[1], site);
+    markAsRead(_boardId);
   };
 
   useEffect(() => {
@@ -89,8 +89,8 @@ export const PostCard = ({
   const handleToggle = (_boardId: string) => {
     setExpanded(!expanded);
     if (!expanded) {
-      markAsRead(boardId[0], boardId[1], site);
-      onClickToggle(boardId, _site);
+      markAsRead(_boardId);
+      onClickToggle(_boardId, site);
     }
   };
 
@@ -158,13 +158,6 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box
-            component="div"
-            display="flex"
-            flexDirection="column"
-            gap={0}
-            sx={{ opacity: readStatus ? 0.6 : 1 }}
-          >
           <Box
             component="div"
             display="flex"
@@ -250,7 +243,7 @@ export const PostCard = ({
                   href={url}
                   target="_blank"
                   passHref
-                  onClick={(e) => handleLinkClick(e, id, site)}
+                  onClick={(e) => handleLinkClick(e, boardId, site)}
                 >
                   <LaunchIcon />
                 </Link>
@@ -271,7 +264,7 @@ export const PostCard = ({
           boxShadow: 'none',
         }}
       >
-        <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
+        <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, boardId, site)}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{ width: '50px', color: 'white' }} />
           </Box>
@@ -336,7 +329,7 @@ export const PostCard = ({
       <CommentDrawer
         open={commentOpen}
         onClose={handleCloseComments}
-        postId={`${id[0]}-${id[1]}`}
+        postId={`${boardId}-${site}`}
         site={site}
         currentUser="사용자"
         title="댓글"
