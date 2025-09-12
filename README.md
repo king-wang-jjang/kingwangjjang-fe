@@ -62,7 +62,7 @@ NEXT_PUBLIC_ASSETS_DIR=
 NEXT_PUBLIC_IMAGE_SERVER_URL=
 
 # 정적 export 빌드 여부("true"/"false")
-BUILD_STATIC_EXPORT=false
+NEXT_PUBLIC_BUILD_STATIC_EXPORT=false
 
 # Mapbox (선택)
 NEXT_PUBLIC_MAPBOX_API_KEY=
@@ -207,7 +207,7 @@ docker compose up -d
 1) 환경 변수 설정(`.env` 또는 호스팅 환경 변수)
 2) 빌드: `yarn build`
 3) 실행: `yarn start` (리버스 프록시/Nginx 뒤에서 8083 노출 권장)
-4) 정적 Export가 필요하면 `BUILD_STATIC_EXPORT`를 `"true"`로 설정 후 사용(코드 상 불리언 문자열 처리 주의)
+4) 정적 Export가 필요하면 `NEXT_PUBLIC_BUILD_STATIC_EXPORT`를 `"true"`로 설정 후 사용(코드 상 불리언 문자열 처리 주의)
 
 ## 라이선스/저작권
 

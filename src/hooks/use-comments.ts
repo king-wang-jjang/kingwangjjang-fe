@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 
 import { commentServiceClient } from 'src/apollo';
-import { ADD_REPLY, ADD_COMMENT, GET_COMMENTS } from 'src/apollo/comment-gql';
+import { GET_COMMENTS } from 'src/apollo/comment-gql';
 
 type UseCommentsParams = {
   boardId: string;
@@ -19,13 +19,13 @@ export const useComments = ({ boardId, site, currentUserId, enabled = true }: Us
     skip: !enabled,
   });
 
-  const [addCommentMutation, { loading: addingComment }] = useMutation(ADD_COMMENT, {
-    client: commentServiceClient,
-  });
+  // const [addCommentMutation, { loading: addingComment }] = useMutation(ADD_COMMENT, {
+  //   client: commentServiceClient,
+  // });
 
-  const [addReplyMutation, { loading: addingReply }] = useMutation(ADD_REPLY, {
-    client: commentServiceClient,
-  });
+  // const [addReplyMutation, { loading: addingReply }] = useMutation(ADD_REPLY, {
+  //   client: commentServiceClient,
+  // });
 
   const comments = useMemo(() => data?.comments?.comments ?? [], [data]);
 

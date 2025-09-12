@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 // 댓글 조회 (Board Service의 실제 스키마에 맞춤)
-export const GET_COMMENT = gql`
+export const GET_COMMENTS = gql`
   query GetComment($boardId: String!, $site: String!) {
     comment(boardId: $boardId, site: $site) {
       boardId

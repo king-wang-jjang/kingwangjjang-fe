@@ -20,7 +20,7 @@ const nextConfig = {
     appDir: true, // Next.js App Router 사용 시 필요
   },
   env: {
-    BUILD_STATIC_EXPORT: isStaticExport,
+    NEXT_PUBLIC_BUILD_STATIC_EXPORT: isStaticExport,
   },
   modularizeImports: {
     '@mui/icons-material': {
