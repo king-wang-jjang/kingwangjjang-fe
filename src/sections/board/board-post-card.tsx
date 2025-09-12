@@ -3,7 +3,15 @@ import anime from 'animejs/lib/anime.es.js';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Box, Card,  Collapse, Typography, CardContent, useTheme, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  Card,
+  Collapse,
+  useTheme,
+  Typography,
+  CardContent,
+  useMediaQuery,
+} from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
@@ -11,18 +19,18 @@ import { useReadStore } from 'src/store/read-store';
 import { Label } from 'src/components/label';
 
 interface Props {
-  id: string[];
+  boardId: string;
   site: string;
   title: string;
   url: string;
   createTime: string; // 생성 시간 (ISO 형식)
   thumbnail: string;
   gptAnswer: string;
-  onClickToggle: (boardId: string[], site: string) => void;
+  onClickToggle: (boardId: string, site: string) => void;
 }
 
 export const PostCard = ({
-  id,
+  boardId,
   site,
   title,
   url,
@@ -35,11 +43,11 @@ export const PostCard = ({
   const cardRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
-  const readStatus = isRead(id[0], id[1], site); 
+  const readStatus = boardId ? isRead(boardId) : false;
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -53,9 +61,9 @@ export const PostCard = ({
     }
   };
 
-  const handleLinkClick = (e: React.MouseEvent, boardId: string[], _site: string) => {
-    e.stopPropagation(); 
-    markAsRead(boardId[0], boardId[1], site);
+  const handleLinkClick = (e: React.MouseEvent, _boardId: string) => {
+    e.stopPropagation();
+    markAsRead(_boardId);
   };
 
   useEffect(() => {
@@ -70,11 +78,11 @@ export const PostCard = ({
     }
   }, [isHovering]);
 
-  const handleToggle = (boardId: string[], _site: string) => {
+  const handleToggle = (_boardId: string) => {
     setExpanded(!expanded);
     if (!expanded) {
-      markAsRead(boardId[0], boardId[1], site);
-      onClickToggle(boardId, _site);
+      markAsRead(_boardId);
+      onClickToggle(_boardId, site);
     }
   };
 
@@ -95,7 +103,7 @@ export const PostCard = ({
     const remainingMinutes = diffMinutes % 60;
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   }, [createTime]);
-  
+
   useEffect(() => {
     setTimeAgo(calculateTimeAgo());
   }, [calculateTimeAgo]);
@@ -112,7 +120,7 @@ export const PostCard = ({
           flexDirection: 'column',
           cursor: 'pointer',
         }}
-        onClick={() => handleToggle(id, site)}
+        onClick={() => boardId && handleToggle(boardId)}
       >
         <CardContent
           sx={{
@@ -123,7 +131,13 @@ export const PostCard = ({
             alignItems: 'center',
           }}
         >
-          <Box component="div" display="flex" flexDirection="column" gap={0} sx={{ opacity: readStatus ? 0.6 : 1 }}>
+          <Box
+            component="div"
+            display="flex"
+            flexDirection="column"
+            gap={0}
+            sx={{ opacity: readStatus ? 0.6 : 1 }}
+          >
             <Box display="flex" flexWrap="wrap" gap={0}>
               <Label color="primary">{site}</Label>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
@@ -157,14 +171,31 @@ export const PostCard = ({
 
         <Collapse in={expanded} timeout="auto">
           <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            <Typography
+              variant="body2"
+              component="div"
+              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+            >
               {gptAnswer}
               <br />
-              {id[0]}, {id[1]}
+              {boardId}, {site}
             </Typography>
             {isMobile && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '100%', marginTop: '10px' }}>
-                <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, id, site)}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-end',
+                  width: '100%',
+                  marginTop: '10px',
+                }}
+              >
+                <Link
+                  href={url}
+                  target="_blank"
+                  passHref
+                  onClick={(e) => handleLinkClick(e, boardId)}
+                >
                   <LaunchIcon />
                 </Link>
               </Box>
@@ -184,7 +215,7 @@ export const PostCard = ({
           boxShadow: 'none',
         }}
       >
-        <Link href={url} target="_blank" passHref onClick={ (e) => handleLinkClick(e, id, site)}>
+        <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, boardId)}>
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{ width: '50px', color: 'white' }} />
           </Box>
