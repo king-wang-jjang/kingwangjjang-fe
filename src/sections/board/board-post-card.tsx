@@ -33,6 +33,7 @@ interface Props {
   thumbnail: string;
   gptAnswer: string;
   onClickToggle: (boardId: string, site: string) => void;
+  onCommentClick?: (boardId: string, site: string) => void;
 }
 
 export const PostCard = ({
@@ -44,6 +45,7 @@ export const PostCard = ({
   thumbnail,
   gptAnswer,
   onClickToggle,
+  onCommentClick,
 }: Props) => {
   const [expanded, setExpanded] = useState(false);
   const cardRef = useRef(null);
@@ -105,6 +107,9 @@ export const PostCard = ({
 
   const handleOpenComments = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (onCommentClick) {
+      onCommentClick(boardId, site);
+    }
     setCommentOpen(true);
   };
 

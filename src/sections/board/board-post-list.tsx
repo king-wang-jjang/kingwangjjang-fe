@@ -7,10 +7,11 @@ import { PostCard } from './board-post-card';
 interface Props {
   postItems?: any[];
   onClickCard: (boardId: string, site: string) => void;
+  onCommentClick?: (boardId: string, site: string) => void;
   loading: boolean;
 }
 
-export const PostList = ({ postItems, onClickCard, loading }: Props) => (
+export const PostList = ({ postItems, onClickCard, onCommentClick, loading }: Props) => (
   <Stack spacing={1}>
     {loading
       ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
@@ -20,6 +21,7 @@ export const PostList = ({ postItems, onClickCard, loading }: Props) => (
               <PostCard
                 key={index}
                 onClickToggle={onClickCard}
+                onCommentClick={onCommentClick}
                 boardId={post.Id || ''}
                 site={post.site as string}
                 title={post.title as string}

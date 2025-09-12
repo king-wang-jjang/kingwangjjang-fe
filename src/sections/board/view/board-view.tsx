@@ -3,9 +3,9 @@
 import type { IBoardFilters } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Grid, Stack, useTheme, useMediaQuery, Skeleton } from '@mui/material';
+import { Grid, Stack, useTheme, useMediaQuery, Skeleton, Card, Typography } from '@mui/material';
 
 import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
@@ -20,6 +20,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
 import { BoardFiltersResult } from '../board-filters-result';
+import { CommentSidebar, CommentDrawer } from 'src/components/comment';
 
 // ----------------------------------------------------------------------
 
@@ -29,10 +30,14 @@ type Props = {
 
 export function BoardView({ title = 'Blank' }: Props) {
   const openFilters = useBoolean();
+  const commentDrawerOpen = useBoolean();
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const { user } = useUser();
   const { login } = useAuthStore();
+  
+  // 선택된 게시물 상태 관리
+  const [selectedPost, setSelectedPost] = useState<{ boardId: string; site: string } | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -48,6 +53,14 @@ export function BoardView({ title = 'Blank' }: Props) {
     boardContentsQueryError,
     handleSummaryBoard,
   } = useBoard();
+
+  // 게시물 선택 핸들러
+  const handlePostSelect = (boardId: string, site: string) => {
+    setSelectedPost({ boardId, site });
+    if (isMobile) {
+      commentDrawerOpen.onTrue();
+    }
+  };
 
   const filters = useSetState<IBoardFilters>({
     site: [],
@@ -88,17 +101,34 @@ export function BoardView({ title = 'Blank' }: Props) {
       <DashboardContent maxWidth="lg">
         {renderFilters}
         {canReset}
-        <PostList onClickCard={handleSummaryBoard} postItems={dataFiltered} loading={boardContentsQueryLoading} />
+        <PostList 
+          onClickCard={handlePostSelect} 
+          onCommentClick={handlePostSelect}
+          postItems={dataFiltered} 
+          loading={boardContentsQueryLoading} 
+        />
         <div ref={loadingRef} />
+        
+        {/* 모바일 댓글 Drawer */}
+        {selectedPost && (
+          <CommentDrawer
+            open={commentDrawerOpen.value}
+            onClose={commentDrawerOpen.onFalse}
+            postId={`${selectedPost.boardId}-${selectedPost.site}`}
+            site={selectedPost.site}
+            currentUser="사용자"
+            title="댓글"
+          />
+        )}
       </DashboardContent>
     );
   }
 
   // PC
   return (
-    <DashboardContent maxWidth="lg">
+    <DashboardContent maxWidth={isMobile ? "lg" : false}>
       <Grid container spacing={2} position="relative">
-        <Grid item md={3}>
+        <Grid item xs={12} md={4}>
           {/* 왼쪽 Side */}
           {/* <Card
             sx={{
@@ -112,11 +142,12 @@ export function BoardView({ title = 'Blank' }: Props) {
             <SocialLoginButtons />
           </Card> */}
         </Grid>
-        <Grid md={6}>
+        <Grid item xs={12} md={5}>
           {renderFilters}
           {canReset}
           <PostList 
-            onClickCard={handleSummaryBoard} 
+            onClickCard={handlePostSelect} 
+            onCommentClick={handlePostSelect}
             postItems={dataFiltered} 
             loading={boardContentsQueryLoading} 
           />
@@ -127,11 +158,22 @@ export function BoardView({ title = 'Blank' }: Props) {
           )} */}
           <div ref={loadingRef} />
         </Grid>
-        <Grid item xs={0} md={3}>
-          {/* 오른쪽 Side */}
-          {/* <Card sx={{ position: 'sticky', top: '64px' }}>
-            <RealtimePost />
-          </Card> */}
+        <Grid item xs={12} md={3}>
+          {/* 오른쪽 댓글 사이드바 */}
+          {selectedPost ? (
+            <CommentSidebar
+              postId={`${selectedPost.boardId}-${selectedPost.site}`}
+              site={selectedPost.site}
+              currentUser="사용자"
+              title="댓글"
+            />
+          ) : (
+            <Card sx={{ position: 'sticky', top: '80px', p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                게시물을 선택하면 댓글을 볼 수 있습니다
+              </Typography>
+            </Card>
+          )}
         </Grid>
       </Grid>
     </DashboardContent>

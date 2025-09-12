@@ -103,11 +103,6 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
           }}
           sx={header?.sx}
           slots={{
-            topArea: (
-              <Alert severity="info" sx={{ borderRadius: 0 }}>
-                페이지 테스트 중 입니다.
-              </Alert>
-            ),
             bottomArea: isNavHorizontal ? (
               <NavHorizontal
                 data={navData}

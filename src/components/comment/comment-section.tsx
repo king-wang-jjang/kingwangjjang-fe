@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { Box, Typography } from '@mui/material';
 
-import { CommentForm } from './comment-form';
 import { CommentList } from './comment-list';
 
 interface CommentSectionProps {
@@ -117,13 +116,6 @@ export const CommentSection = ({
   return (
     <Box onClick={(e) => e.stopPropagation()}>
       <Box sx={{ pl: 2, pr: 1.5 }}>
-        <CommentForm
-          onSubmit={(data) => handleAddComment(data)}
-          currentUser={currentUser}
-          placeholder="댓글 추가..."
-          variant="composer"
-        />
-
         <CommentList
           comments={rootComments}
           getReplies={getReplies}

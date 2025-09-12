@@ -54,35 +54,50 @@ export const CommentForm = ({
       component="form"
       onSubmit={handleSubmit}
       onClick={(e) => e.stopPropagation()}
-      sx={{ display: 'flex', gap: 1.25, py: 1.25 }}
+      sx={{ display: 'flex', gap: 1.25, py: 1.25, alignItems: 'flex-start' }}
     >
-      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
+      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}>
         {currentUser.charAt(0).toUpperCase()}
       </Avatar>
 
-      <Box sx={{ flex: 1 }}>
-        <TextField
-          multiline
-          minRows={isActive ? 3 : 2}
-          maxRows={8}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onFocus={() => setIsActive(true)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          variant="outlined"
-          fullWidth
-          size="small"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              py: 0.5,
-            },
-          }}
-          autoFocus={autoFocus}
-        />
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <TextField
+            multiline
+            minRows={1}
+            maxRows={4}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onFocus={() => setIsActive(true)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            variant="standard"
+            fullWidth
+            sx={{
+              '& .MuiInput-underline:before': {
+                borderBottomColor: 'divider',
+              },
+              '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                borderBottomColor: 'primary.main',
+              },
+              '& .MuiInput-underline:after': {
+                borderBottomColor: 'primary.main',
+              },
+              '& .MuiInputBase-input': {
+                py: 1,
+                fontSize: '0.875rem',
+                lineHeight: 1.2,
+                maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
+                overflow: 'auto',
+              },
+              '& .MuiInputBase-root': {
+                alignItems: 'flex-start',
+              },
+            }}
+            autoFocus={autoFocus}
+          />
 
         {(isActive || content.trim()) && (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 0.5 }}>
             {onCancel && (
               <Button
                 onClick={(e) => {
@@ -92,7 +107,7 @@ export const CommentForm = ({
                   onCancel?.();
                 }}
                 size="small"
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', minWidth: 'auto' }}
               >
                 취소
               </Button>
@@ -102,7 +117,7 @@ export const CommentForm = ({
               variant="contained"
               size="small"
               disabled={!content.trim() || isSubmitting}
-              sx={{ textTransform: 'none' }}
+              sx={{ textTransform: 'none', minWidth: 'auto' }}
             >
               {actionPrimaryLabel}
             </Button>
