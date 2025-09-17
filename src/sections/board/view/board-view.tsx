@@ -3,9 +3,9 @@
 import type { IBoardFilters } from 'src/types/board';
 import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-import { Grid, Stack, useTheme, useMediaQuery, Skeleton, Card, Typography } from '@mui/material';
+import { Card, Grid, Stack, Skeleton, useTheme, Typography, useMediaQuery } from '@mui/material';
 
 import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
@@ -17,10 +17,10 @@ import { useAuthStore } from 'src/store/auth-store';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 // import { Filter } from '../filter';
+import { CommentDrawer, CommentSidebar } from 'src/components/comment';
+
 import { PostList } from '../board-post-list';
 import { BoardFilters } from '../board-filters';
-import { BoardFiltersResult } from '../board-filters-result';
-import { CommentSidebar, CommentDrawer } from 'src/components/comment';
 
 // ----------------------------------------------------------------------
 
@@ -50,8 +50,6 @@ export function BoardView({ title = 'Blank' }: Props) {
     filterCollection,
     loadingRef,
     boardContentsQueryLoading,
-    boardContentsQueryError,
-    handleSummaryBoard,
   } = useBoard();
 
   // 게시물 선택 핸들러
@@ -62,13 +60,17 @@ export function BoardView({ title = 'Blank' }: Props) {
     }
   };
 
+  // 댓글 닫기 핸들러
+  const handleCommentClose = () => {
+    setSelectedPost(null);
+  };
+
   const filters = useSetState<IBoardFilters>({
     site: [],
   });
   // const dataFiltered = applyFilter({ inputData: postData, filters: filters.state, sortBy });
   const dataFiltered = applyFilter({ inputData: postData, filters: filters.state });
   const canReset = filters.state.site.length > 0;
-  const renderResults = <BoardFiltersResult filters={filters} totalResults={dataFiltered.length} />;
   const renderFilters = (
     <Stack
       spacing={3}
@@ -126,23 +128,45 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   // PC
   return (
-    <DashboardContent maxWidth={isMobile ? "lg" : false}>
+    <DashboardContent maxWidth='lg'>
       <Grid container spacing={2} position="relative">
-        <Grid item xs={12} md={4}>
-          {/* 왼쪽 Side */}
-          {/* <Card
+        {/* 왼쪽 사이드바 - 댓글이 선택되지 않았을 때만 표시 */}
+        {!selectedPost && (
+          <Grid 
+            item 
+            xs={12} 
+            md={3}
             sx={{
-              width: '100%',
-              position: 'relative',
-              display: isMobile ? 'none' : 'flex',
-              justifyContent: 'center',
-              padding: '15px 0',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: selectedPost ? 'translateX(-100%)' : 'translateX(0)',
+              opacity: selectedPost ? 0 : 1,
+              overflow: 'hidden',
             }}
           >
-            <SocialLoginButtons />
-          </Card> */}
-        </Grid>
-        <Grid item xs={12} md={5}>
+            {/* 왼쪽 Side */}
+            {/* <Card
+              sx={{
+                width: '100%',
+                position: 'relative',
+                display: isMobile ? 'none' : 'flex',
+                justifyContent: 'center',
+                padding: '15px 0',
+              }}
+            >
+              <SocialLoginButtons />
+            </Card> */}
+          </Grid>
+        )}
+        
+        {/* PostList - 댓글이 선택되었을 때 6, 선택되지 않았을 때 5 */}
+        <Grid 
+          item 
+          xs={12} 
+          md={selectedPost ? 6 : 5}
+          sx={{
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
           {renderFilters}
           {canReset}
           <PostList 
@@ -158,22 +182,25 @@ export function BoardView({ title = 'Blank' }: Props) {
           )} */}
           <div ref={loadingRef} />
         </Grid>
-        <Grid item xs={12} md={3}>
-          {/* 오른쪽 댓글 사이드바 */}
+        
+        {/* 댓글 사이드바 - 댓글이 선택되었을 때 6, 선택되지 않았을 때 4 */}
+        <Grid 
+          item 
+          xs={12} 
+          md={selectedPost ? 6 : 4}
+          sx={{
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
           {selectedPost ? (
             <CommentSidebar
               postId={`${selectedPost.boardId}-${selectedPost.site}`}
               site={selectedPost.site}
               currentUser="사용자"
               title="댓글"
+              onClose={handleCommentClose}
             />
-          ) : (
-            <Card sx={{ position: 'sticky', top: '80px', p: 2, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                게시물을 선택하면 댓글을 볼 수 있습니다
-              </Typography>
-            </Card>
-          )}
+          ) : null}
         </Grid>
       </Grid>
     </DashboardContent>

@@ -1,11 +1,12 @@
 import type { Comment } from 'src/types/comment';
 import type { Theme, SxProps } from '@mui/material/styles';
 
-import { Box, Card, Typography, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Card, Typography, useTheme, useMediaQuery, IconButton, Stack } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
+import { useComments } from 'src/hooks/use-comments';
 import { CommentSection } from './comment-section';
 import { CommentForm } from './comment-form';
-import { useComments } from 'src/hooks/use-comments';
 
 interface CommentSidebarProps {
   postId: string;
@@ -13,6 +14,7 @@ interface CommentSidebarProps {
   currentUser?: string;
   initialComments?: Comment[];
   title?: string;
+  onClose?: () => void;
   sx?: SxProps<Theme>;
 }
 
@@ -22,6 +24,7 @@ export function CommentSidebar({
   currentUser = '사용자',
   initialComments = [],
   title = '댓글',
+  onClose,
   sx,
 }: CommentSidebarProps) {
   const theme = useTheme();
@@ -53,10 +56,27 @@ export function CommentSidebar({
         ...sx,
       }}
     >
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="h6" component="div">
-          {title}
-        </Typography>
+      <Box sx={{ p: 1.3, borderBottom: 1, borderColor: 'divider' }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="inherit" component="div">
+            {title}
+          </Typography>
+          {onClose && (
+            <IconButton 
+              size="small" 
+              onClick={onClose}
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': {
+                  color: 'text.primary',
+                  bgcolor: 'action.hover',
+                }
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Stack>
       </Box>
 
       <Box
@@ -80,7 +100,7 @@ export function CommentSidebar({
 
       {/* 고정된 댓글 입력 Footer */}
       <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.2 }}>
           <CommentForm
             onSubmit={async ({ content }) => addComment(content)}
             currentUser={currentUser}
