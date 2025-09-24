@@ -24,6 +24,34 @@ export type Comment = {
   site: Scalars['String']['output'];
 };
 
+export type CommentEntry = {
+  __typename?: 'CommentEntry';
+  Id: Scalars['String']['output'];
+  boardId: Scalars['String']['output'];
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  isDeleted: Scalars['Boolean']['output'];
+  likeCount: Scalars['Int']['output'];
+  parentId?: Maybe<Scalars['String']['output']>;
+  replyCount: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
+};
+
+export type CommentList = {
+  __typename?: 'CommentList';
+  boardId: Scalars['String']['output'];
+  comments: Array<CommentEntry>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CreateCommentInput = {
+  boardId: Scalars['String']['input'];
+  content: Scalars['String']['input'];
+  parentId?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
+};
+
 export type Daily = {
   __typename?: 'Daily';
   boardId: Scalars['String']['output'];
@@ -35,6 +63,17 @@ export type Daily = {
   url: Scalars['String']['output'];
 };
 
+export type DeleteCommentInput = {
+  commentId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+export type FilterType = {
+  __typename?: 'FilterType';
+  key: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type Like = {
   __typename?: 'Like';
   NOWLIKE: Scalars['Int']['output'];
@@ -42,9 +81,42 @@ export type Like = {
   site: Scalars['String']['output'];
 };
 
+export type LikeCommentInput = {
+  commentId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createComment: CommentEntry;
+  createUser: UserType;
+  deleteComment: Scalars['Boolean']['output'];
+  likeComment: CommentEntry;
   search: Array<Realtime>;
+  updateComment: CommentEntry;
+};
+
+
+export type MutationCreateCommentArgs = {
+  input: CreateCommentInput;
+};
+
+
+export type MutationCreateUserArgs = {
+  authOrganization: Scalars['String']['input'];
+  nickname: Scalars['String']['input'];
+  profileImage: Scalars['String']['input'];
+  userId: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteCommentArgs = {
+  input: DeleteCommentInput;
+};
+
+
+export type MutationLikeCommentArgs = {
+  input: LikeCommentInput;
 };
 
 
@@ -52,11 +124,18 @@ export type MutationSearchArgs = {
   input: SearchInput;
 };
 
+
+export type MutationUpdateCommentArgs = {
+  input: UpdateCommentInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   comment: Comment;
+  comments: CommentList;
   dailyPagination: Array<Daily>;
   getLike: Like;
+  getUser?: Maybe<UserType>;
   getViews: View;
   realtimePagination: Array<Realtime>;
 };
@@ -68,6 +147,13 @@ export type QueryCommentArgs = {
 };
 
 
+export type QueryCommentsArgs = {
+  boardId: Scalars['String']['input'];
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+};
+
+
 export type QueryDailyPaginationArgs = {
   index?: Scalars['Int']['input'];
 };
@@ -76,6 +162,11 @@ export type QueryDailyPaginationArgs = {
 export type QueryGetLikeArgs = {
   boardId: Scalars['String']['input'];
   site: Scalars['String']['input'];
+};
+
+
+export type QueryGetUserArgs = {
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -107,6 +198,23 @@ export type SearchInput = {
   query: Scalars['String']['input'];
 };
 
+export type UpdateCommentInput = {
+  commentId: Scalars['String']['input'];
+  content: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+export type UserType = {
+  __typename?: 'UserType';
+  Id?: Maybe<Scalars['String']['output']>;
+  authOrganization?: Maybe<Scalars['String']['output']>;
+  createTime: Scalars['DateTime']['output'];
+  filter?: Maybe<FilterType>;
+  nickname?: Maybe<Scalars['String']['output']>;
+  profileImage?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
 export type View = {
   __typename?: 'View';
   NOWVIEW: Scalars['Int']['output'];
@@ -121,14 +229,13 @@ export type RealtimePaginationQueryVariables = Exact<{
 
 export type RealtimePaginationQuery = { __typename?: 'Query', realtimePagination: Array<{ __typename?: 'Realtime', Id?: string | null, category: string, no: number, site: string, title: string, url: string, gptAnswer?: string | null, createTime: any, thumbnail?: string | null }> };
 
-export type GetCommentQueryVariables = Exact<{
-  boardId: Scalars['String']['input'];
-  site: Scalars['String']['input'];
+export type CreateCommentMutationVariables = Exact<{
+  input: CreateCommentInput;
 }>;
 
 
-export type GetCommentQuery = { __typename?: 'Query', comment: { __typename?: 'Comment', boardId: string, site: string } };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentEntry', Id: string, boardId: string, parentId?: string | null, content: string, userId: string, likeCount: number, replyCount: number, isDeleted: boolean, createdAt: any, updatedAt: any } };
 
 
 export const RealtimePaginationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RealtimePagination"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"index"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"realtimePagination"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"index"},"value":{"kind":"Variable","name":{"kind":"Name","value":"index"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"no"}},{"kind":"Field","name":{"kind":"Name","value":"site"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"gptAnswer"}},{"kind":"Field","name":{"kind":"Name","value":"createTime"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"}}]}}]}}]} as unknown as DocumentNode<RealtimePaginationQuery, RealtimePaginationQueryVariables>;
-export const GetCommentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetComment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"boardId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"site"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"boardId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"boardId"}}},{"kind":"Argument","name":{"kind":"Name","value":"site"},"value":{"kind":"Variable","name":{"kind":"Name","value":"site"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"boardId"}},{"kind":"Field","name":{"kind":"Name","value":"site"}}]}}]}}]} as unknown as DocumentNode<GetCommentQuery, GetCommentQueryVariables>;
+export const CreateCommentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateComment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateCommentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createComment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}},{"kind":"Field","name":{"kind":"Name","value":"boardId"}},{"kind":"Field","name":{"kind":"Name","value":"parentId"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"likeCount"}},{"kind":"Field","name":{"kind":"Name","value":"replyCount"}},{"kind":"Field","name":{"kind":"Name","value":"isDeleted"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateCommentMutation, CreateCommentMutationVariables>;

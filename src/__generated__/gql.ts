@@ -15,11 +15,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n    }\n  }\n": typeof types.RealtimePaginationDocument,
-    "\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n": typeof types.GetCommentDocument,
+    "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateCommentDocument,
 };
 const documents: Documents = {
     "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n    }\n  }\n": types.RealtimePaginationDocument,
-    "\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n": types.GetCommentDocument,
+    "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateCommentDocument,
 };
 
 /**
@@ -43,7 +43,7 @@ export function gql(source: "\n  query RealtimePagination($index: Int) {\n    re
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n"): (typeof documents)["\n  query GetComment($boardId: String!, $site: String!) {\n    comment(boardId: $boardId, site: $site) {\n      boardId\n      site\n    }\n  }\n"];
+export function gql(source: "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

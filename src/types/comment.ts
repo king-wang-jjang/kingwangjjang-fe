@@ -1,14 +1,36 @@
 export interface Comment {
-  id: string;
+  Id: string;
+  boardId: string;
+  parentId: string | null;
   content: string;
-  author: string;
+  userId: string;
+  likeCount: number;
+  replyCount: number;
+  isDeleted: boolean;
   createdAt: string;
-  likes: number;
-  isLiked?: boolean;
-  parentId?: string | null;
-  replies?: Comment[];
+  updatedAt: string;
 }
 
 export interface CommentFormData {
   content: string;
+}
+
+export interface CreateCommentInput {
+  boardId: string;
+  parentId: string | null;
+  content: string;
+  userId: string;
+}
+
+export interface CreateCommentResponse {
+  Id: string;
+  boardId: string;
+  parentId: string | null;
+  content: string;
+  userId: string;
+  likeCount: number;
+  replyCount: number;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
