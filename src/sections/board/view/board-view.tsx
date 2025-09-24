@@ -162,7 +162,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         <Grid 
           item 
           xs={12} 
-          md={selectedPost ? 6 : 5}
+          md={selectedPost ? 6 : 6}
           sx={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}

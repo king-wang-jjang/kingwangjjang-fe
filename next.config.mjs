@@ -16,11 +16,8 @@ const isStaticExport = false; // 불리언 값으로 설정
 const nextConfig = {
   trailingSlash: true,
   swcMinify: true,
-  experimental: {
-    appDir: true, // Next.js App Router 사용 시 필요
-  },
   env: {
-    NEXT_PUBLIC_BUILD_STATIC_EXPORT: isStaticExport,
+    NEXT_PUBLIC_BUILD_STATIC_EXPORT: isStaticExport.toString(),
   },
   modularizeImports: {
     '@mui/icons-material': {
