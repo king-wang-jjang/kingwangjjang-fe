@@ -19,11 +19,23 @@ export const CREATE_COMMENT = gql`
 `;
 
 // 댓글 조회
-// export const GET_COMMENTS = gql`
-//   query GetComments($boardId: String!, $site: String!) {
-//     comment(boardId: $boardId, site: $site) {
-//       boardId
-//       site
-//     }
-//   }
-// `;
+export const GET_COMMENTS = gql`
+  query Comments($boardId: String!, $page: Int!, $limit: Int!) {
+    comments(boardId: $boardId, page: $page, limit: $limit) {
+      boardId
+      totalCount
+      comments {
+        Id
+        boardId
+        parentId
+        content
+        userId
+        likeCount
+        replyCount
+        isDeleted
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
