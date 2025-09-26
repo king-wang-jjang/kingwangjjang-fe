@@ -1,16 +1,17 @@
 'use client';
 
 import { useMemo, useEffect, useCallback } from 'react';
+import { useLazyQuery } from '@apollo/client';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
-import axios, { endpoints } from 'src/utils/axios';
+import { userServiceClient } from 'src/apollo';
+import { ME_QUERY } from 'src/apollo/user-gql';
 
-import { STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';
-import { setSession, isValidToken } from './utils';
 
 import type { AuthState } from '../../types';
+import type { MeResponse } from 'src/types';
 
 // ----------------------------------------------------------------------
 
@@ -30,26 +31,29 @@ export function AuthProvider({ children }: Props) {
     loading: true,
   });
 
-  const checkUserSession = useCallback(async () => {
-    try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
-
-      if (accessToken && isValidToken(accessToken)) {
-        setSession(accessToken);
-
-        const res = await axios.get(endpoints.auth.me);
-
-        const { user } = res.data;
-
-        setState({ user: { ...user, accessToken }, loading: false });
+  const [getMe] = useLazyQuery<MeResponse>(ME_QUERY, {
+    client: userServiceClient,
+    onCompleted: (data) => {
+      if (data?.me) {
+        setState({ user: data.me, loading: false });
       } else {
         setState({ user: null, loading: false });
       }
+    },
+    onError: (error) => {
+      console.error('Failed to get user info:', error);
+      setState({ user: null, loading: false });
+    },
+  });
+
+  const checkUserSession = useCallback(async () => {
+    try {
+      await getMe();
     } catch (error) {
-      console.error(error);
+      console.error('Error checking user session:', error);
       setState({ user: null, loading: false });
     }
-  }, [setState]);
+  }, [getMe, setState]);
 
   useEffect(() => {
     checkUserSession();
@@ -58,8 +62,7 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  // const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
-  const checkAuthenticated = true ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 

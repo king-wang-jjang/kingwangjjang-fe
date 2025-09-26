@@ -14,6 +14,7 @@ import { ThemeProvider } from 'src/theme/theme-provider';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
+import { AuthProvider } from 'src/auth/context/jwt/auth-provider';
 
 // ----------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ export default async function RootLayout({ children }: Props) {
           defaultMode={schemeConfig.defaultMode}
           modeStorageKey={schemeConfig.modeStorageKey}
         />
+         <AuthProvider>
         <SettingsProvider settings={defaultSettings}>
           <ThemeProvider>
             <MotionLazy>
@@ -55,8 +57,9 @@ export default async function RootLayout({ children }: Props) {
               <SettingsDrawer />
               {children}
             </MotionLazy>
-          </ThemeProvider>
-        </SettingsProvider>
+            </ThemeProvider>
+          </SettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   );
