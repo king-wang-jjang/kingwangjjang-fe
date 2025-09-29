@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { Box, Button, Avatar, TextField } from '@mui/material';
 
+import { useAuthStore } from 'src/store/auth-store';
+
 interface CommentFormProps {
   onSubmit: (data: CommentFormData) => void;
   onCancel?: () => void;
@@ -24,9 +26,11 @@ export const CommentForm = ({
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isActive, setIsActive] = useState(autoFocus);
+  const { isAuthenticated } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated) return;
     if (!content.trim()) return;
 
     setIsSubmitting(true);
@@ -41,6 +45,10 @@ export const CommentForm = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as any);
@@ -69,9 +77,10 @@ export const CommentForm = ({
             onChange={(e) => setContent(e.target.value)}
             onFocus={() => setIsActive(true)}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
+            placeholder={isAuthenticated ? placeholder : '로그인 후 댓글을 작성할 수 있습니다.'}
             variant="standard"
             fullWidth
+            disabled={!isAuthenticated}
             sx={{
               '& .MuiInput-underline:before': {
                 borderBottomColor: 'divider',
@@ -96,7 +105,7 @@ export const CommentForm = ({
             autoFocus={autoFocus}
           />
 
-        {(isActive || content.trim()) && (
+        {isAuthenticated && (isActive || content.trim()) && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 0.5 }}>
             {onCancel && (
               <Button
@@ -116,7 +125,7 @@ export const CommentForm = ({
               type="submit"
               variant="contained"
               size="small"
-              disabled={!content.trim() || isSubmitting}
+              disabled={!isAuthenticated || !content.trim() || isSubmitting}
               sx={{ textTransform: 'none', minWidth: 'auto' }}
             >
               {actionPrimaryLabel}

@@ -44,11 +44,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
 
   const pathname = usePathname();
 
-  const { user } = useMockedUser();
+  // const { user } = useMockedUser();
 
   const [open, setOpen] = useState(false);
 
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { isNavMobileOpen, closeNavMobile } = useNavStore();
 
   const handleOpenDrawer = useCallback(() => {
@@ -117,11 +117,15 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             {renderAvatar}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {user?.displayName}
+              {user?.nickname}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {user?.id}
+              {user?.userId}
+            </Typography>
+
+            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
+              {user?.authProvider}
             </Typography>
           </Stack>
 

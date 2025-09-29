@@ -1,4 +1,11 @@
-export type UserType = Record<string, any> | null;
+export type UserType = {
+  Id: string;
+  userId: string;
+  nickname: string;
+  authProvider: string;
+  profileImage: string | null;
+  createTime: string;
+} | null;
 
 export type AuthState = {
   user: UserType;
