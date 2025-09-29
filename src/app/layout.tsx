@@ -14,7 +14,8 @@ import { ThemeProvider } from 'src/theme/theme-provider';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
-import { AuthProvider } from 'src/auth/context/jwt/auth-provider';
+
+import { AuthInitializer } from 'src/auth/auth-initializer';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ export const metadata = {
       url: `${CONFIG.assetsDir}/favicon.ico`,
     },
   ],
-  manifest: '/manifest.json', // ✅ manifest.json 추가
+  manifest: '/manifest.json',
 };
 
 type Props = {
@@ -41,15 +42,12 @@ type Props = {
 export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" /> {/* ✅ 추가 */}
-      </head>
       <body>
         <InitColorSchemeScript
           defaultMode={schemeConfig.defaultMode}
           modeStorageKey={schemeConfig.modeStorageKey}
         />
-         <AuthProvider>
+         <AuthInitializer>
         <SettingsProvider settings={defaultSettings}>
           <ThemeProvider>
             <MotionLazy>
@@ -59,7 +57,7 @@ export default async function RootLayout({ children }: Props) {
             </MotionLazy>
             </ThemeProvider>
           </SettingsProvider>
-        </AuthProvider>
+        </AuthInitializer>
       </body>
     </html>
   );
