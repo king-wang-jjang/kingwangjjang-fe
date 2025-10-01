@@ -334,7 +334,7 @@ export const PostCard = ({
       <CommentDrawer
         open={commentOpen}
         onClose={handleCloseComments}
-        postId={`${boardId}-${site}`}
+        postId={`${boardId}`}
         site={site}
         currentUser="사용자"
         title="댓글"

@@ -49,7 +49,6 @@ export type CreateCommentInput = {
   boardId: Scalars['String']['input'];
   content: Scalars['String']['input'];
   parentId?: InputMaybe<Scalars['String']['input']>;
-  userId: Scalars['String']['input'];
 };
 
 export type Daily = {
@@ -65,7 +64,6 @@ export type Daily = {
 
 export type DeleteCommentInput = {
   commentId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 export type FilterType = {
@@ -83,7 +81,6 @@ export type Like = {
 
 export type LikeCommentInput = {
   commentId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 export type Mutation = {
@@ -202,7 +199,6 @@ export type SearchInput = {
 export type UpdateCommentInput = {
   commentId: Scalars['String']['input'];
   content: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 export type UserType = {

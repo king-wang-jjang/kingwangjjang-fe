@@ -9,12 +9,12 @@ import {
   Box,
   Drawer,
   IconButton,
-  Typography,
   drawerClasses,
 } from '@mui/material';
 
-import { CommentSection } from './comment-section';
 import { useComments } from 'src/hooks/use-comments';
+
+import { CommentSection } from './comment-section';
 
 interface CommentDrawerProps {
   open: boolean;
@@ -48,11 +48,8 @@ export function CommentDrawer({
     []
   );
 
-  const [boardIdA, boardIdB] = postId.split('-');
-  const boardId = boardIdA && boardIdB ? `${boardIdA}-${boardIdB}` : postId;
-
-  const { comments, loading, addComment, addReply } = useComments({
-    boardId,
+  const { comments, addComment, addReply } = useComments({
+    boardId: postId,
     site: site ?? '',
     currentUserId: currentUser,
     enabled: open,
@@ -91,8 +88,8 @@ export function CommentDrawer({
             postId={postId}
             comments={comments}
             currentUser={currentUser}
-            onAddComment={async ({ content }) => addComment(content)}
-            onAddReply={async (parentId, content) => addReply(parentId, content)}
+            onAddComment={async ({ content }) => { await addComment(content); }}
+            onAddReply={async (parentId, content) => { await addReply(parentId, content); }}
           />
         </Box>
       </Box>

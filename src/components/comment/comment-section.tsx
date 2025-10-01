@@ -42,13 +42,16 @@ export const CommentSection = ({
     if (!onAddComment) {
       // API가 연결되지 않은 경우 로컬에서 처리
       const newComment: Comment = {
-        id: `local-${Date.now()}`,
         content: data.content,
-        author: currentUser,
         createdAt: new Date().toISOString(),
-        likes: 0,
-        isLiked: false,
         parentId: parentId ?? null,
+        Id: '',
+        boardId: '',
+        userId: '',
+        likeCount: 0,
+        replyCount: 0,
+        isDeleted: false,
+        updatedAt: '',
       };
 
       setLocalComments((prev) => [newComment, ...prev]);
