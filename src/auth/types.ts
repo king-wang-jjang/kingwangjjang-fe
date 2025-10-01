@@ -3,7 +3,7 @@ export type UserType = {
   userId: string;
   nickname: string;
   authProvider: string;
-  profileImage: string | null;
+  profileImage?: string | null;
   createTime: string;
 } | null;
 

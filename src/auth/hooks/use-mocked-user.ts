@@ -3,7 +3,7 @@ import type { UserType } from '../types';
 
 // ----------------------------------------------------------------------
 
-export function useMockedUser(): { user: UserType } {
+export function useMockedUser(): { user: any} {
   const user = {
     id: '8864c717-587d-472a-929a-8e5f298024da-0',
     displayName: 'Mock',

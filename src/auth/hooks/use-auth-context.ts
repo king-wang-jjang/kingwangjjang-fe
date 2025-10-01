@@ -1,17 +1,19 @@
 'use client';
 
-import { useContext } from 'react';
-
-import { AuthContext } from '../context/auth-context';
-
-// ----------------------------------------------------------------------
+import { useAuthStore } from 'src/auth/store/auth-store';
 
 export function useAuthContext() {
-  const context = useContext(AuthContext);
+  const { user, isAuthenticated } = useAuthStore();
 
-  if (!context) {
-    throw new Error('useAuthContext: Context must be used inside AuthProvider');
-  }
-
-  return context;
+  return {
+    user,
+    loading: false,
+    authenticated: isAuthenticated,
+    unauthenticated: !isAuthenticated,
+    checkUserSession: async () => {
+      // 세션 체크 로직은 AuthInitializer에서 처리
+    },
+  };
 }
+
+

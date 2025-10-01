@@ -1,12 +1,5 @@
-export interface User {
-  Id: string;
-  userId: string;
-  nickname: string;
-  authProvider: string;
-  profileImage?: string;
-  createTime: string;
-}
+import type { UserType } from '../auth/types';
 
 export interface MeResponse {
-  me: User;
+  me: UserType;
 }

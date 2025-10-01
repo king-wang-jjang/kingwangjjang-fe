@@ -75,11 +75,11 @@ export const CommentSection = ({
       // API가 연결되지 않은 경우 로컬에서 처리
       setLocalComments((prev) =>
         prev.map((comment) =>
-          comment.id === commentId
+          comment.Id === commentId
             ? {
                 ...comment,
-                likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-                isLiked: !comment.isLiked,
+                likes: comment.likeCount ? comment.likeCount - 1 : comment.likeCount + 1,
+                isLiked: !comment.likeCount,
               }
             : comment
         )
@@ -92,7 +92,7 @@ export const CommentSection = ({
       // API 성공 후 로컬 상태 업데이트
       setLocalComments((prev) =>
         prev.map((comment) =>
-          comment.id === commentId ? { ...comment, isLiked: !comment.isLiked } : comment
+          comment.Id === commentId ? { ...comment, isLiked: !comment.likeCount } : comment
         )
       );
     } catch (error) {
@@ -103,14 +103,14 @@ export const CommentSection = ({
   const handleDeleteComment = async (commentId: string) => {
     if (!onDeleteComment) {
       // API가 연결되지 않은 경우 로컬에서 처리
-      setLocalComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      setLocalComments((prev) => prev.filter((comment) => comment.Id !== commentId));
       return;
     }
 
     try {
       await onDeleteComment(commentId);
       // API 성공 후 로컬 상태 업데이트
-      setLocalComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      setLocalComments((prev) => prev.filter((comment) => comment.Id !== commentId));
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
     }

@@ -33,7 +33,7 @@ export function CommentSidebar({
   const [boardIdA, boardIdB] = postId.split('-');
   const boardId = boardIdA && boardIdB ? `${boardIdA}-${boardIdB}` : postId;
 
-  const { comments, loading, addComment, addReply } = useComments({
+  const { comments, addComment, addReply } = useComments({
     boardId,
     site: site ?? '',
     currentUserId: currentUser,
@@ -92,8 +92,8 @@ export function CommentSidebar({
             postId={postId}
             comments={comments}
             currentUser={currentUser}
-            onAddComment={async ({ content }) => addComment(content)}
-            onAddReply={async (parentId, content) => addReply(parentId, content)}
+            onAddComment={async ({ content }) => { await addComment(content); }}
+            onAddReply={async (parentId, content) => { await addReply(parentId, content); }}
           />
         </Box>
       </Box>
@@ -102,7 +102,7 @@ export function CommentSidebar({
       <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Box sx={{ p: 1.2 }}>
           <CommentForm
-            onSubmit={async ({ content }) => addComment(content)}
+            onSubmit={async ({ content }) => { await addComment(content); }}
             currentUser={currentUser}
             placeholder="댓글을 입력하세요..."
             variant="composer"

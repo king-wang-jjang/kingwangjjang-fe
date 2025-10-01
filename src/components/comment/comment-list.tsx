@@ -35,9 +35,9 @@ export const CommentList = ({
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
         {comments.map((comment, index) => {
-          const children = getReplies ? getReplies(comment.id) : [];
+          const children = getReplies ? getReplies(comment.Id) : [];
           return (
-            <Box key={comment.id}>
+            <Box key={comment.Id}>
               <CommentItem
                 comment={comment}
                 onLike={onLike}

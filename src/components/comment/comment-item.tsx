@@ -16,14 +16,14 @@ interface CommentItemProps {
 }
 
 export const CommentItem = ({ comment, replies = [], onLike, onDelete, onReply }: CommentItemProps) => {
-  const [isLiked, setIsLiked] = useState(comment.isLiked || false);
-  const [likesCount, setLikesCount] = useState(comment.likes);
+  const [isLiked, setIsLiked] = useState(comment.likeCount > 0 || false);
+  const [likesCount, setLikesCount] = useState(comment.likeCount);
   const [showReplies, setShowReplies] = useState(true);
   const [showReplyBox, setShowReplyBox] = useState(false);
 
   const handleLike = () => {
     if (onLike) {
-      onLike(comment.id);
+      onLike(comment.Id);
     }
     setIsLiked(!isLiked);
     setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
@@ -50,13 +50,13 @@ export const CommentItem = ({ comment, replies = [], onLike, onDelete, onReply }
   return (
     <Box sx={{ display: 'flex', gap: 1.5, py: 1.25, px: 1, borderRadius: 1, '&:hover': { bgcolor: 'action.hover' } }} onClick={(e) => e.stopPropagation()}>
       <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
-        {comment.author.charAt(0).toUpperCase()}
+        {comment.userId.charAt(0).toUpperCase()}
       </Avatar>
 
       <Box sx={{ flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, flexWrap: 'wrap' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-            {comment.author}
+            {comment.userId}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             · {formatTimeAgo(comment.createdAt)}
@@ -93,7 +93,7 @@ export const CommentItem = ({ comment, replies = [], onLike, onDelete, onReply }
               {onReply && (
                 <Box sx={{ mt: 1 }}>
                   <CommentForm
-                    onSubmit={({ content }) => onReply(comment.id, content)}
+                    onSubmit={({ content }) => onReply(comment.Id, content)}
                     onCancel={() => setShowReplyBox(false)}
                     placeholder="답글 추가..."
                     variant="reply"
@@ -110,7 +110,7 @@ export const CommentItem = ({ comment, replies = [], onLike, onDelete, onReply }
           {!!replies.length && (
             <Box sx={{ mt: 1, pl: 2, ml: 1, borderLeft: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', gap: 1 }}>
               {replies.map((child) => (
-                <CommentItem key={child.id} comment={child} replies={[]} onLike={onLike} onDelete={onDelete} onReply={onReply} />
+                <CommentItem key={child.Id} comment={child} replies={[]} onLike={onLike} onDelete={onDelete} onReply={onReply} />
               ))}
             </Box>
           )}

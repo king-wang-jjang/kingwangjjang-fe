@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function AuthInitializer({ children }: Props) {
-  const { user, isAuthenticated, login, logout } = useAuthStore();
+  const { user, login, logout } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
   const [getMe, { data, error, loading: queryLoading }] = useLazyQuery<MeResponse>(ME_QUERY, {
