@@ -64,9 +64,11 @@ export const CommentForm = ({
       onClick={(e) => e.stopPropagation()}
       sx={{ display: 'flex', gap: 1.25, py: 1.25, alignItems: 'flex-start' }}
     >
-      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}>
-        {currentUser.charAt(0).toUpperCase()}
-      </Avatar>
+      {isAuthenticated && (
+        <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}>
+          {user?.nickname.charAt(0).toUpperCase()}
+        </Avatar>
+      )}
 
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <TextField
@@ -82,24 +84,9 @@ export const CommentForm = ({
             fullWidth
             disabled={!isAuthenticated}
             sx={{
-              '& .MuiInput-underline:before': {
-                borderBottomColor: 'divider',
-              },
-              '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                borderBottomColor: 'primary.main',
-              },
-              '& .MuiInput-underline:after': {
-                borderBottomColor: 'primary.main',
-              },
               '& .MuiInputBase-input': {
-                py: 1,
-                fontSize: '0.875rem',
-                lineHeight: 1.2,
                 maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
                 overflow: 'auto',
-              },
-              '& .MuiInputBase-root': {
-                alignItems: 'flex-start',
               },
             }}
             autoFocus={autoFocus}

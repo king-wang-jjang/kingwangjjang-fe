@@ -8,7 +8,6 @@ export const CREATE_COMMENT = gql`
       boardId
       parentId
       content
-      userId
       likeCount
       replyCount
       isDeleted

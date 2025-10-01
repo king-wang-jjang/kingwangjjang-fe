@@ -13,13 +13,13 @@ export interface Comment {
 
 export interface CommentFormData {
   content: string;
+  parentId?: string | null;
 }
 
 export interface CreateCommentInput {
   boardId: string;
-  parentId: string | null;
+  parentId?: string | null;
   content: string;
-  userId: string;
 }
 
 export interface CreateCommentResponse {
@@ -34,3 +34,4 @@ export interface CreateCommentResponse {
   createdAt: string;
   updatedAt: string;
 }
+
