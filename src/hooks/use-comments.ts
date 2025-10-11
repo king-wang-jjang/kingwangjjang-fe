@@ -30,12 +30,14 @@ export const useComments = ({ boardId}: UseCommentsParams) => {
         const input: CreateCommentInput = {
           boardId: `${boardId}`,
           content,
-          parentId: null,
         };
         const result = await createCommentMutation({
           variables: { input },
         });
-        return result.data?.createComment;
+        console.log('Mutation result:', result);
+        console.log('createComment data:', result.data?.createComment);
+        console.log('Id:', result.data?.createComment?.Id);
+        return result.data?.createComment?.Id;
       } catch (error) {
         console.error('댓글 생성 실패:', error);
         throw error;
@@ -55,7 +57,7 @@ export const useComments = ({ boardId}: UseCommentsParams) => {
         const result = await createCommentMutation({
           variables: { input },
         });
-        return result.data?.createComment;
+        return result.data?.createComment?.Id;
       } catch (error) {
         console.error('답글 생성 실패:', error);
         throw error;
