@@ -1,12 +1,13 @@
 import type { Comment } from 'src/types/comment';
 import type { Theme, SxProps } from '@mui/material/styles';
 
-import { Box, Card, Typography, useTheme, useMediaQuery, IconButton, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { Box, Card, Stack, useTheme, Typography, IconButton, useMediaQuery } from '@mui/material';
 
 import { useComments } from 'src/hooks/use-comments';
-import { CommentSection } from './comment-section';
+
 import { CommentForm } from './comment-form';
+import { CommentSection } from './comment-section';
 
 interface CommentSidebarProps {
   postId: string;
@@ -30,11 +31,8 @@ export function CommentSidebar({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const [boardIdA, boardIdB] = postId.split('-');
-  const boardId = boardIdA && boardIdB ? `${boardIdA}-${boardIdB}` : postId;
-
   const { comments, addComment, addReply } = useComments({
-    boardId,
+    boardId: postId,
     site: site ?? '',
     currentUserId: currentUser,
     enabled: !!postId,
@@ -62,15 +60,15 @@ export function CommentSidebar({
             {title}
           </Typography>
           {onClose && (
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={onClose}
-              sx={{ 
+              sx={{
                 color: 'text.secondary',
                 '&:hover': {
                   color: 'text.primary',
                   bgcolor: 'action.hover',
-                }
+                },
               }}
             >
               <CloseIcon fontSize="small" />
@@ -92,8 +90,12 @@ export function CommentSidebar({
             postId={postId}
             comments={comments}
             currentUser={currentUser}
-            onAddComment={async ({ content }) => { await addComment(content); }}
-            onAddReply={async (parentId, content) => { await addReply(parentId, content); }}
+            onAddComment={async ({ content }) => {
+              await addComment(content);
+            }}
+            onAddReply={async (parentId, content) => {
+              await addReply(parentId, content);
+            }}
           />
         </Box>
       </Box>
@@ -102,7 +104,9 @@ export function CommentSidebar({
       <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Box sx={{ p: 1.2 }}>
           <CommentForm
-            onSubmit={async ({ content }) => { await addComment(content); }}
+            onSubmit={async ({ content }) => {
+              await addComment(content);
+            }}
             currentUser={currentUser}
             placeholder="댓글을 입력하세요..."
             variant="composer"

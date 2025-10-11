@@ -5,7 +5,7 @@ import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useState, useEffect } from 'react';
 
-import { Card, Grid, Stack, Skeleton, useTheme, Typography, useMediaQuery } from '@mui/material';
+import { Grid, Stack, Skeleton, useTheme, useMediaQuery } from '@mui/material';
 
 import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
@@ -35,7 +35,7 @@ export function BoardView({ title = 'Blank' }: Props) {
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const { user } = useUser();
   const { login } = useAuthStore();
-  
+
   // 선택된 게시물 상태 관리
   const [selectedPost, setSelectedPost] = useState<{ boardId: string; site: string } | null>(null);
 
@@ -45,12 +45,7 @@ export function BoardView({ title = 'Blank' }: Props) {
     }
   }, [user, login]);
 
-  const {
-    postData,
-    filterCollection,
-    loadingRef,
-    boardContentsQueryLoading,
-  } = useBoard();
+  const { postData, filterCollection, loadingRef, boardContentsQueryLoading } = useBoard();
 
   // 게시물 선택 핸들러
   const handlePostSelect = (boardId: string, site: string) => {
@@ -103,14 +98,14 @@ export function BoardView({ title = 'Blank' }: Props) {
       <DashboardContent maxWidth="lg">
         {renderFilters}
         {canReset}
-        <PostList 
-          onClickCard={handlePostSelect} 
+        <PostList
+          onClickCard={handlePostSelect}
           onCommentClick={handlePostSelect}
-          postItems={dataFiltered} 
-          loading={boardContentsQueryLoading} 
+          postItems={dataFiltered}
+          loading={boardContentsQueryLoading}
         />
         <div ref={loadingRef} />
-        
+
         {/* 모바일 댓글 Drawer */}
         {selectedPost && (
           <CommentDrawer
@@ -128,13 +123,13 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   // PC
   return (
-    <DashboardContent maxWidth='lg'>
+    <DashboardContent maxWidth="lg">
       <Grid container spacing={2} position="relative">
         {/* 왼쪽 사이드바 - 댓글이 선택되지 않았을 때만 표시 */}
         {!selectedPost && (
-          <Grid 
-            item 
-            xs={12} 
+          <Grid
+            item
+            xs={12}
             md={3}
             sx={{
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -157,11 +152,11 @@ export function BoardView({ title = 'Blank' }: Props) {
             </Card> */}
           </Grid>
         )}
-        
+
         {/* PostList - 댓글이 선택되었을 때 6, 선택되지 않았을 때 5 */}
-        <Grid 
-          item 
-          xs={12} 
+        <Grid
+          item
+          xs={12}
           md={selectedPost ? 6 : 6}
           sx={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -169,24 +164,24 @@ export function BoardView({ title = 'Blank' }: Props) {
         >
           {renderFilters}
           {canReset}
-          <PostList 
-            onClickCard={handlePostSelect} 
+          <PostList
+            onClickCard={handlePostSelect}
             onCommentClick={handlePostSelect}
-            postItems={dataFiltered} 
-            loading={boardContentsQueryLoading} 
+            postItems={dataFiltered}
+            loading={boardContentsQueryLoading}
           />
-          <Skeleton/>
+          <Skeleton />
           {/* {boardContentsQueryLoading && <Loading />} */}
           {/* {boardContentsQueryError && (
             <Error message={boardContentsQueryError.message} isMobile={isMobile} />
           )} */}
           <div ref={loadingRef} />
         </Grid>
-        
+
         {/* 댓글 사이드바 - 댓글이 선택되었을 때 6, 선택되지 않았을 때 4 */}
-        <Grid 
-          item 
-          xs={12} 
+        <Grid
+          item
+          xs={12}
           md={selectedPost ? 6 : 4}
           sx={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -194,7 +189,7 @@ export function BoardView({ title = 'Blank' }: Props) {
         >
           {selectedPost ? (
             <CommentSidebar
-              postId={`${selectedPost.boardId}-${selectedPost.site}`}
+              postId={`${selectedPost.boardId}`}
               site={selectedPost.site}
               currentUser="사용자"
               title="댓글"
