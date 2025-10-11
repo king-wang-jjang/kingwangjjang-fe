@@ -51,6 +51,8 @@ export const CommentForm = ({
     }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      // 이미 제출 중이거나 내용이 비어있으면 무시
+      if (isSubmitting || !content.trim()) return;
       handleSubmit(e as any);
     }
   };
@@ -65,32 +67,34 @@ export const CommentForm = ({
       sx={{ display: 'flex', gap: 1.25, py: 1.25, alignItems: 'flex-start' }}
     >
       {isAuthenticated && (
-        <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}>
+        <Avatar
+          sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}
+        >
           {user?.nickname.charAt(0).toUpperCase()}
         </Avatar>
       )}
 
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <TextField
-            multiline
-            minRows={1}
-            maxRows={4}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onFocus={() => setIsActive(true)}
-            onKeyDown={handleKeyDown}
-            placeholder={isAuthenticated ? placeholder : '로그인 후 댓글을 작성할 수 있습니다.'}
-            variant="standard"
-            fullWidth
-            disabled={!isAuthenticated}
-            sx={{
-              '& .MuiInputBase-input': {
-                maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
-                overflow: 'auto',
-              },
-            }}
-            autoFocus={autoFocus}
-          />
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <TextField
+          multiline
+          minRows={1}
+          maxRows={4}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onFocus={() => setIsActive(true)}
+          onKeyDown={handleKeyDown}
+          placeholder={isAuthenticated ? placeholder : '로그인 후 댓글을 작성할 수 있습니다.'}
+          variant="standard"
+          fullWidth
+          disabled={!isAuthenticated}
+          sx={{
+            '& .MuiInputBase-input': {
+              maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
+              overflow: 'auto',
+            },
+          }}
+          autoFocus={autoFocus}
+        />
 
         {isAuthenticated && (isActive || content.trim()) && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 0.5 }}>
