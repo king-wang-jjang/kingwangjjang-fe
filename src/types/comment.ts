@@ -4,6 +4,7 @@ export interface Comment {
   parentId: string | null;
   content: string;
   userId: string;
+  userNickname: string;
   likeCount: number;
   replyCount: number;
   isDeleted: boolean;
@@ -28,10 +29,10 @@ export interface CreateCommentResponse {
   parentId: string | null;
   content: string;
   userId: string;
+  userNickname: string;
   likeCount: number;
   replyCount: number;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
 }
-

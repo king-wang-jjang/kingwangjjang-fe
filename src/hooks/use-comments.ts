@@ -1,10 +1,15 @@
-import type { CreateCommentInput, CreateCommentMutation, CreateCommentMutationVariables } from 'src/__generated__/graphql';
+import type { Comment } from 'src/types/comment';
+import type {
+  CreateCommentInput,
+  CreateCommentMutation,
+  CreateCommentMutationVariables,
+} from 'src/__generated__/graphql';
 
-import { useMemo, useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { commentServiceClient } from 'src/apollo';
-import { CREATE_COMMENT } from 'src/apollo/comment-gql';
+import { GET_COMMENTS, CREATE_COMMENT } from 'src/apollo/comment-gql';
 
 type UseCommentsParams = {
   boardId: string;
@@ -13,9 +18,27 @@ type UseCommentsParams = {
   enabled?: boolean;
 };
 
-export const useComments = ({ boardId}: UseCommentsParams) => {
-  // 댓글 조회는 현재 주석 처리된 상태이므로 임시로 빈 배열 반환
-  const comments = useMemo(() => [], []);
+export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  // 댓글 조회 쿼리
+  const { data, loading, error, refetch } = useQuery(GET_COMMENTS, {
+    client: commentServiceClient,
+    variables: {
+      boardId: `${boardId}`,
+      page: 1,
+      limit: 100,
+    },
+    skip: !enabled || !boardId,
+    fetchPolicy: 'network-only',
+  });
+
+  // 쿼리 결과가 변경되면 comments 상태 업데이트
+  useEffect(() => {
+    if (data?.comments?.comments) {
+      setComments(data.comments.comments);
+    }
+  }, [data]);
 
   const [createCommentMutation, { loading: creatingComment }] = useMutation<
     CreateCommentMutation,
@@ -37,13 +60,17 @@ export const useComments = ({ boardId}: UseCommentsParams) => {
         console.log('Mutation result:', result);
         console.log('createComment data:', result.data?.createComment);
         console.log('Id:', result.data?.createComment?.Id);
+
+        // 댓글 추가 후 목록 갱신
+        await refetch();
+
         return result.data?.createComment?.Id;
-      } catch (error) {
-        console.error('댓글 생성 실패:', error);
-        throw error;
+      } catch (err) {
+        console.error('댓글 생성 실패:', err);
+        throw err;
       }
     },
-    [boardId, createCommentMutation]
+    [boardId, createCommentMutation, refetch]
   );
 
   const addReply = useCallback(
@@ -57,24 +84,29 @@ export const useComments = ({ boardId}: UseCommentsParams) => {
         const result = await createCommentMutation({
           variables: { input },
         });
+
+        // 답글 추가 후 목록 갱신
+        await refetch();
+
         return result.data?.createComment?.Id;
-      } catch (error) {
-        console.error('답글 생성 실패:', error);
-        throw error;
+      } catch (err) {
+        console.error('답글 생성 실패:', err);
+        throw err;
       }
     },
-    [boardId, createCommentMutation]
+    [boardId, createCommentMutation, refetch]
   );
+
+  const totalCount = useMemo(() => data?.comments?.totalCount ?? 0, [data]);
 
   return {
     comments,
-    loading: false,
-    error: null,
-    refetch: () => Promise.resolve(),
+    totalCount,
+    loading,
+    error,
+    refetch,
     creatingComment,
     addComment,
     addReply,
   };
 };
-
-

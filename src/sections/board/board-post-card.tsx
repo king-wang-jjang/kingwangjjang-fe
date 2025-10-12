@@ -18,6 +18,8 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
+import { useComments } from 'src/hooks/use-comments';
+
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 
@@ -58,6 +60,14 @@ export const PostCard = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
   const readStatus = isRead(boardId);
+
+  // 댓글 수 조회
+  const { totalCount: commentCount } = useComments({
+    boardId,
+    site,
+    currentUserId: '사용자',
+    enabled: true,
+  });
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -135,7 +145,6 @@ export const PostCard = ({
     return `${diffHours}시간 ${remainingMinutes}분 전`;
   }, [createTime]);
 
-
   useEffect(() => {
     setTimeAgo(calculateTimeAgo());
   }, [calculateTimeAgo]);
@@ -178,48 +187,51 @@ export const PostCard = ({
               <Typography variant="body2" component="div">
                 {title}
               </Typography>
-                             <Typography variant="caption" component="div" color="text.secondary">
-                 {timeAgo}
-               </Typography>
-               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={handleOpenComments}>
-                   <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                   <Typography variant="caption" component="span" color="text.secondary">
-                     0
-                   </Typography>
-                 </Box>
-                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                   <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                   <Typography variant="caption" component="span" color="text.secondary">
-                     0
-                   </Typography>
-                 </Box>
-               </Box>
+              <Typography variant="caption" component="div" color="text.secondary">
+                {timeAgo}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                  onClick={handleOpenComments}
+                >
+                  <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography variant="caption" component="span" color="text.secondary">
+                    {commentCount}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography variant="caption" component="span" color="text.secondary">
+                    0
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           </Box>
-                     {/* 오른쪽 그룹: 썸네일 (끝자락 고정) */}
-           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-             <Box
-               component="img"
-               src={thumbnailSrc}
-               alt="thumbnail"
-               onClick={handleImageClick}
-               sx={{
-                 width: '80px',
-                 height: '80px',
-                 objectFit: 'cover',
-                 objectPosition: 'center',
-                 borderRadius: '8px',
-                 display: 'block',
-                 flexShrink: 0,
-                 cursor: 'pointer',
-                 transition: 'transform 0.2s ease-in-out',
-                 '&:hover': {
-                   transform: 'scale(1.05)',
-                 },
-               }}
-             />
-           </Box>
+          {/* 오른쪽 그룹: 썸네일 (끝자락 고정) */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+            <Box
+              component="img"
+              src={thumbnailSrc}
+              alt="thumbnail"
+              onClick={handleImageClick}
+              sx={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: '8px',
+                display: 'block',
+                flexShrink: 0,
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                },
+              }}
+            />
+          </Box>
         </CardContent>
 
         <Collapse in={expanded} timeout="auto">
@@ -269,7 +281,12 @@ export const PostCard = ({
           boxShadow: 'none',
         }}
       >
-        <Link href={url} target="_blank" passHref onClick={(e) => handleLinkClick(e, boardId, site)}>
+        <Link
+          href={url}
+          target="_blank"
+          passHref
+          onClick={(e) => handleLinkClick(e, boardId, site)}
+        >
           <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
             <LaunchIcon sx={{ width: '50px', color: 'white' }} />
           </Box>

@@ -21,6 +21,7 @@ export const GET_COMMENTS = gql`
         parentId
         content
         userId
+        userNickname
         likeCount
         replyCount
         isDeleted

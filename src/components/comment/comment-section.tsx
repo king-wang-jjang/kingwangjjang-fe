@@ -1,8 +1,8 @@
 import type { Comment, CommentFormData } from 'src/types/comment';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { CommentList } from './comment-list';
 
@@ -36,7 +36,6 @@ export const CommentSection = ({
   const isReply = (c: Comment) => Boolean(c.parentId);
   const rootComments = localComments.filter((c) => !isReply(c));
   const getReplies = (parentId: string) => localComments.filter((c) => c.parentId === parentId);
-  const totalCount = localComments.length;
 
   const handleAddComment = async (data: CommentFormData, parentId?: string) => {
     if (!onAddComment) {
@@ -48,6 +47,7 @@ export const CommentSection = ({
         Id: '',
         boardId: '',
         userId: '',
+        userNickname: '',
         likeCount: 0,
         replyCount: 0,
         isDeleted: false,
