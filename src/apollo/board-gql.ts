@@ -23,6 +23,7 @@ export const REALTIME_PAGINATION_QUERY = gql`
       gptAnswer
       createTime
       thumbnail
+      commentCount
     }
   }
 `;

@@ -18,8 +18,6 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
-import { useComments } from 'src/hooks/use-comments';
-
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 
@@ -33,6 +31,7 @@ interface Props {
   createTime: string;
   thumbnail: string;
   gptAnswer: string;
+  commentCount: number;
   onClickToggle: (boardId: string, site: string) => void;
   onCommentClick?: (boardId: string, site: string) => void;
 }
@@ -45,6 +44,7 @@ export const PostCard = ({
   createTime,
   thumbnail,
   gptAnswer,
+  commentCount,
   onClickToggle,
   onCommentClick,
 }: Props) => {
@@ -58,14 +58,6 @@ export const PostCard = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
   const readStatus = isRead(boardId);
-
-  // 댓글 수 조회
-  const { totalCount: commentCount } = useComments({
-    boardId,
-    site,
-    currentUserId: '사용자',
-    enabled: true,
-  });
 
   const handleMouseOver = () => {
     if (!isMobile) {

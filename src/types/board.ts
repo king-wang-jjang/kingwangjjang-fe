@@ -7,6 +7,7 @@ export interface IPostCard {
   thumbnail: string;
   createTime: Date;
   gptAnswer: string;
+  commentCount: number;
 }
 
 export interface IBoardFilters {
