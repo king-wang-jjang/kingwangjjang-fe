@@ -55,9 +55,16 @@ export function BoardView({ title = 'Blank' }: Props) {
     }
   };
 
-  // 카드 클릭 핸들러 (확장/축소만 처리, 댓글은 표시하지 않음)
+  // 카드 클릭 핸들러
   const handleCardClick = (boardId: string, site: string) => {
-    // 카드 내부에서 expand 상태만 토글하므로 여기서는 아무 작업도 하지 않음
+    // 댓글이 이미 열려있는 상태면, 클릭한 카드의 댓글로 전환
+    if (selectedPost) {
+      setSelectedPost({ boardId, site });
+      if (isMobile) {
+        commentDrawerOpen.onTrue();
+      }
+    }
+    // 댓글이 닫혀있으면 카드 내부에서 expand만 처리 (아무 작업 안 함)
   };
 
   // 댓글 닫기 핸들러
@@ -115,7 +122,10 @@ export function BoardView({ title = 'Blank' }: Props) {
         {selectedPost && (
           <CommentDrawer
             open={commentDrawerOpen.value}
-            onClose={commentDrawerOpen.onFalse}
+            onClose={() => {
+              commentDrawerOpen.onFalse();
+              handleCommentClose();
+            }}
             postId={`${selectedPost.boardId}-${selectedPost.site}`}
             site={selectedPost.site}
             currentUser="사용자"

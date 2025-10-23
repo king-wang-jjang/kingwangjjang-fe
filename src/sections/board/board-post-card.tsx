@@ -97,6 +97,12 @@ export const PostCard = ({
   }, [isHovering]);
 
   const handleToggle = (_boardId: string) => {
+    // 텍스트가 선택되어 있으면 토글하지 않음 (드래그 방지)
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      return;
+    }
+
     setExpanded(!expanded);
     if (!expanded) {
       markAsRead(_boardId);
@@ -228,11 +234,11 @@ export const PostCard = ({
         </CardContent>
 
         <Collapse in={expanded} timeout="auto">
-          <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', userSelect: 'text' }}>
             <Typography
               variant="body2"
               component="div"
-              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', mb: 2 }}
+              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', mb: 2, userSelect: 'text' }}
             >
               {gptAnswer}
               <br />
