@@ -24,7 +24,6 @@ import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 
 import { Label } from 'src/components/label';
-import { CommentDrawer } from 'src/components/comment';
 
 interface Props {
   boardId: string;
@@ -54,7 +53,6 @@ export const PostCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [commentOpen, setCommentOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -120,11 +118,6 @@ export const PostCard = ({
     if (onCommentClick) {
       onCommentClick(boardId, site);
     }
-    setCommentOpen(true);
-  };
-
-  const handleCloseComments = () => {
-    setCommentOpen(false);
   };
 
   const thumbnailSrc = thumbnail
@@ -347,15 +340,6 @@ export const PostCard = ({
           />
         </Box>
       </Modal>
-
-      <CommentDrawer
-        open={commentOpen}
-        onClose={handleCloseComments}
-        postId={`${boardId}`}
-        site={site}
-        currentUser="사용자"
-        title="댓글"
-      />
     </Box>
   );
 };

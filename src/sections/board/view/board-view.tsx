@@ -47,12 +47,17 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   const { postData, filterCollection, loadingRef, boardContentsQueryLoading } = useBoard();
 
-  // 게시물 선택 핸들러
-  const handlePostSelect = (boardId: string, site: string) => {
+  // 댓글 열기 핸들러
+  const handleCommentOpen = (boardId: string, site: string) => {
     setSelectedPost({ boardId, site });
     if (isMobile) {
       commentDrawerOpen.onTrue();
     }
+  };
+
+  // 카드 클릭 핸들러 (확장/축소만 처리, 댓글은 표시하지 않음)
+  const handleCardClick = (boardId: string, site: string) => {
+    // 카드 내부에서 expand 상태만 토글하므로 여기서는 아무 작업도 하지 않음
   };
 
   // 댓글 닫기 핸들러
@@ -99,8 +104,8 @@ export function BoardView({ title = 'Blank' }: Props) {
         {renderFilters}
         {canReset}
         <PostList
-          onClickCard={handlePostSelect}
-          onCommentClick={handlePostSelect}
+          onClickCard={handleCardClick}
+          onCommentClick={handleCommentOpen}
           postItems={dataFiltered}
           loading={boardContentsQueryLoading}
         />
@@ -165,8 +170,8 @@ export function BoardView({ title = 'Blank' }: Props) {
           {renderFilters}
           {canReset}
           <PostList
-            onClickCard={handlePostSelect}
-            onCommentClick={handlePostSelect}
+            onClickCard={handleCardClick}
+            onCommentClick={handleCommentOpen}
             postItems={dataFiltered}
             loading={boardContentsQueryLoading}
           />
