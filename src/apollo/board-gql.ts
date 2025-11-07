@@ -27,3 +27,13 @@ export const REALTIME_PAGINATION_QUERY = gql`
     }
   }
 `;
+
+export const ADD_LIKE_MUTATION = gql`
+  mutation AddLike($boardId: String!, $site: String!) {
+    addLike(boardId: $boardId, site: $site) {
+      boardId
+      site
+      likeCount
+    }
+  }
+`;
