@@ -81,7 +81,7 @@ export const PostCard = ({
     if (cardElement) {
       anime({
         targets: cardElement,
-        translateX: isHovering ? -50 : 0,
+        scaleX: isHovering ? 0.95 : 1,
         duration: 300,
         easing: 'easeInOutQuad',
       });
@@ -151,6 +151,7 @@ export const PostCard = ({
           display: 'flex',
           flexDirection: 'column',
           cursor: 'pointer',
+          transformOrigin: 'left center',
         }}
         onClick={() => boardId && handleToggle(boardId)}
       >
