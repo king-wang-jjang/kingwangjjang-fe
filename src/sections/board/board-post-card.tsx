@@ -2,6 +2,7 @@ import Link from 'next/link';
 import anime from 'animejs/lib/anime.es.js';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
+import { useMutation } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -18,8 +19,12 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
+import { toast } from 'sonner';
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
+import { useAuthStore } from 'src/store/auth-store';
+import { ADD_LIKE_MUTATION } from 'src/apollo/board-gql';
+import { boardServiceClient } from 'src/apollo';
 
 import { Label } from 'src/components/label';
 
@@ -32,6 +37,7 @@ interface Props {
   thumbnail: string;
   gptAnswer: string;
   commentCount: number;
+  likeCount?: number;
   onClickToggle: (boardId: string, site: string) => void;
   onCommentClick?: (boardId: string, site: string) => void;
 }
@@ -45,6 +51,7 @@ export const PostCard = ({
   thumbnail,
   gptAnswer,
   commentCount,
+  likeCount = 0,
   onClickToggle,
   onCommentClick,
 }: Props) => {
@@ -53,11 +60,25 @@ export const PostCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [currentLikeCount, setCurrentLikeCount] = useState(likeCount);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
+  const { isAuthenticated } = useAuthStore();
   const readStatus = isRead(boardId);
+
+  const [addLike] = useMutation(ADD_LIKE_MUTATION, {
+    client: boardServiceClient,
+    onCompleted: (data) => {
+      if (data?.addLike?.likeCount !== undefined) {
+        setCurrentLikeCount(data.addLike.likeCount);
+      }
+    },
+    onError: (error) => {
+      toast.warning(`좋아요 추가 실패: ${error.message || error}`);
+    },
+  });
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -104,6 +125,7 @@ export const PostCard = ({
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setImageModalOpen(true);
   };
 
@@ -113,9 +135,25 @@ export const PostCard = ({
 
   const handleOpenComments = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (onCommentClick) {
       onCommentClick(boardId, site);
     }
+  };
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!isAuthenticated) {
+      toast.error('로그인이 필요합니다.');
+    }
+    
+    addLike({
+      variables: {
+        boardId,
+      },
+    });
   };
 
   const thumbnailSrc = thumbnail
@@ -192,10 +230,17 @@ export const PostCard = ({
                     {commentCount}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 0.5, 
+                  }}
+                  onClick={handleLike}
+                >
                   <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                   <Typography variant="caption" component="span" color="text.secondary">
-                    0
+                    {currentLikeCount}
                   </Typography>
                 </Box>
               </Box>

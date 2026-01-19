@@ -24,13 +24,14 @@ export const REALTIME_PAGINATION_QUERY = gql`
       createTime
       thumbnail
       commentCount
+      likeCount
     }
   }
 `;
 
 export const ADD_LIKE_MUTATION = gql`
-  mutation AddLike($boardId: String!, $site: String!) {
-    addLike(boardId: $boardId, site: $site) {
+  mutation AddLike($boardId: String!) {
+    addLike(boardId: $boardId) {
       boardId
       site
       likeCount
