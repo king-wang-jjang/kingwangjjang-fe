@@ -128,7 +128,6 @@ export function BoardView({ title = 'Blank' }: Props) {
             }}
             postId={`${selectedPost.boardId}-${selectedPost.site}`}
             site={selectedPost.site}
-            currentUser="사용자"
             title="댓글"
           />
         )}
@@ -206,7 +205,6 @@ export function BoardView({ title = 'Blank' }: Props) {
             <CommentSidebar
               postId={`${selectedPost.boardId}`}
               site={selectedPost.site}
-              currentUser="사용자"
               title="댓글"
               onClose={handleCommentClose}
             />

@@ -10,10 +10,13 @@ import {
   Drawer,
   IconButton,
   drawerClasses,
+  Typography,
+  Stack,
 } from '@mui/material';
 
 import { useComments } from 'src/hooks/use-comments';
 
+import { CommentForm } from './comment-form';
 import { CommentSection } from './comment-section';
 
 interface CommentDrawerProps {
@@ -21,7 +24,6 @@ interface CommentDrawerProps {
   onClose: () => void;
   postId: string;
   site?: string;
-  currentUser?: string;
   initialComments?: Comment[];
   title?: string;
   sx?: SxProps<Theme>;
@@ -32,7 +34,6 @@ export function CommentDrawer({
   onClose,
   postId,
   site,
-  currentUser = '사용자',
   initialComments = [],
   title = '댓글',
   sx,
@@ -48,10 +49,9 @@ export function CommentDrawer({
     []
   );
 
-  const { comments, addComment, addReply } = useComments({
+  const { comments, addComment, addReply, totalCount, loading } = useComments({
     boardId: postId,
     site: site ?? '',
-    currentUserId: currentUser,
     enabled: open,
   });
 
@@ -63,16 +63,20 @@ export function CommentDrawer({
       ModalProps={{ keepMounted: true }}
       sx={{ ...paperSx, ...sx }}
     >
-      <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
+      <Box sx={{ px: 2, pt: 2, pb: 0.5, bgcolor: 'action.selected' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
           <DragHandleIcon sx={{ color: 'text.disabled' }} />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="h6">
+            {title} {totalCount > 0 ? totalCount : ''}
+          </Typography>
+
           <IconButton size="small" onClick={onClose}>
             <CloseIcon />
           </IconButton>
-        </Box>
+        </Stack>
       </Box>
 
       <Box
@@ -87,10 +91,27 @@ export function CommentDrawer({
           <CommentSection
             postId={postId}
             comments={comments}
-            currentUser={currentUser}
-            onAddComment={async ({ content }) => { await addComment(content); }}
-            onAddReply={async (parentId, content) => { await addReply(parentId, content); }}
+            loading={loading}
+            onAddComment={async ({ content }) => {
+              await addComment(content);
+            }}
+            onAddReply={async (parentId, content) => {
+              await addReply(parentId, content);
+            }}
           />
+        </Box>
+
+        {/* 고정된 댓글 입력 Footer */}
+        <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+          <Box sx={{ p: 1.2 }}>
+            <CommentForm
+              onSubmit={async ({ content }) => {
+                await addComment(content);
+              }}
+              placeholder="댓글을 입력하세요..."
+              variant="composer"
+            />
+          </Box>
         </Box>
       </Box>
     </Drawer>

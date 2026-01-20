@@ -5,6 +5,16 @@ export const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {
     createComment(input: $input) {
       Id
+      boardId
+      parentId
+      content
+      userId
+      userNickname
+      likeCount
+      replyCount
+      isDeleted
+      createdAt
+      updatedAt
     }
   }
 `;

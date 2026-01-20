@@ -10,7 +10,6 @@ interface CommentFormProps {
   onSubmit: (data: CommentFormData) => void;
   onCancel?: () => void;
   placeholder?: string;
-  currentUser?: string;
   variant?: 'composer' | 'reply';
   autoFocus?: boolean;
 }
@@ -19,7 +18,6 @@ export const CommentForm = ({
   onSubmit,
   onCancel,
   placeholder = '댓글 추가...',
-  currentUser = '사용자',
   variant = 'composer',
   autoFocus = false,
 }: CommentFormProps) => {

@@ -10,22 +10,22 @@ interface CommentSectionProps {
   postId: string;
   comments?: Comment[];
   commentCount?: number;
+  loading?: boolean;
   onAddComment?: (data: CommentFormData) => Promise<void>;
   onAddReply?: (parentId: string, content: string) => Promise<void>;
   onLikeComment?: (commentId: string) => Promise<void>;
   onDeleteComment?: (commentId: string) => Promise<void>;
-  currentUser?: string;
 }
 
 export const CommentSection = ({
   postId,
   comments = [],
   commentCount = 0,
+  loading = false,
   onAddComment,
   onAddReply,
   onLikeComment,
   onDeleteComment,
-  currentUser = '사용자',
 }: CommentSectionProps) => {
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
 
@@ -120,6 +120,7 @@ export const CommentSection = ({
     <Box onClick={(e) => e.stopPropagation()}>
       <Box sx={{ pl: 2, pr: 1.5 }}>
         <CommentList
+          loading={loading}
           comments={rootComments}
           getReplies={getReplies}
           onLike={handleLikeComment}

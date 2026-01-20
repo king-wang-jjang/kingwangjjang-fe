@@ -3,9 +3,11 @@ import type { Comment } from 'src/types/comment';
 import { Box, Divider, Typography } from '@mui/material';
 
 import { CommentItem } from './comment-item';
+import { CommentItemSkeleton } from './comment-item-skeleton';
 
 interface CommentListProps {
   comments: Comment[];
+  loading?: boolean;
   getReplies?: (parentId: string) => Comment[];
   onLike?: (commentId: string) => void;
   onDelete?: (commentId: string) => void;
@@ -15,12 +17,23 @@ interface CommentListProps {
 
 export const CommentList = ({
   comments,
+  loading,
   getReplies,
   onLike,
   onDelete,
   onReply,
-  emptyMessage = '아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!',
+  emptyMessage = '첫 댓글을 남겨보세요.',
 }: CommentListProps) => {
+  if (loading) {
+    return (
+      <Box>
+        {[...Array(3)].map((_, index) => (
+          <CommentItemSkeleton key={index} />
+        ))}
+      </Box>
+    );
+  }
+
   if (!comments || comments.length === 0) {
     return (
       <Box sx={{ py: 3, textAlign: 'center', color: 'text.secondary' }}>
@@ -31,9 +44,7 @@ export const CommentList = ({
 
   return (
     <Box>
-      <Divider sx={{ my: 1.5 }} />
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, pt: 1.5 }}>
         {comments.map((comment, index) => {
           const children = getReplies ? getReplies(comment.Id) : [];
           return (
@@ -45,7 +56,6 @@ export const CommentList = ({
                 onReply={onReply}
                 replies={children}
               />
-              {index < comments.length - 1 && <Divider sx={{ my: 0.75 }} />}
             </Box>
           );
         })}

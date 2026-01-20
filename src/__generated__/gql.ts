@@ -13,10 +13,17 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
-const documents = {
-    "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n    }\n  }\n": types.RealtimePaginationDocument,
+type Documents = {
+    "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n      likeCount\n    }\n  }\n": typeof types.RealtimePaginationDocument,
+    "\n  mutation AddLike($boardId: String!) {\n    addLike(boardId: $boardId) {\n      boardId\n      site\n      likeCount\n    }\n  }\n": typeof types.AddLikeDocument,
+    "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      userNickname\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateCommentDocument,
+    "\n  query Comments($boardId: String!, $page: Int!, $limit: Int!) {\n    comments(boardId: $boardId, page: $page, limit: $limit) {\n      boardId\n      totalCount\n      comments {\n        Id\n        boardId\n        parentId\n        content\n        userId\n        userNickname\n        likeCount\n        replyCount\n        isDeleted\n        createdAt\n        updatedAt\n      }\n    }\n  }\n": typeof types.CommentsDocument,
+    "\n  query Me {\n    me {\n      Id\n      userId\n      nickname\n      authProvider\n      profileImage\n      createTime\n    }\n  }\n": typeof types.MeDocument,
+};
+const documents: Documents = {
+    "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n      likeCount\n    }\n  }\n": types.RealtimePaginationDocument,
     "\n  mutation AddLike($boardId: String!) {\n    addLike(boardId: $boardId) {\n      boardId\n      site\n      likeCount\n    }\n  }\n": types.AddLikeDocument,
-    "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n    }\n  }\n": types.CreateCommentDocument,
+    "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      userNickname\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateCommentDocument,
     "\n  query Comments($boardId: String!, $page: Int!, $limit: Int!) {\n    comments(boardId: $boardId, page: $page, limit: $limit) {\n      boardId\n      totalCount\n      comments {\n        Id\n        boardId\n        parentId\n        content\n        userId\n        userNickname\n        likeCount\n        replyCount\n        isDeleted\n        createdAt\n        updatedAt\n      }\n    }\n  }\n": types.CommentsDocument,
     "\n  query Me {\n    me {\n      Id\n      userId\n      nickname\n      authProvider\n      profileImage\n      createTime\n    }\n  }\n": types.MeDocument,
 };
@@ -38,7 +45,7 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n    }\n  }\n"): (typeof documents)["\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n    }\n  }\n"];
+export function gql(source: "\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n      likeCount\n    }\n  }\n"): (typeof documents)["\n  query RealtimePagination($index: Int) {\n    realtimePagination(index: $index) {\n      Id\n      category\n      no\n      site\n      title\n      url\n      gptAnswer\n      createTime\n      thumbnail\n      commentCount\n      likeCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -46,7 +53,7 @@ export function gql(source: "\n  mutation AddLike($boardId: String!) {\n    addL
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n    }\n  }\n"): (typeof documents)["\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n    }\n  }\n"];
+export function gql(source: "\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      userNickname\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateComment($input: CreateCommentInput!) {\n    createComment(input: $input) {\n      Id\n      boardId\n      parentId\n      content\n      userId\n      userNickname\n      likeCount\n      replyCount\n      isDeleted\n      createdAt\n      updatedAt\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

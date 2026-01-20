@@ -12,8 +12,6 @@ import { CommentSection } from './comment-section';
 interface CommentSidebarProps {
   postId: string;
   site?: string;
-  currentUser?: string;
-  initialComments?: Comment[];
   title?: string;
   onClose?: () => void;
   sx?: SxProps<Theme>;
@@ -22,8 +20,6 @@ interface CommentSidebarProps {
 export function CommentSidebar({
   postId,
   site,
-  currentUser = '사용자',
-  initialComments = [],
   title = '댓글',
   onClose,
   sx,
@@ -31,10 +27,9 @@ export function CommentSidebar({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const { comments, addComment, addReply } = useComments({
+  const { comments, addComment, addReply, totalCount, loading } = useComments({
     boardId: postId,
     site: site ?? '',
-    currentUserId: currentUser,
     enabled: !!postId,
   });
 
@@ -54,10 +49,10 @@ export function CommentSidebar({
         ...sx,
       }}
     >
-      <Box sx={{ p: 1.3, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ px: 1.3, pt: 2, pb: 1.3, borderBottom: 1, borderColor: 'divider', bgcolor: 'action.selected' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="inherit" component="div">
-            {title}
+          <Typography variant="h6">
+            {title} {totalCount > 0 ? totalCount : ''}
           </Typography>
           {onClose && (
             <IconButton
@@ -89,7 +84,7 @@ export function CommentSidebar({
           <CommentSection
             postId={postId}
             comments={comments}
-            currentUser={currentUser}
+            loading={loading}
             onAddComment={async ({ content }) => {
               await addComment(content);
             }}
@@ -107,7 +102,6 @@ export function CommentSidebar({
             onSubmit={async ({ content }) => {
               await addComment(content);
             }}
-            currentUser={currentUser}
             placeholder="댓글을 입력하세요..."
             variant="composer"
           />

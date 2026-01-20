@@ -3,7 +3,7 @@ import type { Comment } from 'src/types/comment';
 import { useState } from 'react';
 
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
-import { Box, Avatar, Button, Collapse, IconButton, Typography } from '@mui/material';
+import { Box, Avatar, Button, Collapse, IconButton, Typography, Stack } from '@mui/material';
 
 import { CommentForm } from './comment-form';
 
@@ -24,7 +24,7 @@ export const CommentItem = ({
 }: CommentItemProps) => {
   const [isLiked, setIsLiked] = useState(comment.likeCount > 0 || false);
   const [likesCount, setLikesCount] = useState(comment.likeCount);
-  const [showReplies, setShowReplies] = useState(true);
+  const [showReplies, setShowReplies] = useState(false);
   const [showReplyBox, setShowReplyBox] = useState(false);
 
   const handleLike = () => {
@@ -84,16 +84,18 @@ export const CommentItem = ({
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-          <IconButton
-            size="small"
-            onClick={handleLike}
-            sx={{ color: isLiked ? 'error.main' : 'text.secondary', p: 0.5 }}
-          >
-            {isLiked ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
-          </IconButton>
-          <Typography variant="caption" color="text.secondary">
-            {likesCount}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={0}>
+            <IconButton
+              size="small"
+              onClick={handleLike}
+              sx={{ color: isLiked ? 'error.main' : 'text.secondary', p: 0.5 }}
+            >
+              {isLiked ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
+            </IconButton>
+            <Typography variant="caption" color="text.secondary">
+              {likesCount}
+            </Typography>
+          </Stack>
           {isRoot && (
             <Button
               size="small"
