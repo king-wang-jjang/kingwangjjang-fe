@@ -24,7 +24,7 @@
     "watch": "graphql-codegen -w"
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {
