@@ -1,4 +1,4 @@
-import { Skeleton, Box, Stack } from '@mui/material';
+import { Stack, Skeleton } from '@mui/material';
 
 export function CommentItemSkeleton() {
   return (

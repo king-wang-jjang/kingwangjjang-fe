@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import { toast } from 'sonner';
 import anime from 'animejs/lib/anime.es.js';
+import { useMutation } from '@apollo/client';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
-import { useMutation } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -19,12 +20,11 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
-import { toast } from 'sonner';
 import { CONFIG } from 'src/config-global';
+import { boardServiceClient } from 'src/apollo';
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
 import { ADD_LIKE_MUTATION } from 'src/apollo/board-gql';
-import { boardServiceClient } from 'src/apollo';
 
 import { Label } from 'src/components/label';
 

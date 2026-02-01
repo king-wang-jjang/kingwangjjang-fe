@@ -7,11 +7,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import {
   Box,
+  Stack,
   Drawer,
   IconButton,
-  drawerClasses,
   Typography,
-  Stack,
+  drawerClasses,
 } from '@mui/material';
 
 import { useComments } from 'src/hooks/use-comments';
@@ -49,7 +49,7 @@ export function CommentDrawer({
     []
   );
 
-  const { comments, addComment, addReply, totalCount, loading } = useComments({
+  const { comments, addComment, addReply, totalCount, loading, likeComment } = useComments({
     boardId: postId,
     site: site ?? '',
     enabled: open,
@@ -97,6 +97,9 @@ export function CommentDrawer({
             }}
             onAddReply={async (parentId, content) => {
               await addReply(parentId, content);
+            }}
+            onLikeComment={async (commentId) => {
+              await likeComment(commentId);
             }}
           />
         </Box>

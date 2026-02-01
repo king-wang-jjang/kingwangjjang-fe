@@ -1,4 +1,4 @@
-import { Grid, useMediaQuery, useTheme } from "@mui/material";
+import { Grid, useTheme, useMediaQuery } from "@mui/material";
 
 export const Loading = () => {
   const theme = useTheme();

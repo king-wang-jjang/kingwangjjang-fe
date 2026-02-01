@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import type { MeResponse } from 'src/types/user';
+
 import { useLazyQuery } from '@apollo/client';
+import { useState, useEffect, useCallback } from 'react';
 
 import { userServiceClient } from 'src/apollo';
 import { ME_QUERY } from 'src/apollo/user-gql';
 import { useAuthStore } from 'src/store/auth-store';
-
-import type { MeResponse } from 'src/types/user';
 
 // ----------------------------------------------------------------------
 

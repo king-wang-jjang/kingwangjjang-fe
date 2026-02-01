@@ -1,6 +1,6 @@
 import type { Comment } from 'src/types/comment';
 
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { CommentItem } from './comment-item';
 import { CommentItemSkeleton } from './comment-item-skeleton';

@@ -4,6 +4,8 @@ import 'src/global.css';
 
 import type { Viewport } from 'next';
 
+import { Toaster } from 'sonner';
+
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 
 import { CONFIG } from 'src/config-global';
@@ -16,7 +18,6 @@ import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import { AuthInitializer } from 'src/auth/auth-initializer';
-import { Toaster } from 'sonner';
 
 // ----------------------------------------------------------------------
 

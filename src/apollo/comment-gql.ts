@@ -12,6 +12,7 @@ export const CREATE_COMMENT = gql`
       userNickname
       likeCount
       replyCount
+      isLiked
       isDeleted
       createdAt
       updatedAt
@@ -34,10 +35,22 @@ export const GET_COMMENTS = gql`
         userNickname
         likeCount
         replyCount
+        isLiked
         isDeleted
         createdAt
         updatedAt
       }
+    }
+  }
+`;
+
+// 댓글 좋아요
+export const LIKE_COMMENT = gql`
+  mutation LikeComment($commentId: String!) {
+    likeComment(commentId: $commentId) {
+      Id
+      likeCount
+      isLiked
     }
   }
 `;

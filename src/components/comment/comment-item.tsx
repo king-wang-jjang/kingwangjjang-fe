@@ -3,7 +3,7 @@ import type { Comment } from 'src/types/comment';
 import { useState } from 'react';
 
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
-import { Box, Avatar, Button, Collapse, IconButton, Typography, Stack } from '@mui/material';
+import { Box, Stack, Avatar, Button, Collapse, IconButton, Typography } from '@mui/material';
 
 import { CommentForm } from './comment-form';
 
@@ -22,7 +22,7 @@ export const CommentItem = ({
   onDelete,
   onReply,
 }: CommentItemProps) => {
-  const [isLiked, setIsLiked] = useState(comment.likeCount > 0 || false);
+  const [isLiked, setIsLiked] = useState(comment.isLiked);
   const [likesCount, setLikesCount] = useState(comment.likeCount);
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyBox, setShowReplyBox] = useState(false);
