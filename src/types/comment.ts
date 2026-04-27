@@ -7,6 +7,7 @@ export interface Comment {
   userNickname: string;
   likeCount: number;
   replyCount: number;
+  isLiked: boolean;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;

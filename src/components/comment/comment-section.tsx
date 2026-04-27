@@ -50,6 +50,7 @@ export const CommentSection = ({
         userNickname: '',
         likeCount: 0,
         replyCount: 0,
+        isLiked: false,
         isDeleted: false,
         updatedAt: '',
       };
@@ -78,8 +79,8 @@ export const CommentSection = ({
           comment.Id === commentId
             ? {
                 ...comment,
-                likes: comment.likeCount ? comment.likeCount - 1 : comment.likeCount + 1,
-                isLiked: !comment.likeCount,
+                likeCount: comment.isLiked ? comment.likeCount - 1 : comment.likeCount + 1,
+                isLiked: !comment.isLiked,
               }
             : comment
         )
@@ -92,7 +93,13 @@ export const CommentSection = ({
       // API 성공 후 로컬 상태 업데이트
       setLocalComments((prev) =>
         prev.map((comment) =>
-          comment.Id === commentId ? { ...comment, isLiked: !comment.likeCount } : comment
+          comment.Id === commentId
+            ? {
+                ...comment,
+                isLiked: !comment.isLiked,
+                likeCount: comment.isLiked ? comment.likeCount - 1 : comment.likeCount + 1,
+              }
+            : comment
         )
       );
     } catch (error) {

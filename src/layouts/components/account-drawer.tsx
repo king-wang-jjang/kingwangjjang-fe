@@ -21,8 +21,6 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
-
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
 

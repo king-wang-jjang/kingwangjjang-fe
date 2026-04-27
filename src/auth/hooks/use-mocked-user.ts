@@ -1,5 +1,5 @@
 import { _mock } from 'src/_mock';
-import type { UserType } from '../types';
+
 
 // ----------------------------------------------------------------------
 

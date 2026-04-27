@@ -1,4 +1,3 @@
-import type { Comment } from 'src/types/comment';
 import type { Theme, SxProps } from '@mui/material/styles';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -27,7 +26,7 @@ export function CommentSidebar({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const { comments, addComment, addReply, totalCount, loading } = useComments({
+  const { comments, addComment, addReply, totalCount, loading, likeComment } = useComments({
     boardId: postId,
     site: site ?? '',
     enabled: !!postId,
@@ -90,6 +89,9 @@ export function CommentSidebar({
             }}
             onAddReply={async (parentId, content) => {
               await addReply(parentId, content);
+            }}
+            onLikeComment={async (commentId) => {
+              await likeComment(commentId);
             }}
           />
         </Box>

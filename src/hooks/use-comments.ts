@@ -1,16 +1,18 @@
 import type { Comment } from 'src/types/comment';
 import type {
   CreateCommentInput,
+  LikeCommentMutation,
   CreateCommentMutation,
+  LikeCommentMutationVariables,
   CreateCommentMutationVariables,
 } from 'src/__generated__/graphql';
 
 import { useQuery, useMutation } from '@apollo/client';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { useAuthStore } from 'src/store/auth-store';
 import { commentServiceClient } from 'src/apollo';
-import { GET_COMMENTS, CREATE_COMMENT } from 'src/apollo/comment-gql';
+import { useAuthStore } from 'src/store/auth-store';
+import { GET_COMMENTS, LIKE_COMMENT, CREATE_COMMENT } from 'src/apollo/comment-gql';
 
 type UseCommentsParams = {
   boardId: string;
@@ -88,6 +90,7 @@ export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
               userNickname: user.nickname,
               likeCount: 0,
               replyCount: 0,
+              isLiked: false,
             },
           },
         });
@@ -119,6 +122,37 @@ export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
     [boardId, createCommentMutation, user, refetch]
   );
 
+  const [likeCommentMutation] = useMutation<LikeCommentMutation, LikeCommentMutationVariables>(
+    LIKE_COMMENT,
+    {
+      client: commentServiceClient,
+    }
+  );
+
+  const likeComment = useCallback(
+    async (commentId: string) => {
+      const comment = comments.find((c) => c.Id === commentId);
+      if (!comment) return;
+      try {
+        await likeCommentMutation({
+          variables: { commentId },
+          optimisticResponse: {
+            likeComment: {
+              __typename: 'CommentEntry',
+              Id: commentId,
+              isLiked: !comment.isLiked,
+              likeCount: comment.isLiked ? comment.likeCount - 1 : comment.likeCount + 1,
+            },
+          },
+        });
+      } catch (err) {
+        console.error('댓글 좋아요 실패:', err);
+        throw err;
+      }
+    },
+    [comments, likeCommentMutation]
+  );
+
   const totalCount = useMemo(() => data?.comments?.totalCount ?? 0, [data]);
 
   return {
@@ -130,5 +164,6 @@ export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
     creatingComment,
     addComment,
     addReply,
+    likeComment,
   };
 };

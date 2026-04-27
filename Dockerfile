@@ -1,5 +1,5 @@
 # 1단계: Node.js 애플리케이션을 빌드합니다.
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /usr/app
 
 # 의존성만 복사하고 설치 (캐싱 활용)
@@ -11,7 +11,7 @@ COPY ./ ./
 RUN yarn build
 
 # 2단계: 런타임 이미지를 생성합니다.
-FROM node:20-alpine AS production
+FROM node:24-alpine AS production
 WORKDIR /usr/app
 
 # 빌드된 파일만 복사

@@ -6,7 +6,6 @@ import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
