@@ -5,9 +5,9 @@
   "description": "Next Starter & TypeScript",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8083",
+    "dev": "next dev --webpack -p 8083",
     "start": "next start -p 8083",
-    "build": "next build",
+    "build": "next build --webpack",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
     "fm:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -24,7 +24,7 @@
     "watch": "graphql-codegen -w"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=20.9 <25"
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {
@@ -53,11 +53,11 @@
     "dayjs": "^1.11.13",
     "framer-motion": "^11.3.29",
     "graphql": "^16.10.0",
-    "next": "^14.2.5",
+    "next": "^16.2.4",
     "next-pwa": "^5.6.0",
     "nprogress": "^0.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "react-hook-form": "^7.52.2",
     "simplebar-react": "^3.2.6",
     "sonner": "^2.0.7",
@@ -75,8 +75,8 @@
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/node": "^22.4.2",
     "@types/nprogress": "^0.2.3",
-    "@types/react": "^18.3.4",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "18.3.4",
+    "@types/react-dom": "18.3.0",
     "@types/stylis": "^4.2.6",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",

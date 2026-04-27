@@ -11,11 +11,10 @@ const withPWA = nextPwa({
 /**
  * @type {import('next').NextConfig}
  */
-const isStaticExport = false; // 불리언 값으로 설정
+const isStaticExport = false;
 
 const nextConfig = {
   trailingSlash: true,
-  swcMinify: true,
   env: {
     NEXT_PUBLIC_BUILD_STATIC_EXPORT: isStaticExport.toString(),
   },
@@ -37,7 +36,7 @@ const nextConfig = {
     });
     return config;
   },
-  ...(isStaticExport === 'true' && {
+  ...(isStaticExport && {
     output: 'export',
   }),
 };
