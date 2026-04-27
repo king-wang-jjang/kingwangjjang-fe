@@ -1,40 +1,9 @@
-import { gql } from '@apollo/client';
 
-// export const SUMMARY_BOARD_MUTATION = gql`
-//   mutation SummaryBoard($boardId: String!, $site: String!) {
-//     summaryBoard(boardId: $boardId, site: $site) {
-//       gptAnswer
-//       Tag
-//       boardId
-//       site
-//     }
-//   }
-// `;
-
-export const REALTIME_PAGINATION_QUERY = gql`
-  query RealtimePagination($index: Int) {
-    realtimePagination(index: $index) {
-      Id
-      category
-      no
-      site
-      title
-      url
-      gptAnswer
-      createTime
-      thumbnail
-      commentCount
-      likeCount
-    }
-  }
-`;
-
-export const ADD_LIKE_MUTATION = gql`
-  mutation AddLike($boardId: String!) {
-    addLike(boardId: $boardId) {
-      boardId
-      site
-      likeCount
+export const GET_LIKES_INFO_QUERY = gql`
+  query GetLikesInfo($boardId: String!, $site: String!, $userId: String) {
+    get_likes_info(boardId: $boardId, site: $site, userId: $userId) {
+      total_likes
+      is_liked
     }
   }
 `;
