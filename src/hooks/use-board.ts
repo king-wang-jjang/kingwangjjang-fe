@@ -3,7 +3,6 @@ import type { BoardPost } from 'src/api/board-api';
 import { useState, useEffect } from 'react';
 
 import { POSTITEMS } from 'src/_mock/_board';
-// import { SummaryBoardDocument } from 'src/__generated__/graphql';
 
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
@@ -18,27 +17,8 @@ export const useBoard = () => {
     data: boardContentsData,
   } = useInfiniteScrollablePostList();
 
-  // const [
-  //   summaryBoardMutation,
-  //   {
-  //     data: summaryBoardMutationData,
-  //     loading: summaryBoardMutationLoading,
-  //     error: summaryBoardMutationError,
-  //   },
-  // ] = useMutation(SummaryBoardDocument, {
-  //   client: boardServiceClient,
-  //   refetchQueries: ['BoardContentsByDate'],
-  // });
-
   const handleSummaryBoard = (boardId: string, site: string) => {
     console.log('handleSummaryBoard', boardId, site);
-    // summaryBoardMutation({
-    //   variables: { boardId: boardId, site: site },
-    //   refetchQueries: ['BoardContentsByDate'],
-    //   async onQueryUpdated(observableQuery) {
-    //     await observableQuery.refetch();
-    //   },
-    // });
   };
 
   useEffect(() => {

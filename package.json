@@ -1,8 +1,8 @@
 {
-  "name": "@minimal-kit/starter-next-ts",
-  "author": "Minimals",
-  "version": "6.1.0",
-  "description": "Next Starter & TypeScript",
+  "name": "kingwangjjang-fe",
+  "author": "kingwangjjang",
+  "version": "0.1.0",
+  "description": "Kingwangjjang frontend application",
   "private": true,
   "scripts": {
     "dev": "next dev -p 8083",
@@ -20,15 +20,13 @@
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",
     "start:out": "npx serve@latest out -p 8083",
-    "compile": "graphql-codegen",
-    "watch": "graphql-codegen -w"
+    "check": "yarn ts && yarn lint"
   },
   "engines": {
     "node": "24.x"
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {
-    "@apollo/client": "^3.11.8",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -52,7 +50,6 @@
     "axios": "^1.7.4",
     "dayjs": "^1.11.13",
     "framer-motion": "^11.3.29",
-    "graphql": "^16.10.0",
     "next": "14.2.35",
     "next-pwa": "^5.6.0",
     "nprogress": "^0.2.0",
@@ -67,9 +64,6 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.3",
-    "@graphql-codegen/client-preset": "^4.5.1",
-    "@graphql-typed-document-node/core": "^3.2.0",
     "@svgr/webpack": "^8.1.0",
     "@types/animejs": "^3.1.12",
     "@types/autosuggest-highlight": "^3.2.3",

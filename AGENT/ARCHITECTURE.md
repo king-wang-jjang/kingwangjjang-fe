@@ -4,14 +4,14 @@
 
 ## 1. 아키텍처 개요
 
-본 프로젝트는 **Next.js 기반의 클라이언트 사이드 렌더링(CSR) 중심 아키텍처**를 채택하고 있습니다. UI 라이브러리로는 **MUI(Material-UI)**를 사용하여 디자인 시스템을 구축하고, 상태 관리는 **Zustand**와 **Apollo Client Cache**를 조합하여 사용합니다.
+본 프로젝트는 **Next.js 기반의 클라이언트 사이드 렌더링(CSR) 중심 아키텍처**를 채택하고 있습니다. UI 라이브러리로는 **MUI(Material-UI)**를 사용하여 디자인 시스템을 구축하고, 상태 관리는 **Zustand**와 React 로컬 상태를 조합하여 사용합니다.
 
 주요 아키텍처 다이어그램은 다음과 같이 표현될 수 있습니다.
 
 ```
 +-------------------+      +----------------------+      +---------------------+
 |   Web Browser     |      |      Next.js Server    |      |   Backend API Server  |
-| (User Interface)  |      | (SSR/ISR/Middleware) |      |   (GraphQL)         |
+| (User Interface)  |      | (SSR/ISR/Middleware) |      |   (REST API)        |
 +-------------------+      +----------------------+      +---------------------+
 | 1. Request Page   |----->| 2. Render & Serve    |      |                     |
 |                   |      | (Initial Load)       |      |                     |
@@ -20,13 +20,13 @@
 | 3. Render View    |      |                      |      |                     |
 | (MUI Components)  |      |                      |      |                     |
 |-------------------|      |----------------------|      |---------------------|
-| 4. Fetch Data     |      |                      |      | 5. GQL Query/       |
-| (Apollo Client)   |----------------------------------->|   Mutation          |
+| 4. Fetch Data     |      |                      |      | 5. REST Request     |
+| (API Client)      |----------------------------------->|                     |
 |                   |      |                      |      |                     |
-|                   |<-----------------------------------| 6. GQL Response     |
+|                   |<-----------------------------------| 6. JSON Response    |
 |-------------------|      |                      |      | (JSON)              |
 | 7. Update State   |      |                      |      |                     |
-| (Zustand/Apollo)  |      |                      |      |                     |
+| (Zustand/State)   |      |                      |      |                     |
 |-------------------|      |                      |      |                     |
 | 8. Re-render UI   |      |                      |      |                     |
 +-------------------+      +----------------------+      +---------------------+
@@ -48,7 +48,7 @@
 
 - **`src/hooks` (공통 훅)**: 여러 컴포넌트에서 재사용될 수 있는 비즈니스 로직과 상태 로직을 분리한 Custom Hook의 집합입니다. (예: `use-responsive`, `use-boolean`)
 
-- **`src/apollo` (데이터 통신)**: `Apollo Client` 설정과 GraphQL 쿼리/뮤테이션/프래그먼트를 정의하는 모듈입니다. `graphql-codegen`을 통해 생성된 타입과 훅(`__generated__`)을 사용하여 타입 안정성을 확보합니다.
+- **`src/api` (데이터 통신)**: REST API 요청과 응답 정규화를 담당하는 모듈입니다.
 
 - **`src/theme` (테마 및 스타일)**: MUI의 테마(색상, 타이포그래피, 간격 등)를 커스터마이징하고, 전역 스타일 및 컴포넌트 스타일 오버라이드를 관리합니다.
 
@@ -62,30 +62,30 @@
 
 2.  **Hooks (Logic Layer)**
     - `board-view.tsx` 내부에서는 `use-board.ts` 또는 유사한 커스텀 훅을 호출하여 게시글 데이터를 요청합니다.
-    - 이 훅은 `useQuery` (from Apollo Client)를 사용하여 GraphQL 서버에 데이터를 요청합니다.
+    - 이 훅은 `src/api` 클라이언트를 사용하여 REST API에 데이터를 요청합니다.
 
-3.  **Apollo / GraphQL (Data Layer)**
-    - `useQuery` 훅은 `src/apollo/board-gql.ts`에 정의된 `GET_BOARDS` 같은 GraphQL 쿼리를 실행합니다.
-    - Apollo Client는 HTTP 요청을 생성하여 GraphQL 서버로 전송합니다.
+3.  **REST API (Data Layer)**
+    - `useInfiniteScrollablePostList` 훅은 `src/api/board-api.ts`의 REST 클라이언트를 호출합니다.
+    - API 클라이언트는 HTTP 요청을 생성하여 API Gateway로 전송합니다.
 
 4.  **State (State Management)**
-    - Apollo Client는 서버로부터 받은 응답(게시글 목록)을 내부 캐시에 저장합니다.
-    - `useQuery` 훅은 로딩 상태, 에러 상태, 그리고 응답 데이터를 컴포넌트로 반환합니다.
+    - 훅은 서버로부터 받은 응답(게시글 목록)을 React 상태에 저장합니다.
+    - 훅은 로딩 상태, 에러 상태, 그리고 응답 데이터를 컴포넌트로 반환합니다.
 
 5.  **Re-render (UI Update)**
-    - `board-view.tsx` 컴포넌트는 `useQuery`로부터 받은 데이터를 사용하여 UI를 렌더링합니다. (예: 게시글 목록을 순회하며 `board-post-card` 컴포넌트를 생성)
+    - `board-view.tsx` 컴포넌트는 훅으로부터 받은 데이터를 사용하여 UI를 렌더링합니다. (예: 게시글 목록을 순회하며 `board-post-card` 컴포넌트를 생성)
     - 로딩 중일 때는 `loading.tsx` 파일이나 스켈레톤 UI를, 에러 발생 시에는 에러 컴포넌트를 보여줍니다.
 
 ## 4. 핵심 알고리즘 및 로직
 
-본 프로젝트의 복잡한 알고리즘은 대부분 라이브러리(Next.js, React, Apollo Client)에 의해 처리됩니다. 다만, 프로젝트 내에서 구현된 주요 로직은 다음과 같습니다.
+본 프로젝트의 복잡한 알고리즘은 대부분 라이브러리(Next.js, React)에 의해 처리됩니다. 다만, 프로젝트 내에서 구현된 주요 로직은 다음과 같습니다.
 
 - **인증 관리 (`src/auth`)**:
     - `AuthGuard` 컴포넌트는 특정 페이지에 접근하기 전에 사용자의 인증 상태를 확인합니다.
     - `Zustand`의 `auth-store`와 `localStorage` (또는 `cookies`)를 사용하여 인증 토큰과 사용자 정보를 관리하고, 애플리케이션 로드 시 `auth-initializer`를 통해 상태를 초기화합니다.
 
 - **무한 스크롤 (`src/hooks/use-infinite-scrollable-post-list.ts`)**:
-    - Apollo Client의 `fetchMore` 기능을 사용하여 구현됩니다.
+    - IntersectionObserver와 REST 페이지네이션을 사용하여 구현됩니다.
     - 사용자가 스크롤을 페이지 하단까지 내리면, 다음 페이지의 데이터를 추가로 요청하여 기존 목록에 병합합니다.
 
 - **테마 및 다크 모드 (`src/theme`)**:

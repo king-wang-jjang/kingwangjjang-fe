@@ -1,14 +1,14 @@
 ## 개요
 
-`kingwangjjang-fe`는 Next.js 14(App Router) 기반의 프론트엔드 애플리케이션입니다. MUI 디자인 시스템과 Apollo Client(GraphQL), 상태 관리(Zustand), 폼/검증(React Hook Form + Zod)을 사용하며, PWA(오프라인/설치형)와 Docker 배포를 지원합니다. 기본 랜딩은 게시판 화면으로 이동합니다.
+`kingwangjjang-fe`는 Next.js 14(App Router) 기반의 프론트엔드 애플리케이션입니다. MUI 디자인 시스템, REST API, 상태 관리(Zustand), 폼/검증(React Hook Form + Zod)을 사용하며, PWA(오프라인/설치형)와 Docker 배포를 지원합니다. 기본 랜딩은 게시판 화면으로 이동합니다.
 
-- **주요 기술**: Next.js 14, React 18, TypeScript 5, MUI 5, Apollo Client 3, GraphQL, Axios, Zustand 5, React Hook Form, Zod, Framer Motion, Day.js, next-pwa, ESLint(Airbnb), Prettier
+- **주요 기술**: Next.js 14, React 18, TypeScript 5, MUI 5, REST API, Axios, Zustand 5, React Hook Form, Zod, Framer Motion, Day.js, next-pwa, ESLint(Airbnb), Prettier
 - **포트**: 개발/실행 기본 포트 8083
 - **PWA**: 개발 환경에선 비활성, 프로덕션 빌드에서 활성화(서비스 워커 자동 등록)
 
 ## 데모/주요 기능
 
-- **게시판 실시간 페이지네이션**: GraphQL `realtimePagination` 쿼리 기반
+- **게시판 실시간 페이지네이션**: REST API 기반 무한 스크롤
 - **JWT 인증 스켈레톤**: 토큰 디코딩/만료 처리 유틸 포함(`src/auth/context/jwt/utils.ts`)
 - **테마/컬러 스킴**: MUI `ThemeProvider`, 다크/라이트 모드(`src/theme`)
 - **반응형 레이아웃**: 공통 레이아웃 및 섹션 컴포넌트(`src/layouts`, `src/sections`)
@@ -92,7 +92,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
 - 실제 사용 기본값은 `src/config-global.ts`를 참고하세요. 기본 `serverUrl`은 환경 변수가 없으면 `https://api.마약.kr`로 설정됩니다.
-- 프론트 런타임 GraphQL 엔드포인트는 `${CONFIG.serverUrl}/boardservice/graphql`, `${CONFIG.serverUrl}/user/graphql`을 사용합니다.
+- 프론트 런타임 HTTP 요청은 `${CONFIG.serverUrl}`을 베이스로 한 REST API를 사용합니다.
 
 ## 스크립트
 
@@ -104,25 +104,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 - `lint` / `lint:fix`: ESLint 검사/자동수정
 - `fm:check` / `fm:fix`: Prettier 포맷 체크/적용
 - `ts` / `ts:watch`: TypeScript 타입 체크
-- `compile` / `watch`: GraphQL Codegen 실행/감시
+- `check`: 타입 체크와 ESLint 실행
 
-## GraphQL/Apollo
+## REST API
 
-- Apollo 클라이언트는 `src/apollo/index.ts`에서 생성합니다. `CONFIG.serverUrl`을 베이스로 `boardservice`/`user` 서비스를 사용합니다.
-- 런타임 HTTP 요청은 `axios` 인스턴스(`src/utils/axios.ts`)도 병행 사용합니다.
-
-### Codegen
-
-- 설정: `codegen.ts`
-- 문서 소스: `src/**/*.{ts,tsx}`
-- 출력: `src/__generated__/` (preset: client)
-
-```bash
-yarn compile        # 일회성 생성
-yarn watch          # 변경 감시
-```
-
-로컬 코드젠 시, `codegen.ts`의 스키마 주소는 기본적으로 `http://localhost:33330/...`를 가리킵니다(개발 편의를 위한 설정). 런타임은 `CONFIG.serverUrl`을 따릅니다.
+- 런타임 HTTP 요청은 `src/api/http.ts`의 `apiFetch`와 `src/utils/axios.ts`를 통해 수행합니다.
+- 게시판/댓글/사용자 API 클라이언트는 `src/api/*-api.ts`에 둡니다.
 
 ## PWA
 
@@ -138,8 +125,7 @@ yarn watch          # 변경 감시
 ```
 src/
   app/                     # App Router 엔트리, 공통 레이아웃 및 페이지
-  apollo/                  # Apollo Client 설정 및 GQL 정의
-  __generated__/           # GraphQL codegen 산출물
+  api/                     # REST API 클라이언트
   assets/                  # 아이콘/일러스트 컴포넌트 등
   auth/                    # 인증 관련 컴포넌트/컨텍스트/가드/스토어
   components/              # 재사용 가능한 UI 컴포넌트
@@ -208,10 +194,6 @@ docker compose up -d
 2) 빌드: `yarn build`
 3) 실행: `yarn start` (리버스 프록시/Nginx 뒤에서 8083 노출 권장)
 4) 정적 Export가 필요하면 `NEXT_PUBLIC_BUILD_STATIC_EXPORT`를 `"true"`로 설정 후 사용(코드 상 불리언 문자열 처리 주의)
-
-## 라이선스/저작권
-
-본 프로젝트는 내부 사용을 전제로 하며, UI 구성 요소 일부는 Minimals UI 스타터를 바탕으로 구성되었습니다.
 
 ## 문의
 

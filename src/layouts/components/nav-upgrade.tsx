@@ -9,8 +9,6 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { alpha as hexAlpha } from '@mui/material/styles';
 
-import { paths } from 'src/routes/paths';
-
 import { CONFIG } from 'src/config-global';
 import { varAlpha, bgGradient } from 'src/theme/styles';
 
@@ -65,8 +63,8 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
           </Typography>
         </Stack>
 
-        <Button variant="contained" href={paths.minimalStore} target="_blank" rel="noopener">
-          Upgrade to Pro
+        <Button variant="contained" href="/board">
+          Open Board
         </Button>
       </Stack>
     </Stack>
@@ -126,11 +124,11 @@ export function UpgradeBlock({ sx, ...other }: StackProps) {
           component="span"
           sx={{ mb: 2, mt: 0.5, color: 'common.white', typography: 'subtitle2' }}
         >
-          Power up Productivity!
+          Kingwangjjang Workspace
         </Box>
 
         <Button variant="contained" size="small" color="warning">
-          Upgrade to Pro
+          Open Board
         </Button>
       </Stack>
     </Stack>

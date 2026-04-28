@@ -11,7 +11,7 @@
 - **UI Library**: [Material-UI (MUI)](https://mui.com/) v5
 - **Styling**: [@emotion/styled](https://emotion.sh/docs/styled)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **Data Fetching (GraphQL)**: [Apollo Client](https://www.apollographql.com/docs/react/)
+- **Data Fetching**: REST API clients built on `fetch`/Axios
 - **Form Handling**: [React Hook Form](https://react-hook-form.com/)
 - **Code Formatting**: [Prettier](https://prettier.io/)
 - **Linting**: [ESLint](https://eslint.org/) (with Airbnb Style Guide)
@@ -24,9 +24,8 @@
 /
 ├── public/            # 정적 파일 (이미지, 폰트 등)
 ├── src/
-│   ├── __generated__/ # GraphQL Codegen으로 자동 생성된 타입 및 gql 함수
+│   ├── api/            # REST API 클라이언트
 │   ├── app/             # Next.js App Router (페이지 및 레이아웃)
-│   ├── apollo/          # Apollo Client 설정 및 GraphQL 쿼리 정의
 │   ├── assets/          # 프로젝트 내부에서 사용하는 데이터, 아이콘 등
 │   ├── auth/            # 인증 관련 로직 (Guard, Hooks, Store)
 │   ├── components/      # 공통 재사용 컴포넌트
@@ -52,7 +51,7 @@
 - **`src/layouts`**: 애플리케이션의 전체적인 구조(e.g., 대시보드 레이아웃, 인증 레이아웃)를 정의합니다. 헤더, 네비게이션, 푸터 등을 포함할 수 있습니다.
 - **`src/store`**: Zustand를 사용하여 상태를 관리합니다. 인증 상태(`auth-store`), 네비게이션 상태(`nav-store`) 등 기능별로 스토어 파일을 분리합니다.
 - **`src/theme`**: MUI의 테마를 커스터마이징하는 파일들이 위치합니다. 색상, 타이포그래피, 컴포넌트별 기본 스타일 등을 정의합니다.
-- **`src/apollo`**: GraphQL 쿼리, 뮤테이션, 프래그먼트를 정의하고 Apollo Client 설정을 관리합니다. `codegen.ts`와 함께 `__generated__` 디렉토리에 타입과 Hook을 자동 생성합니다.
+- **`src/api`**: REST API 요청과 응답 정규화를 담당합니다.
 
 ## 3. 코딩 스타일 및 규칙 (Coding Style & Conventions)
 
@@ -89,5 +88,4 @@
 
 ### API 연동
 
-- GraphQL을 사용하며, `Apollo Client`를 통해 서버와 통신합니다.
-- `src/apollo` 디렉토리에서 쿼리와 뮤테이션을 정의하고, `graphql-codegen`을 사용하여 관련 타입과 Hooks를 자동으로 생성하여 사용합니다.
+- REST API를 사용하며, `src/api` 디렉토리에서 엔드포인트별 클라이언트와 응답 타입을 관리합니다.

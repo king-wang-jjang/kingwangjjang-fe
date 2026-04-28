@@ -61,9 +61,6 @@
     ],
     "@/utils/*": [
       "./src/utils/*"
-    ],
-    "@/gql/*": [
-      "./src/__generated__/*"
     ]
   },
   "include": [

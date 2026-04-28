@@ -10,7 +10,6 @@ const ROOTS = {
 
 export const paths = {
   faqs: '/faqs',
-  minimalStore: 'https://mui.com/store/items/minimal-dashboard/',
   // AUTH
   auth: {
     amplify: {
