@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { toast } from 'sonner';
 import anime from 'animejs/lib/anime.es.js';
-import { useMutation } from '@apollo/client';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,10 +20,9 @@ import {
 } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
-import { boardServiceClient } from 'src/apollo';
+import { addBoardLike } from 'src/api/board-api';
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
-import { ADD_LIKE_MUTATION } from 'src/apollo/board-gql';
 
 import { Label } from 'src/components/label';
 
@@ -67,18 +65,6 @@ export const PostCard = ({
   const { isRead, markAsRead } = useReadStore();
   const { isAuthenticated } = useAuthStore();
   const readStatus = isRead(boardId);
-
-  const [addLike] = useMutation(ADD_LIKE_MUTATION, {
-    client: boardServiceClient,
-    onCompleted: (data) => {
-      if (data?.addLike?.likeCount !== undefined) {
-        setCurrentLikeCount(data.addLike.likeCount);
-      }
-    },
-    onError: (error) => {
-      toast.warning(`좋아요 추가 실패: ${error.message || error}`);
-    },
-  });
 
   const handleMouseOver = () => {
     if (!isMobile) {
@@ -141,19 +127,25 @@ export const PostCard = ({
     }
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  useEffect(() => {
+    setCurrentLikeCount(likeCount);
+  }, [likeCount]);
+
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     
     if (!isAuthenticated) {
       toast.error('로그인이 필요합니다.');
+      return;
     }
-    
-    addLike({
-      variables: {
-        boardId,
-      },
-    });
+
+    try {
+      const result = await addBoardLike(boardId);
+      setCurrentLikeCount(result.likeCount);
+    } catch (error: any) {
+      toast.warning(`좋아요 추가 실패: ${error.message || error}`);
+    }
   };
 
   const thumbnailSrc = thumbnail

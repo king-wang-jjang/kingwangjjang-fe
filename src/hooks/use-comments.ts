@@ -1,18 +1,13 @@
 import type { Comment } from 'src/types/comment';
-import type {
-  CreateCommentInput,
-  LikeCommentMutation,
-  CreateCommentMutation,
-  LikeCommentMutationVariables,
-  CreateCommentMutationVariables,
-} from 'src/__generated__/graphql';
 
-import { useQuery, useMutation } from '@apollo/client';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { commentServiceClient } from 'src/apollo';
 import { useAuthStore } from 'src/store/auth-store';
-import { GET_COMMENTS, LIKE_COMMENT, CREATE_COMMENT } from 'src/apollo/comment-gql';
+import {
+  getComments,
+  likeComment as likeCommentRequest,
+  createComment as createCommentRequest,
+} from 'src/api/comment-api';
 
 type UseCommentsParams = {
   boardId: string;
@@ -22,142 +17,81 @@ type UseCommentsParams = {
 
 export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [creatingComment, setCreatingComment] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const { user } = useAuthStore();
 
-  const { data, loading, error, refetch } = useQuery(GET_COMMENTS, {
-    client: commentServiceClient,
-    variables: { boardId: `${boardId}`, page: 1, limit: 100 },
-    skip: !enabled || !boardId,
-    fetchPolicy: 'network-only',
-  });
+  const refetch = useCallback(async () => {
+    if (!enabled || !boardId) return;
+
+    setLoading(true);
+    try {
+      const data = await getComments(`${boardId}`, 1, 100);
+      setComments(data.comments);
+      setTotalCount(data.totalCount);
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [boardId, enabled]);
 
   useEffect(() => {
-    if (data?.comments?.comments) {
-      setComments(data.comments.comments);
-    }
-  }, [data]);
-
-  const [createCommentMutation, { loading: creatingComment }] = useMutation<
-    CreateCommentMutation,
-    CreateCommentMutationVariables
-  >(CREATE_COMMENT, {
-    client: commentServiceClient,
-    update: (cache, { data: mutationData }) => {
-      const newComment = mutationData?.createComment;
-      if (!newComment) return;
-
-      const existingData = cache.readQuery<{ comments: { comments: Comment[]; totalCount: number } }>(
-        {
-          query: GET_COMMENTS,
-          variables: { boardId: `${boardId}`, page: 1, limit: 100 },
-        }
-      );
-
-      if (existingData) {
-        cache.writeQuery({
-          query: GET_COMMENTS,
-          variables: { boardId: `${boardId}`, page: 1, limit: 100 },
-          data: {
-            comments: {
-              ...existingData.comments,
-              comments: [newComment, ...existingData.comments.comments],
-              totalCount: existingData.comments.totalCount + 1,
-            },
-          },
-        });
-      }
-    },
-  });
+    refetch();
+  }, [refetch]);
 
   const addComment = useCallback(
     async (content: string) => {
       if (!user) throw new Error('User not authenticated');
+
+      setCreatingComment(true);
       try {
-        const input: CreateCommentInput = { boardId: `${boardId}`, content };
-        const result = await createCommentMutation({
-          variables: { input },
-          optimisticResponse: {
-            createComment: {
-              __typename: 'CommentEntry',
-              Id: `optimistic-${Date.now()}`,
-              boardId,
-              content,
-              parentId: null,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              isDeleted: false,
-              userId: user.userId,
-              userNickname: user.nickname,
-              likeCount: 0,
-              replyCount: 0,
-              isLiked: false,
-            },
-          },
-        });
-        return result.data?.createComment?.Id;
-      } catch (err) {
-        console.error('댓글 생성 실패:', err);
-        throw err;
+        const created = await createCommentRequest({ boardId: `${boardId}`, content });
+        setComments((prev) => [created, ...prev]);
+        setTotalCount((prev) => prev + 1);
+        return created.Id;
+      } finally {
+        setCreatingComment(false);
       }
     },
-    [boardId, createCommentMutation, user]
+    [boardId, user]
   );
 
   const addReply = useCallback(
     async (parentId: string, content: string) => {
       if (!user) throw new Error('User not authenticated');
-      try {
-        const input: CreateCommentInput = { boardId: `${boardId}`, content, parentId };
-        const result = await createCommentMutation({
-          variables: { input },
-          // Optimistic response for replies is more complex, skipping for now
-        });
-        await refetch(); // Still refetching for replies for simplicity
-        return result.data?.createComment?.Id;
-      } catch (err) {
-        console.error('답글 생성 실패:', err);
-        throw err;
-      }
+
+      const created = await createCommentRequest({ boardId: `${boardId}`, parentId, content });
+      await refetch();
+      return created.Id;
     },
-    [boardId, createCommentMutation, user, refetch]
+    [boardId, user, refetch]
   );
 
-  const [likeCommentMutation] = useMutation<LikeCommentMutation, LikeCommentMutationVariables>(
-    LIKE_COMMENT,
-    {
-      client: commentServiceClient,
-    }
-  );
+  const likeComment = useCallback(async (commentId: string) => {
+    const result = await likeCommentRequest(commentId);
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.Id === commentId
+          ? {
+              ...comment,
+              likeCount: result.likeCount,
+              isLiked: result.isLiked,
+              updatedAt: result.updatedAt,
+            }
+          : comment
+      )
+    );
+  }, []);
 
-  const likeComment = useCallback(
-    async (commentId: string) => {
-      const comment = comments.find((c) => c.Id === commentId);
-      if (!comment) return;
-      try {
-        await likeCommentMutation({
-          variables: { commentId },
-          optimisticResponse: {
-            likeComment: {
-              __typename: 'CommentEntry',
-              Id: commentId,
-              isLiked: !comment.isLiked,
-              likeCount: comment.isLiked ? comment.likeCount - 1 : comment.likeCount + 1,
-            },
-          },
-        });
-      } catch (err) {
-        console.error('댓글 좋아요 실패:', err);
-        throw err;
-      }
-    },
-    [comments, likeCommentMutation]
-  );
-
-  const totalCount = useMemo(() => data?.comments?.totalCount ?? 0, [data]);
+  const memoizedTotalCount = useMemo(() => totalCount, [totalCount]);
 
   return {
     comments,
-    totalCount,
+    totalCount: memoizedTotalCount,
     loading,
     error,
     refetch,

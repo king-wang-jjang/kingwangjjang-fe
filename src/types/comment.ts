@@ -33,6 +33,7 @@ export interface CreateCommentResponse {
   userNickname: string;
   likeCount: number;
   replyCount: number;
+  isLiked: boolean;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;

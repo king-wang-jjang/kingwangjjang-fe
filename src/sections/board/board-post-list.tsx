@@ -30,6 +30,7 @@ export const PostList = ({ postItems, onClickCard, onCommentClick, loading }: Pr
                 gptAnswer={post.gptAnswer as string}
                 thumbnail={post.thumbnail as string}
                 commentCount={post.commentCount as number}
+                likeCount={post.likeCount as number}
               />
             )
         )}

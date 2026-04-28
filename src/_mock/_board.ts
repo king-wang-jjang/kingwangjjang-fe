@@ -1,6 +1,6 @@
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
+import type { BoardPost } from 'src/api/board-api';
 
-export const POSTITEMS: RealtimePaginationQuery['realtimePagination'] = [
+export const POSTITEMS: BoardPost[] = [
  
 ];
 

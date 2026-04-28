@@ -1,76 +1,44 @@
 'use client';
 
-import type { MeResponse } from 'src/types/user';
+import { useEffect } from 'react';
 
-import { useLazyQuery } from '@apollo/client';
-import { useState, useEffect, useCallback } from 'react';
-
-import { userServiceClient } from 'src/apollo';
-import { ME_QUERY } from 'src/apollo/user-gql';
+import { getMe } from 'src/api/user-api';
 import { useAuthStore } from 'src/store/auth-store';
-
-// ----------------------------------------------------------------------
-
-/**
- * NOTE:
- * We only build demo at basic level.
- * Customer will need to do some extra handling yourself if you want to extend the logic and other features...
- */
 
 type Props = {
   children: React.ReactNode;
 };
 
 export function AuthInitializer({ children }: Props) {
-  const { user, login, logout } = useAuthStore();
-  const [loading, setLoading] = useState(true);
+  const { login, logout } = useAuthStore();
 
-  const [getMe, { data, error, loading: queryLoading }] = useLazyQuery<MeResponse>(ME_QUERY, {
-    client: userServiceClient,
-  });
-
-  // Handle query completion and errors using useEffect
   useEffect(() => {
-    if (data) {
-      console.log('data', data.me);
-      if (data?.me) {
-        login(data.me);
-        setLoading(false);
-      } else {
-        logout();
-        setLoading(false);
+    let mounted = true;
+
+    async function checkUserSession() {
+      try {
+        const user = await getMe();
+        if (!mounted) return;
+
+        if (user) {
+          login(user);
+        } else {
+          logout();
+        }
+      } catch (error) {
+        console.error('Failed to get user info:', error);
+        if (mounted) {
+          logout();
+        }
       }
     }
-  }, [data, login, logout]);
 
-  useEffect(() => {
-    if (error) {
-      console.error('Failed to get user info:', error);
-      logout();
-      setLoading(false);
-    }
-  }, [error, logout]);
-
-  useEffect(() => {
-    if (queryLoading) {
-      setLoading(true);
-    }
-  }, [queryLoading]);
-
-  const checkUserSession = useCallback(async () => {
-    try {
-      await getMe();
-    } catch (err: any) {
-      console.error('Error checking user session:', err);
-      logout();
-      setLoading(false);
-    }
-  }, [getMe, logout]);
-
-  useEffect(() => {
     checkUserSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+  }, [login, logout]);
 
   return <>{children}</>;
 }

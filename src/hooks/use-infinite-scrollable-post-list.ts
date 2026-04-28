@@ -1,40 +1,40 @@
-import { useQuery } from '@apollo/client';
-import { useRef, useState, useEffect } from 'react';
+import type { BoardPost } from 'src/api/board-api';
 
-import { boardServiceClient } from 'src/apollo';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
-import { RealtimePaginationDocument } from '../__generated__/graphql';
+import { getRealtimeBoards } from 'src/api/board-api';
 
 const useInfiniteScrollablePostList = () => {
   const [pageIndex, setPageIndex] = useState(0);
-  const loadingRef = useRef(null);
-
-  const { loading, error, data, fetchMore } = useQuery(RealtimePaginationDocument, {
-    variables: { index: 0 },
-    client: boardServiceClient,
+  const [data, setData] = useState<{ realtimePagination: BoardPost[] }>({
+    realtimePagination: [],
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const loadingRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    console.log('pageIndex', pageIndex);
-    if (pageIndex > 0) {
-      fetchMore({
-        variables: { index: pageIndex },
-        updateQuery: (previousResult, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return previousResult;
-          return {
-            ...previousResult,
-            realtimePagination: [
-              ...(previousResult.realtimePagination || []),
-              ...(fetchMoreResult.realtimePagination || []),
-            ],
-          };
-        },
-      });
+  const loadPage = useCallback(async (index: number) => {
+    setLoading(true);
+    try {
+      const items = await getRealtimeBoards(index);
+      setData((prev) => ({
+        realtimePagination:
+          index === 0 ? items : [...(prev.realtimePagination || []), ...items],
+      }));
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
     }
-  }, [pageIndex, fetchMore]);
+  }, []);
 
   useEffect(() => {
-    let observerRefValue: any = null;
+    loadPage(pageIndex);
+  }, [loadPage, pageIndex]);
+
+  useEffect(() => {
+    let observerRefValue: HTMLDivElement | null = null;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !loading && !error) {

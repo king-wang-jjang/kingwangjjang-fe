@@ -1,4 +1,4 @@
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
+import type { BoardPost } from 'src/api/board-api';
 
 import { useState, useEffect } from 'react';
 
@@ -8,8 +8,7 @@ import { POSTITEMS } from 'src/_mock/_board';
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
 export const useBoard = () => {
-  const [postData, setPostData] =
-    useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
+  const [postData, setPostData] = useState<BoardPost[]>(POSTITEMS);
   const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
   const {
@@ -43,7 +42,7 @@ export const useBoard = () => {
   };
 
   useEffect(() => {
-    const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value: any) => {
+    const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value) => {
       switch (value?.site) {
         case 'ygosu':
           return { ...value, site: '와이고수' };

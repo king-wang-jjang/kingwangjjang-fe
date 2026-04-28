@@ -1,7 +1,7 @@
 'use client';
 
+import type { BoardPost } from 'src/api/board-api';
 import type { IBoardFilters } from 'src/types/board';
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
 
 import { useState, useEffect } from 'react';
 
@@ -218,7 +218,7 @@ export function BoardView({ title = 'Blank' }: Props) {
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: RealtimePaginationQuery['realtimePagination'];
+  inputData: BoardPost[];
   filters: IBoardFilters;
   // sortBy: string;
 };
