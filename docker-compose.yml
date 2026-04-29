@@ -6,7 +6,7 @@ networks:
 
 services:
   kingwangjjang-fe:
-    image: hwanju1596/kingwangjjang-fe:0.0.1
+    image: ${DOCKERHUB_USERNAME}/kingwangjjang-fe:0.0.1
     ports:
       - '8083:8083'
     env_file:
