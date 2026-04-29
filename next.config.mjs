@@ -1,13 +1,3 @@
-// next.config.mjs
-import nextPwa from 'next-pwa';
-
-const withPWA = nextPwa({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-});
-
 /**
  * @type {import('next').NextConfig}
  */
@@ -25,20 +15,10 @@ const nextConfig = {
     '@mui/material': {
       transform: '@mui/material/{{member}}',
     },
-    '@mui/lab': {
-      transform: '@mui/lab/{{member}}',
-    },
-  },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    });
-    return config;
   },
   ...(isStaticExport && {
     output: 'export',
   }),
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;

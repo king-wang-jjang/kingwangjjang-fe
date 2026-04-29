@@ -18,8 +18,7 @@ const useInfiniteScrollablePostList = () => {
     try {
       const items = await getRealtimeBoards(index);
       setData((prev) => ({
-        realtimePagination:
-          index === 0 ? items : [...(prev.realtimePagination || []), ...items],
+        realtimePagination: index === 0 ? items : [...(prev.realtimePagination || []), ...items],
       }));
       setError(null);
     } catch (err) {

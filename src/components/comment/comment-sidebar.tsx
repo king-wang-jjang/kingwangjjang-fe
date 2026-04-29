@@ -16,13 +16,7 @@ interface CommentSidebarProps {
   sx?: SxProps<Theme>;
 }
 
-export function CommentSidebar({
-  postId,
-  site,
-  title = '댓글',
-  onClose,
-  sx,
-}: CommentSidebarProps) {
+export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: CommentSidebarProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -48,7 +42,16 @@ export function CommentSidebar({
         ...sx,
       }}
     >
-      <Box sx={{ px: 1.3, pt: 2, pb: 1.3, borderBottom: 1, borderColor: 'divider', bgcolor: 'action.selected' }}>
+      <Box
+        sx={{
+          px: 1.3,
+          pt: 2,
+          pb: 1.3,
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: 'action.selected',
+        }}
+      >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">
             {title} {totalCount > 0 ? totalCount : ''}

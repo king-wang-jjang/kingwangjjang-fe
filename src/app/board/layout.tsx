@@ -1,7 +1,7 @@
 'use client';
 
-import { DashboardLayout } from 'src/layouts/dashboard';
+import { AppShell } from 'src/layouts/app-shell';
 
 export default function BoardLayout({ children }: { children: React.ReactNode }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <AppShell>{children}</AppShell>;
 }
