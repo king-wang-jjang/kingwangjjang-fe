@@ -1,15 +1,13 @@
-import type { RealtimePaginationQuery } from 'src/__generated__/graphql';
+import type { BoardPost } from 'src/api/board-api';
 
 import { useState, useEffect } from 'react';
 
-import { POSTITEMS } from 'src/_mock/_board';
-// import { SummaryBoardDocument } from 'src/__generated__/graphql';
-
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
+const EMPTY_POSTS: BoardPost[] = [];
+
 export const useBoard = () => {
-  const [postData, setPostData] =
-    useState<RealtimePaginationQuery['realtimePagination']>(POSTITEMS);
+  const [postData, setPostData] = useState<BoardPost[]>(EMPTY_POSTS);
   const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
   const {
@@ -19,31 +17,12 @@ export const useBoard = () => {
     data: boardContentsData,
   } = useInfiniteScrollablePostList();
 
-  // const [
-  //   summaryBoardMutation,
-  //   {
-  //     data: summaryBoardMutationData,
-  //     loading: summaryBoardMutationLoading,
-  //     error: summaryBoardMutationError,
-  //   },
-  // ] = useMutation(SummaryBoardDocument, {
-  //   client: boardServiceClient,
-  //   refetchQueries: ['BoardContentsByDate'],
-  // });
-
   const handleSummaryBoard = (boardId: string, site: string) => {
     console.log('handleSummaryBoard', boardId, site);
-    // summaryBoardMutation({
-    //   variables: { boardId: boardId, site: site },
-    //   refetchQueries: ['BoardContentsByDate'],
-    //   async onQueryUpdated(observableQuery) {
-    //     await observableQuery.refetch();
-    //   },
-    // });
   };
 
   useEffect(() => {
-    const modifiedData = (boardContentsData?.realtimePagination ?? POSTITEMS).map((value: any) => {
+    const modifiedData = (boardContentsData?.realtimePagination ?? EMPTY_POSTS).map((value) => {
       switch (value?.site) {
         case 'ygosu':
           return { ...value, site: '와이고수' };

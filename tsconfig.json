@@ -16,7 +16,7 @@
     "isolatedModules": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": false,
     "allowSyntheticDefaultImports": true,
@@ -28,18 +28,14 @@
     ]
   },
   "paths": {
-    "@/*": ["./*"],
-    "@/assets/*": ["./public/*"],
-    "@/apis/*": ["./src/apis/*"],
-    "@/components/*": ["./src/components/*"],
-    "@/hooks/*": ["./src/hooks/*"],
-    "@/pages/*": ["./src/pages/*"],
-    "@/styles/*": ["./src/styles/*"],
-    "@/stores/*": ["./src/stores/*"],
-    "@/types/*": ["./src/types/*"],
-    "@/utils/*": ["./src/utils/*"],
-    "@/gql/*": ["./src/__generated__/*"]
+    "@/*": ["./*"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

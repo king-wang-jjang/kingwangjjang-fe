@@ -4,33 +4,28 @@ import 'src/global.css';
 
 import type { Viewport } from 'next';
 
-import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
+import { Toaster } from 'sonner';
 
-import { CONFIG } from 'src/config-global';
-import { primary } from 'src/theme/core/palette';
-import { schemeConfig } from 'src/theme/scheme-config';
-import { ThemeProvider } from 'src/theme/theme-provider';
+import { AppThemeProvider } from 'src/theme/app-theme-provider';
 
-import { ProgressBar } from 'src/components/progress-bar';
-import { MotionLazy } from 'src/components/animate/motion-lazy';
-import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
+import { AuthInitializer } from 'src/auth/auth-initializer';
 
 // ----------------------------------------------------------------------
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: primary.main,
+  themeColor: '#2563eb',
 };
 
 export const metadata = {
   icons: [
     {
       rel: 'icon',
-      url: `${CONFIG.assetsDir}/favicon.ico`,
+      url: '/favicon.svg',
     },
   ],
-  manifest: '/manifest.json', // ✅ manifest.json 추가
+  manifest: '/manifest.json',
 };
 
 type Props = {
@@ -39,24 +34,14 @@ type Props = {
 
 export default async function RootLayout({ children }: Props) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" /> {/* ✅ 추가 */}
-      </head>
+    <html lang="ko">
       <body>
-        <InitColorSchemeScript
-          defaultMode={schemeConfig.defaultMode}
-          modeStorageKey={schemeConfig.modeStorageKey}
-        />
-        <SettingsProvider settings={defaultSettings}>
-          <ThemeProvider>
-            <MotionLazy>
-              <ProgressBar />
-              <SettingsDrawer />
-              {children}
-            </MotionLazy>
-          </ThemeProvider>
-        </SettingsProvider>
+        <AuthInitializer>
+          <AppThemeProvider>
+            <Toaster richColors position="top-center" />
+            {children}
+          </AppThemeProvider>
+        </AuthInitializer>
       </body>
     </html>
   );
