@@ -18,6 +18,10 @@ import {
   ListItemButton,
 } from '@mui/material';
 
+import { useAuthStore } from 'src/store/auth-store';
+
+import SocialLoginButtons from 'src/auth/components/form-oauth';
+
 const drawerWidth = 232;
 
 type Props = {
@@ -84,6 +88,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { isAuthenticated, user } = useAuthStore();
+
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
   };
@@ -121,6 +127,7 @@ export function AppShell({ children }: Props) {
               color: 'inherit',
               textDecoration: 'none',
               minWidth: 0,
+              flexGrow: 1,
             }}
           >
             <Box
@@ -146,6 +153,18 @@ export function AppShell({ children }: Props) {
                 커뮤니티 통합 보드
               </Typography>
             </Box>
+          </Box>
+
+          <Box sx={{ flexShrink: 0, ml: 2 }}>
+            {isAuthenticated ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" fontWeight={700}>
+                  {user?.nickname || '사용자'}
+                </Typography>
+              </Box>
+            ) : (
+              <SocialLoginButtons />
+            )}
           </Box>
         </Toolbar>
       </AppBar>
