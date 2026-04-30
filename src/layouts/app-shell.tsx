@@ -1,167 +1,77 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
 
-import MenuIcon from '@mui/icons-material/Menu';
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import {
-  Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  ListItemIcon,
-  ListItemText,
-  ListItemButton,
-} from '@mui/material';
+import { Box, AppBar, Toolbar, Typography } from '@mui/material';
 
 import { useAuthStore } from 'src/store/auth-store';
 
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
-const drawerWidth = 232;
-
 type Props = {
   children: React.ReactNode;
 };
 
-const navItems = [
-  {
-    label: '실시간 게시판',
-    href: '/board',
-    icon: <ArticleOutlinedIcon fontSize="small" />,
-  },
-];
-
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
-
-  return (
-    <Box sx={{ px: 1.5, py: 2 }}>
-      <Box sx={{ px: 1, pb: 2.5 }}>
-        <Typography variant="overline" color="text.secondary">
-          Workspace
-        </Typography>
-      </Box>
-
-      {navItems.map((item) => {
-        const selected = pathname === item.href;
-
-        return (
-          <ListItemButton
-            key={item.href}
-            component={Link}
-            href={item.href}
-            selected={selected}
-            onClick={onNavigate}
-            sx={{
-              mb: 0.5,
-              borderRadius: 1,
-              minHeight: 44,
-              '&.Mui-selected': {
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
-                '& .MuiListItemIcon-root': {
-                  color: 'primary.contrastText',
-                },
-                '&:hover': {
-                  bgcolor: 'primary.dark',
-                },
-              },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 34, color: 'text.secondary' }}>{item.icon}</ListItemIcon>
-            <ListItemText
-              primary={item.label}
-              primaryTypographyProps={{ variant: 'body2', fontWeight: 700 }}
-            />
-          </ListItemButton>
-        );
-      })}
-    </Box>
-  );
-}
-
 export function AppShell({ children }: Props) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
   const { isAuthenticated, user } = useAuthStore();
 
-  const toggleMobileNav = () => {
-    setMobileOpen((open) => !open);
-  };
-
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <AppBar
-        position="fixed"
+        position="sticky"
         elevation={0}
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          color: 'text.primary',
-          bgcolor: 'background.paper',
-          borderBottom: 1,
-          borderColor: 'divider',
+          color: '#23251d',
+          bgcolor: '#fdfdf8',
+          borderBottom: '1px solid #bfc1b7',
+          boxShadow: 'none',
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: 64, md: 68 }, px: { xs: 2, md: 3 } }}>
-          <IconButton
-            edge="start"
-            onClick={toggleMobileNav}
-            sx={{ mr: 1, display: { md: 'none' } }}
-            aria-label="메뉴 열기"
-          >
-            <MenuIcon />
-          </IconButton>
-
+        <Toolbar
+          sx={{
+            minHeight: { xs: 58, md: 64 },
+            px: { xs: 1.5, sm: 2, md: 4 },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
           <Box
             component={Link}
             href="/board"
+            aria-label="홈으로 이동"
             sx={{
-              display: 'flex',
+              width: 38,
+              height: 38,
+              p: 0.35,
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: 1.25,
-              color: 'inherit',
-              textDecoration: 'none',
-              minWidth: 0,
-              flexGrow: 1,
+              justifyContent: 'center',
+              flexShrink: 0,
+              border: '1px solid #bfc1b7',
+              borderRadius: '6px',
+              bgcolor: '#fdfdf8',
+              transition: 'border-color 160ms ease, transform 160ms ease',
+              '&:hover': {
+                borderColor: '#F54E00',
+                transform: 'translateY(-1px)',
+              },
             }}
           >
             <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 1,
-                display: 'grid',
-                placeItems: 'center',
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
-                fontWeight: 800,
-                flexShrink: 0,
-              }}
-            >
-              K
-            </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle1" fontWeight={800} noWrap>
-                Kingwangjjang
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
-                커뮤니티 통합 보드
-              </Typography>
-            </Box>
+              component="img"
+              src="/favicon.svg"
+              alt=""
+              sx={{ width: '100%', height: '100%', display: 'block' }}
+            />
           </Box>
 
-          <Box sx={{ flexShrink: 0, ml: 2 }}>
+          <Box sx={{ flexShrink: 0, ml: 'auto' }}>
             {isAuthenticated ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body2" fontWeight={700}>
-                  {user?.nickname || '사용자'}
-                </Typography>
-              </Box>
+              <Typography variant="body2" fontWeight={800} sx={{ color: '#4d4f46' }}>
+                {user?.nickname || '사용자'}
+              </Typography>
             ) : (
               <SocialLoginButtons />
             )}
@@ -169,51 +79,11 @@ export function AppShell({ children }: Props) {
         </Toolbar>
       </AppBar>
 
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={toggleMobileNav}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
-          }}
-        >
-          <Toolbar sx={{ minHeight: 64 }} />
-          <SidebarContent onNavigate={toggleMobileNav} />
-        </Drawer>
-
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 1,
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
-            },
-          }}
-          open
-        >
-          <Toolbar sx={{ minHeight: 68 }} />
-          <SidebarContent />
-        </Drawer>
-      </Box>
-
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          px: { xs: 2, sm: 2.5, md: 3 },
-          py: { xs: 2, md: 3 },
-          pt: { xs: 10, md: 11 },
+          px: { xs: 1.5, sm: 2, md: 4 },
+          py: { xs: 1.5, md: 2 },
         }}
       >
         {children}

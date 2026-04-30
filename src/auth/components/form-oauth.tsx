@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Button } from '@mui/material';
+
+import { Button } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
 
@@ -27,35 +28,27 @@ const SocialLoginButtons: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 1 }}>
-      <Button
-        fullWidth
-        size="large"
-        variant="outlined"
-        onClick={handleKakaoLogin}
-        sx={{
-          py: 1,
-          px: 2,
+    <Button
+      fullWidth
+      size="large"
+      variant="outlined"
+      onClick={handleKakaoLogin}
+      sx={{
+        py: 1,
+        px: 2,
+        bgcolor: '#FEE500',
+        color: '#000000',
+        borderColor: '#FEE500',
+        fontWeight: 800,
+        '&:hover': {
           bgcolor: '#FEE500',
-          color: '#000000',
           borderColor: '#FEE500',
-          fontWeight: 800,
-          '&:hover': {
-            bgcolor: '#FEE500',
-            borderColor: '#FEE500',
-            opacity: 0.9,
-          },
-        }}
-      >
-        <Box
-          component="img"
-          src={`${CONFIG.assetsDir}/logo/logo-single.svg`}
-          alt="Kakao Icon"
-          sx={{ width: 20, height: 20, mr: 1.25 }}
-        />
-        카카오 로그인
-      </Button>
-    </Box>
+          opacity: 0.9,
+        },
+      }}
+    >
+      카카오 로그인
+    </Button>
   );
 };
 

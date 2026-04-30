@@ -15,7 +15,7 @@ import { AuthInitializer } from 'src/auth/auth-initializer';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#2563eb',
+  themeColor: '#fdfdf8',
 };
 
 export const metadata = {

@@ -17,16 +17,16 @@ export function AppThemeProvider({ children }: Props) {
         palette: {
           mode: 'light',
           primary: {
-            main: '#2563eb',
-            light: '#60a5fa',
-            dark: '#1d4ed8',
+            main: '#F54E00',
+            light: '#ff8a4c',
+            dark: '#b63a00',
             contrastText: '#ffffff',
           },
           secondary: {
-            main: '#0f766e',
-            light: '#2dd4bf',
-            dark: '#115e59',
-            contrastText: '#ffffff',
+            main: '#4d4f46',
+            light: '#7a7d73',
+            dark: '#23251d',
+            contrastText: '#fdfdf8',
           },
           error: {
             main: '#dc2626',
@@ -38,17 +38,17 @@ export function AppThemeProvider({ children }: Props) {
             main: '#16a34a',
           },
           background: {
-            default: '#f6f8fb',
-            paper: '#ffffff',
+            default: '#fdfdf8',
+            paper: '#fdfdf8',
           },
           text: {
-            primary: '#111827',
-            secondary: '#5b6472',
+            primary: '#23251d',
+            secondary: '#65675e',
           },
-          divider: '#e5e7eb',
+          divider: '#bfc1b7',
         },
         shape: {
-          borderRadius: 8,
+          borderRadius: 6,
         },
         typography: {
           fontFamily:
@@ -75,7 +75,7 @@ export function AppThemeProvider({ children }: Props) {
           MuiButton: {
             styleOverrides: {
               root: {
-                borderRadius: 8,
+                borderRadius: 6,
               },
             },
           },
@@ -85,7 +85,7 @@ export function AppThemeProvider({ children }: Props) {
             },
             styleOverrides: {
               root: {
-                borderColor: '#e5e7eb',
+                borderColor: '#bfc1b7',
                 boxShadow: 'none',
               },
             },

@@ -12,7 +12,7 @@ body,
   margin: 0;
   min-height: 100%;
   flex-direction: column;
-  background: #f6f8fb;
+  background: #fdfdf8;
   font-family:
     'Inter Variable',
     Inter,
@@ -96,7 +96,7 @@ input[type='number']::-webkit-inner-spin-button {
   min-height: 40px;
   padding: 0 16px;
   border-radius: 8px;
-  background: #2563eb;
+  background: #f54e00;
   color: #ffffff;
   font-size: 0.92rem;
   font-weight: 700;
