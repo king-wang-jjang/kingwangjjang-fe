@@ -5,6 +5,20 @@ import { Google as GoogleIcon } from '@mui/icons-material';
 
 import { CONFIG } from 'src/config-global';
 
+const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
+
+function isLocalHostname(hostname: string) {
+  return LOCAL_HOSTNAMES.has(hostname);
+}
+
+function getKakaoLoginUrl() {
+  const authServerUrl = isLocalHostname(window.location.hostname)
+    ? CONFIG.localServerUrl
+    : CONFIG.serverUrl;
+
+  return `${authServerUrl}/login`;
+}
+
 const SocialLoginButtons: React.FC = () => {
   const handleGoogleLogin = () => {
     console.log('Google login');
@@ -12,7 +26,7 @@ const SocialLoginButtons: React.FC = () => {
 
   const handleKakaoLogin = async () => {
     try {
-      window.location.href = `${CONFIG.serverUrl}/login`;
+      window.location.href = getKakaoLoginUrl();
     } catch (error) {
       console.error('Error during Kakao login:', error);
     }

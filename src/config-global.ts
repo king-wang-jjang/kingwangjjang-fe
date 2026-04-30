@@ -8,6 +8,7 @@ export type ConfigValue = {
   appName: string;
   appVersion: string;
   serverUrl: string;
+  localServerUrl: string;
   assetsDir: string;
   imageServerUrl: string;
   isStaticExport: boolean;
@@ -39,6 +40,7 @@ export const CONFIG: ConfigValue = {
   // serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.top1.kr',
   // serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:33330',
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.마약.kr',
+  localServerUrl: process.env.NEXT_PUBLIC_LOCAL_SERVER_URL ?? 'http://localhost:33330',
   assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',
   imageServerUrl: process.env.NEXT_PUBLIC_IMAGE_SERVER_URL ?? 'https://images.마약.kr',
   isStaticExport: JSON.parse(process.env.NEXT_PUBLIC_BUILD_STATIC_EXPORT ?? 'false'),

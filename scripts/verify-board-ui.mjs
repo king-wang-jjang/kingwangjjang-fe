@@ -5,6 +5,9 @@ const read = (path) => fs.readFileSync(path, 'utf8');
 
 const appLayout = read('src/app/layout.tsx');
 const dashboardLayout = read('src/layouts/dashboard/layout.tsx');
+const configGlobal = read('src/config-global.ts');
+const apiHttp = read('src/api/http.ts');
+const oauthForm = read('src/auth/components/form-oauth.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const postCard = read('src/sections/board/board-post-card.tsx');
 const boardFilters = read('src/sections/board/board-filters.tsx');
@@ -18,6 +21,27 @@ assert.match(
   dashboardLayout,
   /isSingle/,
   'header should render the existing single logo icon only'
+);
+assert.match(
+  configGlobal,
+  /localServerUrl:\s*string/,
+  'config should expose a local API server URL for local OAuth redirects'
+);
+assert.match(oauthForm, /isLocalHostname/, 'Kakao login should detect local browser hosts');
+assert.match(
+  oauthForm,
+  /CONFIG\.localServerUrl/,
+  'Kakao login should use the local API server URL in local development'
+);
+assert.match(
+  apiHttp,
+  /LOCAL_AUTH_PREFIXES/,
+  'local browser auth API requests should be routed separately from board data requests'
+);
+assert.match(
+  apiHttp,
+  /CONFIG\.localServerUrl/,
+  'local browser auth API requests should use the local API server URL'
 );
 assert.doesNotMatch(
   boardView,
