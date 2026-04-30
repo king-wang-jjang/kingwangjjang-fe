@@ -5,7 +5,7 @@ import type { IBoardFilters } from 'src/types/board';
 
 import { useState, useEffect } from 'react';
 
-import { Grid, Stack, Skeleton, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Card, Grid, Stack, Button, useTheme, Typography, useMediaQuery } from '@mui/material';
 
 import { useUser } from 'src/hooks/use-user';
 import { useBoard } from 'src/hooks/use-board';
@@ -28,7 +28,7 @@ type Props = {
   title?: string;
 };
 
-export function BoardView({ title = 'Blank' }: Props) {
+export function BoardView({ title = '실시간 인기글' }: Props) {
   const openFilters = useBoolean();
   const commentDrawerOpen = useBoolean();
   const pageTheme = useTheme();
@@ -57,14 +57,10 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   // 카드 클릭 핸들러
   const handleCardClick = (boardId: string, site: string) => {
-    // 댓글이 이미 열려있는 상태면, 클릭한 카드의 댓글로 전환
-    if (selectedPost) {
-      setSelectedPost({ boardId, site });
-      if (isMobile) {
-        commentDrawerOpen.onTrue();
-      }
+    setSelectedPost({ boardId, site });
+    if (isMobile) {
+      commentDrawerOpen.onTrue();
     }
-    // 댓글이 닫혀있으면 카드 내부에서 expand만 처리 (아무 작업 안 함)
   };
 
   // 댓글 닫기 핸들러
@@ -78,38 +74,90 @@ export function BoardView({ title = 'Blank' }: Props) {
   // const dataFiltered = applyFilter({ inputData: postData, filters: filters.state, sortBy });
   const dataFiltered = applyFilter({ inputData: postData, filters: filters.state });
   const canReset = filters.state.site.length > 0;
+  const selectedSiteCount = filters.state.site.length;
+
   const renderFilters = (
-    <Stack
-      spacing={3}
-      justifyContent="space-between"
-      alignItems={{ xs: 'flex-end', sm: 'center' }}
-      direction={{ xs: 'column', sm: 'row' }}
+    <Card
+      sx={{
+        mb: 1.5,
+        px: { xs: 1.5, sm: 2 },
+        py: 1.5,
+        border: '1px solid #bfc1b7',
+        borderRadius: '6px',
+        bgcolor: '#fdfdf8',
+        boxShadow: 'none',
+      }}
     >
-      {/* <Search search={search} onSearch={handleSearch} /> */}
+      <Stack
+        spacing={1.5}
+        justifyContent="space-between"
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        direction={{ xs: 'column', sm: 'row' }}
+      >
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              color: '#23251d',
+              fontSize: { xs: 22, sm: 24 },
+              fontWeight: 800,
+              lineHeight: 1.25,
+              letterSpacing: 0,
+            }}
+          >
+            {title}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#65675e', mt: 0.25 }}>
+            {dataFiltered.length.toLocaleString()}개 글을 보고 있어요
+            {selectedSiteCount ? ` · 사이트 ${selectedSiteCount}개 필터 적용` : ''}
+          </Typography>
+        </Box>
 
-      <Stack direction="row" spacing={1} flexShrink={0}>
-        <BoardFilters
-          filters={filters}
-          canReset={canReset}
-          open={openFilters.value}
-          onOpen={openFilters.onTrue}
-          onClose={openFilters.onFalse}
-          options={{
-            site: filterCollection,
-          }}
-        />
+        <Stack direction="row" spacing={1} flexShrink={0} justifyContent="flex-end">
+          {canReset && (
+            <Button
+              size="small"
+              onClick={filters.onResetState}
+              sx={{
+                height: 34,
+                px: 1.5,
+                border: '1px solid #bfc1b7',
+                borderRadius: '4px',
+                bgcolor: '#fdfdf8',
+                color: '#4d4f46',
+                fontWeight: 800,
+                '&:hover': {
+                  bgcolor: '#f4f4f4',
+                  color: '#F54E00',
+                },
+              }}
+            >
+              Reset
+            </Button>
+          )}
 
-        {/* <Sort sort={sortBy} onSort={handleSortBy} sortOptions={} /> */}
+          <BoardFilters
+            filters={filters}
+            canReset={canReset}
+            open={openFilters.value}
+            onOpen={openFilters.onTrue}
+            onClose={openFilters.onFalse}
+            options={{
+              site: filterCollection,
+            }}
+          />
+
+          {/* <Sort sort={sortBy} onSort={handleSortBy} sortOptions={} /> */}
+        </Stack>
       </Stack>
-    </Stack>
+    </Card>
   );
 
   // Mobile
   if (isMobile) {
     return (
-      <DashboardContent maxWidth="lg">
+      <DashboardContent maxWidth="lg" sx={{ px: { xs: 1.5, sm: 2 } }}>
         {renderFilters}
-        {canReset}
         <PostList
           onClickCard={handleCardClick}
           onCommentClick={handleCommentOpen}
@@ -137,66 +185,30 @@ export function BoardView({ title = 'Blank' }: Props) {
 
   // PC
   return (
-    <DashboardContent maxWidth="lg">
-      <Grid container spacing={2} position="relative">
-        {/* 왼쪽 사이드바 - 댓글이 선택되지 않았을 때만 표시 */}
-        {!selectedPost && (
-          <Grid
-            item
-            xs={12}
-            md={3}
-            sx={{
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: selectedPost ? 'translateX(-100%)' : 'translateX(0)',
-              opacity: selectedPost ? 0 : 1,
-              overflow: 'hidden',
-            }}
-          >
-            {/* 왼쪽 Side */}
-            {/* <Card
-              sx={{
-                width: '100%',
-                position: 'relative',
-                display: isMobile ? 'none' : 'flex',
-                justifyContent: 'center',
-                padding: '15px 0',
-              }}
-            >
-              <SocialLoginButtons />
-            </Card> */}
-          </Grid>
-        )}
-
-        {/* PostList - 댓글이 선택되었을 때 6, 선택되지 않았을 때 5 */}
+    <DashboardContent maxWidth="lg" sx={{ px: { md: 3, lg: 4 } }}>
+      <Grid container spacing={2} position="relative" alignItems="flex-start">
         <Grid
           item
           xs={12}
-          md={selectedPost ? 6 : 6}
+          md={8}
           sx={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
           {renderFilters}
-          {canReset}
           <PostList
             onClickCard={handleCardClick}
             onCommentClick={handleCommentOpen}
             postItems={dataFiltered}
             loading={boardContentsQueryLoading}
           />
-          <Skeleton />
-          {/* {boardContentsQueryLoading && <Loading />} */}
-          {/* {boardContentsQueryError && (
-            <Error message={boardContentsQueryError.message} isMobile={isMobile} />
-          )} */}
           <div ref={loadingRef} />
         </Grid>
 
-        {/* 댓글 사이드바 - 댓글이 선택되었을 때 6, 선택되지 않았을 때 4 */}
         <Grid
           item
           xs={12}
-          md={selectedPost ? 6 : 4}
+          md={4}
           sx={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
@@ -207,8 +219,29 @@ export function BoardView({ title = 'Blank' }: Props) {
               site={selectedPost.site}
               title="댓글"
               onClose={handleCommentClose}
+              sx={{ top: 88, height: 'calc(100vh - 112px)' }}
             />
-          ) : null}
+          ) : (
+            <Card
+              sx={{
+                position: 'sticky',
+                top: 88,
+                p: 2,
+                minHeight: 180,
+                border: '1px solid #bfc1b7',
+                borderRadius: '6px',
+                bgcolor: '#eeefe9',
+                boxShadow: 'none',
+              }}
+            >
+              <Typography variant="h6" sx={{ color: '#23251d', fontWeight: 800, mb: 0.75 }}>
+                댓글
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#65675e', lineHeight: 1.6 }}>
+                카드를 누르면 여기에서 댓글을 바로 볼 수 있어요.
+              </Typography>
+            </Card>
+          )}
         </Grid>
       </Grid>
     </DashboardContent>

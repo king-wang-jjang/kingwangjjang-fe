@@ -8,7 +8,6 @@ import { Toaster } from 'sonner';
 
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 
-import { CONFIG } from 'src/config-global';
 import { primary } from 'src/theme/core/palette';
 import { schemeConfig } from 'src/theme/scheme-config';
 import { ThemeProvider } from 'src/theme/theme-provider';
@@ -31,7 +30,7 @@ export const metadata = {
   icons: [
     {
       rel: 'icon',
-      url: `${CONFIG.assetsDir}/favicon.ico`,
+      url: '/favicon.ico',
     },
   ],
   manifest: '/manifest.json',
@@ -49,15 +48,15 @@ export default async function RootLayout({ children }: Props) {
           defaultMode={schemeConfig.defaultMode}
           modeStorageKey={schemeConfig.modeStorageKey}
         />
-         <AuthInitializer>
-        <SettingsProvider settings={defaultSettings}>
-          <ThemeProvider>
-            <MotionLazy>
-            <Toaster />
-              <ProgressBar />
-              <SettingsDrawer />
-              {children}
-            </MotionLazy>
+        <AuthInitializer>
+          <SettingsProvider settings={defaultSettings}>
+            <ThemeProvider>
+              <MotionLazy>
+                <Toaster />
+                <ProgressBar />
+                <SettingsDrawer />
+                {children}
+              </MotionLazy>
             </ThemeProvider>
           </SettingsProvider>
         </AuthInitializer>

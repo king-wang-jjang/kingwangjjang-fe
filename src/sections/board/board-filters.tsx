@@ -45,7 +45,7 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
   const renderHead = (
     <>
       <Box display="flex" alignItems="center" sx={{ py: 2, pr: 1, pl: 2.5 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1, color: '#23251d', fontWeight: 800 }}>
           Filters
         </Typography>
 
@@ -62,13 +62,13 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
         </IconButton>
       </Box>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+      <Divider sx={{ borderStyle: 'dashed', borderColor: '#bfc1b7' }} />
     </>
   );
 
   const renderSite = (
     <Box display="flex" flexDirection="column">
-      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1, color: '#23251d', fontWeight: 800 }}>
         Site
       </Typography>
       {options.site.map((option) => (
@@ -78,9 +78,28 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
             <Checkbox
               checked={filters.state.site.includes(option)}
               onClick={() => handleFilterSite(option)}
+              sx={{
+                color: '#bfc1b7',
+                '&.Mui-checked': { color: '#F54E00' },
+              }}
             />
           }
           label={option}
+          sx={{
+            m: 0,
+            px: 1,
+            py: 0.25,
+            borderRadius: '4px',
+            color: '#4d4f46',
+            '&:hover': {
+              bgcolor: '#f4f4f4',
+              color: '#F54E00',
+            },
+            '& .MuiFormControlLabel-label': {
+              fontSize: 14,
+              fontWeight: 600,
+            },
+          }}
         />
       ))}
     </Box>
@@ -97,6 +116,19 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
           </Badge>
         }
         onClick={onOpen}
+        sx={{
+          height: 34,
+          px: 1.5,
+          border: '1px solid #bfc1b7',
+          borderRadius: '4px',
+          bgcolor: '#eeefe9',
+          color: '#4d4f46',
+          fontWeight: 800,
+          '&:hover': {
+            bgcolor: '#f4f4f4',
+            color: '#F54E00',
+          },
+        }}
       >
         Filters
       </Button>
@@ -106,7 +138,14 @@ export function BoardFilters({ open, canReset, onOpen, onClose, filters, options
         open={open}
         onClose={onClose}
         slotProps={{ backdrop: { invisible: true } }}
-        PaperProps={{ sx: { width: 320 } }}
+        PaperProps={{
+          sx: {
+            width: 320,
+            bgcolor: '#fdfdf8',
+            color: '#4d4f46',
+            borderLeft: '1px solid #bfc1b7',
+          },
+        }}
       >
         {renderHead}
 

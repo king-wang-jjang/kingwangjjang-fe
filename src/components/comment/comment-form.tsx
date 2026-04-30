@@ -65,9 +65,7 @@ export const CommentForm = ({
       sx={{ display: 'flex', gap: 1.25, py: 1.25, alignItems: 'flex-start' }}
     >
       {isAuthenticated && (
-        <Avatar
-          sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}
-        >
+        <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem', mt: 0.5 }}>
           {user?.nickname.charAt(0).toUpperCase()}
         </Avatar>
       )}
@@ -86,9 +84,23 @@ export const CommentForm = ({
           fullWidth
           disabled={!isAuthenticated}
           sx={{
+            px: 1,
+            py: 0.5,
+            border: '1px solid #bfc1b7',
+            borderRadius: '4px',
+            bgcolor: '#eeefe9',
+            '&:focus-within': {
+              borderColor: '#3b82f6',
+              boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.16)',
+            },
+            '& .MuiInput-root:before, & .MuiInput-root:after': {
+              display: 'none',
+            },
             '& .MuiInputBase-input': {
               maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
               overflow: 'auto',
+              color: '#374151',
+              fontSize: 14,
             },
           }}
           autoFocus={autoFocus}
@@ -105,7 +117,12 @@ export const CommentForm = ({
                   onCancel?.();
                 }}
                 size="small"
-                sx={{ textTransform: 'none', minWidth: 'auto' }}
+                sx={{
+                  textTransform: 'none',
+                  minWidth: 'auto',
+                  color: '#4d4f46',
+                  '&:hover': { color: '#F54E00', bgcolor: 'transparent' },
+                }}
               >
                 취소
               </Button>
@@ -115,7 +132,17 @@ export const CommentForm = ({
               variant="contained"
               size="small"
               disabled={!isAuthenticated || !content.trim() || isSubmitting}
-              sx={{ textTransform: 'none', minWidth: 'auto' }}
+              sx={{
+                minWidth: 'auto',
+                borderRadius: '4px',
+                bgcolor: '#1e1f23',
+                textTransform: 'none',
+                '&:hover': {
+                  bgcolor: '#1e1f23',
+                  color: '#F7A501',
+                  opacity: 0.8,
+                },
+              }}
             >
               {actionPrimaryLabel}
             </Button>

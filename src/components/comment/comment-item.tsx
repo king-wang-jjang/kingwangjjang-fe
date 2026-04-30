@@ -60,39 +60,47 @@ export const CommentItem = ({
         gap: 1.5,
         py: 1.25,
         px: 1,
-        borderRadius: 1,
-        '&:hover': { bgcolor: 'action.hover' },
+        border: '1px solid transparent',
+        borderRadius: '5px',
+        '&:hover': {
+          bgcolor: '#eeefe9',
+          borderColor: '#bfc1b7',
+        },
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
+      <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem' }}>
         {comment.userNickname.charAt(0).toUpperCase()}
       </Avatar>
 
       <Box sx={{ flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, flexWrap: 'wrap' }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+          <Typography variant="subtitle2" sx={{ color: '#23251d', fontWeight: 800 }}>
             {comment.userNickname}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{ color: '#65675e' }}>
             · {formatTimeAgo(comment.createdAt)}
           </Typography>
         </Box>
 
-        <Typography variant="body2" sx={{ mb: 0.75, lineHeight: 1.7 }}>
+        <Typography variant="body2" sx={{ mb: 0.75, color: '#4d4f46', lineHeight: 1.7 }}>
           {comment.content}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#65675e' }}>
           <Stack direction="row" alignItems="center" spacing={0}>
             <IconButton
               size="small"
               onClick={handleLike}
-              sx={{ color: isLiked ? 'error.main' : 'text.secondary', p: 0.5 }}
+              sx={{
+                color: isLiked ? '#F54E00' : '#65675e',
+                p: 0.5,
+                '&:hover': { color: '#F54E00', bgcolor: 'transparent' },
+              }}
             >
               {isLiked ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
             </IconButton>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{ color: 'inherit' }}>
               {likesCount}
             </Typography>
           </Stack>
@@ -100,7 +108,13 @@ export const CommentItem = ({
             <Button
               size="small"
               onClick={() => setShowReplyBox((v) => !v)}
-              sx={{ textTransform: 'none', minWidth: 0, px: 0.5 }}
+              sx={{
+                textTransform: 'none',
+                minWidth: 0,
+                px: 0.5,
+                color: '#4d4f46',
+                '&:hover': { color: '#F54E00', bgcolor: 'transparent' },
+              }}
             >
               답글
             </Button>
@@ -109,7 +123,13 @@ export const CommentItem = ({
             <Button
               size="small"
               onClick={() => setShowReplies((v) => !v)}
-              sx={{ textTransform: 'none', minWidth: 0, px: 0.5 }}
+              sx={{
+                textTransform: 'none',
+                minWidth: 0,
+                px: 0.5,
+                color: '#4d4f46',
+                '&:hover': { color: '#F54E00', bgcolor: 'transparent' },
+              }}
             >
               {showReplies ? `답글 숨기기 (${replies.length})` : `답글 보기 (${replies.length})`}
             </Button>
@@ -144,7 +164,7 @@ export const CommentItem = ({
                 pl: 2,
                 ml: 1,
                 borderLeft: 1,
-                borderColor: 'divider',
+                borderColor: '#bfc1b7',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,

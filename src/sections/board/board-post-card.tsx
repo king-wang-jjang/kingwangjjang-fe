@@ -1,22 +1,22 @@
 import Link from 'next/link';
 import { toast } from 'sonner';
-import anime from 'animejs/lib/anime.es.js';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
   Box,
   Card,
   Modal,
+  Button,
   Collapse,
   useTheme,
   IconButton,
   Typography,
   CardContent,
-  useMediaQuery,
 } from '@mui/material';
 
 import { CONFIG } from 'src/config-global';
@@ -54,46 +54,19 @@ export const PostCard = ({
   onCommentClick,
 }: Props) => {
   const [expanded, setExpanded] = useState(false);
-  const cardRef = useRef(null);
-  const [isHovering, setIsHovering] = useState(false);
   const [timeAgo, setTimeAgo] = useState('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [currentLikeCount, setCurrentLikeCount] = useState(likeCount);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isRead, markAsRead } = useReadStore();
   const { isAuthenticated } = useAuthStore();
   const readStatus = isRead(boardId);
-
-  const handleMouseOver = () => {
-    if (!isMobile) {
-      setIsHovering(true);
-    }
-  };
-
-  const handleMouseOut = () => {
-    if (!isMobile) {
-      setIsHovering(false);
-    }
-  };
 
   const handleLinkClick = (e: React.MouseEvent, _boardId: string, _site: string) => {
     e.stopPropagation();
     markAsRead(_boardId);
   };
-
-  useEffect(() => {
-    const cardElement = cardRef.current;
-    if (cardElement) {
-      anime({
-        targets: cardElement,
-        scaleX: isHovering ? 0.95 : 1,
-        duration: 300,
-        easing: 'easeInOutQuad',
-      });
-    }
-  }, [isHovering]);
 
   const handleToggle = (_boardId: string) => {
     // 텍스트가 선택되어 있으면 토글하지 않음 (드래그 방지)
@@ -102,11 +75,18 @@ export const PostCard = ({
       return;
     }
 
-    setExpanded(!expanded);
+    markAsRead(_boardId);
+    onClickToggle(_boardId, site);
+
     if (!expanded) {
-      markAsRead(_boardId);
-      onClickToggle(_boardId, site);
+      setExpanded(true);
     }
+  };
+
+  const handleSummaryClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setExpanded(false);
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
@@ -134,7 +114,7 @@ export const PostCard = ({
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       toast.error('로그인이 필요합니다.');
       return;
@@ -171,67 +151,114 @@ export const PostCard = ({
   }, [calculateTimeAgo]);
 
   return (
-    <Box position="relative" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
+    <Box position="relative">
       <Card
-        ref={cardRef}
         sx={{
           width: '100%',
-          zIndex: '100',
+          zIndex: 1,
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           cursor: 'pointer',
-          transformOrigin: 'left center',
+          overflow: 'hidden',
+          border: '1px solid #bfc1b7',
+          borderRadius: '6px',
+          bgcolor: '#fdfdf8',
+          boxShadow: 'none',
+          transition: theme.transitions.create(['border-color', 'transform', 'background-color'], {
+            duration: theme.transitions.duration.shorter,
+          }),
+          '&:hover': {
+            borderColor: '#F54E00',
+            transform: 'translateY(-1px)',
+          },
+          '&:hover .post-title': {
+            color: '#F54E00',
+          },
         }}
         onClick={() => boardId && handleToggle(boardId)}
       >
         <CardContent
           sx={{
-            gap: '15px',
+            gap: 1.5,
             transform: 'none',
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: 'stretch',
+            p: { xs: 1.25, sm: 1.5 },
+            '&:last-child': { pb: { xs: 1.25, sm: 1.5 } },
           }}
         >
           <Box
             component="div"
             display="flex"
             flexDirection="column"
-            gap={0}
-            sx={{ opacity: readStatus ? 0.6 : 1 }}
+            gap={0.75}
+            sx={{ minWidth: 0, flex: 1, opacity: readStatus ? 0.62 : 1 }}
           >
-            <Box display="flex" flexWrap="wrap" gap={0}>
-              <Label color="primary">{site}</Label>
+            <Box display="flex" flexWrap="wrap" gap={0.75} alignItems="center">
+              <Label
+                color="primary"
+                sx={{
+                  height: 20,
+                  px: 0.75,
+                  bgcolor: '#eeefe9',
+                  color: '#23251d',
+                  border: '1px solid #bfc1b7',
+                  fontSize: 11,
+                  fontWeight: 800,
+                }}
+              >
+                {site}
+              </Label>
+              <Typography variant="caption" component="span" sx={{ color: '#65675e' }}>
+                {timeAgo}
+              </Typography>
               {/* <Label color="secondary" startIcon={<StarIcon fontSize="small" />}> rank</Label> */}
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
-              <Typography variant="body2" component="div">
+              <Typography
+                className="post-title"
+                variant="body2"
+                component="div"
+                sx={{
+                  color: '#23251d',
+                  fontSize: 15,
+                  fontWeight: 800,
+                  lineHeight: 1.45,
+                  transition: theme.transitions.create('color', {
+                    duration: theme.transitions.duration.shorter,
+                  }),
+                }}
+              >
                 {title}
               </Typography>
-              <Typography variant="caption" component="div" color="text.secondary">
-                {timeAgo}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mt: 0.85 }}>
                 <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                  onClick={handleOpenComments}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    color: '#65675e',
+                  }}
                 >
-                  <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography variant="caption" component="span" color="text.secondary">
+                  <ChatBubbleOutlineIcon sx={{ fontSize: 15 }} />
+                  <Typography variant="caption" component="span" sx={{ color: 'inherit' }}>
                     {commentCount}
                   </Typography>
                 </Box>
                 <Box
-                  sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 0.5, 
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    color: '#65675e',
+                    '&:hover': { color: '#F54E00' },
                   }}
                   onClick={handleLike}
                 >
-                  <FavoriteBorderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography variant="caption" component="span" color="text.secondary">
+                  <FavoriteBorderIcon sx={{ fontSize: 15 }} />
+                  <Typography variant="caption" component="span" sx={{ color: 'inherit' }}>
                     {currentLikeCount}
                   </Typography>
                 </Box>
@@ -246,11 +273,12 @@ export const PostCard = ({
               alt="thumbnail"
               onClick={handleImageClick}
               sx={{
-                width: '80px',
-                height: '80px',
+                width: { xs: 70, sm: 82 },
+                height: { xs: 70, sm: 82 },
                 objectFit: 'cover',
                 objectPosition: 'center',
-                borderRadius: '8px',
+                borderRadius: '5px',
+                border: '1px solid #bfc1b7',
                 display: 'block',
                 flexShrink: 0,
                 cursor: 'pointer',
@@ -264,63 +292,148 @@ export const PostCard = ({
         </CardContent>
 
         <Collapse in={expanded} timeout="auto">
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', userSelect: 'text' }}>
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              userSelect: 'text',
+              borderTop: '1px dashed #bfc1b7',
+              bgcolor: '#eeefe9',
+              p: { xs: 1.25, sm: 1.5 },
+            }}
+          >
+            <Box
+              sx={{
+                mb: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+              }}
+            >
+              <Typography
+                variant="overline"
+                component="div"
+                sx={{
+                  color: '#23251d',
+                  fontWeight: 900,
+                  lineHeight: 1.4,
+                }}
+              >
+                GPT 요약
+              </Typography>
+
+              <IconButton
+                aria-label="GPT 요약 접기"
+                size="small"
+                onClick={handleSummaryClose}
+                sx={{
+                  width: 28,
+                  height: 28,
+                  flexShrink: 0,
+                  border: '1px solid #bfc1b7',
+                  borderRadius: '4px',
+                  bgcolor: '#fdfdf8',
+                  color: '#4d4f46',
+                  '&:hover': {
+                    bgcolor: '#f4f4f4',
+                    color: '#F54E00',
+                    borderColor: '#F54E00',
+                  },
+                }}
+              >
+                <KeyboardArrowUpIcon sx={{ fontSize: 19 }} />
+              </IconButton>
+            </Box>
+
             <Typography
               variant="body2"
               component="div"
-              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', mb: 2, userSelect: 'text' }}
+              sx={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                mb: 2,
+                userSelect: 'text',
+                color: '#4d4f46',
+                lineHeight: 1.65,
+              }}
             >
               {gptAnswer}
-              <br />
-              {boardId}, {site}
             </Typography>
 
-            {isMobile && (
-              <Box
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 1,
+                width: '100%',
+                flexWrap: 'wrap',
+              }}
+            >
+              <Button
+                component={Link}
+                href={url}
+                target="_blank"
+                onClick={(e) => handleLinkClick(e, boardId, site)}
+                startIcon={<LaunchIcon sx={{ fontSize: 17 }} />}
+                variant="text"
+                size="small"
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'flex-end',
-                  width: '100%',
-                  marginTop: '10px',
+                  minWidth: 0,
+                  px: 1.1,
+                  height: 34,
+                  borderRadius: '6px',
+                  border: '1px solid #bfc1b7',
+                  bgcolor: '#fdfdf8',
+                  color: '#65675e',
+                  fontWeight: 700,
+                  boxShadow: 'none',
+                  '&:hover': {
+                    bgcolor: '#f4f4f4',
+                    color: '#F54E00',
+                    borderColor: '#F54E00',
+                    boxShadow: 'none',
+                  },
                 }}
               >
-                <Link
-                  href={url}
-                  target="_blank"
-                  passHref
-                  onClick={(e) => handleLinkClick(e, boardId, site)}
-                >
-                  <LaunchIcon />
-                </Link>
-              </Box>
-            )}
+                원문 바로가기
+              </Button>
+
+              <Button
+                onClick={handleOpenComments}
+                startIcon={<ChatBubbleOutlineIcon sx={{ fontSize: 17 }} />}
+                variant="text"
+                size="small"
+                disabled={!onCommentClick}
+                sx={{
+                  minWidth: 0,
+                  px: 1.1,
+                  height: 34,
+                  borderRadius: '6px',
+                  border: '1px solid #bfc1b7',
+                  bgcolor: '#fdfdf8',
+                  color: '#65675e',
+                  fontWeight: 700,
+                  boxShadow: 'none',
+                  '&:hover': {
+                    bgcolor: '#f4f4f4',
+                    color: '#F54E00',
+                    borderColor: '#F54E00',
+                    boxShadow: 'none',
+                  },
+                  '&.Mui-disabled': {
+                    bgcolor: '#d6d7ce',
+                    color: '#7a7d73',
+                  },
+                }}
+              >
+                댓글 보기
+              </Button>
+            </Box>
           </CardContent>
         </Collapse>
       </Card>
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '0',
-          borderRadius: '20px',
-          left: '0',
-          bgcolor: '#3b82f6',
-          width: '100%',
-          height: '100%',
-          boxShadow: 'none',
-        }}
-      >
-        <Link
-          href={url}
-          target="_blank"
-          passHref
-          onClick={(e) => handleLinkClick(e, boardId, site)}
-        >
-          <Box width="100%" height="100%" display="flex" alignItems="center" justifyContent="end">
-            <LaunchIcon sx={{ width: '50px', color: 'white' }} />
-          </Box>
-        </Link>
-      </Box>
 
       {/* 이미지 모달 */}
       <Modal

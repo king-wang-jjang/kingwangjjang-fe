@@ -9,8 +9,6 @@ import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { useNavStore } from 'src/store/nav-store';
 import { useAuthStore } from 'src/store/auth-store';
 
@@ -46,7 +44,7 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, header, data }: DashboardLayoutProps) {
-  const { user, login } = useAuthStore();
+  const { user } = useAuthStore();
   useEffect(() => {
     if (user) {
       console.log('User state updated:', user);
@@ -54,8 +52,6 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
   }, [user]);
 
   const theme = useTheme();
-
-  const mobileNavOpen = useBoolean();
 
   const settings = useSettingsContext();
 
@@ -100,7 +96,6 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
               },
             },
           }}
-          sx={header?.sx}
           slots={{
             bottomArea: isNavHorizontal ? (
               <NavHorizontal
@@ -112,8 +107,22 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
             leftArea: (
               <>
                 <Logo
+                  isSingle
+                  width={38}
+                  height={38}
                   sx={{
                     [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+                    p: 0.35,
+                    border: '1px solid #bfc1b7',
+                    borderRadius: '6px',
+                    bgcolor: '#fdfdf8',
+                    transition: theme.transitions.create(['border-color', 'transform'], {
+                      duration: theme.transitions.duration.shorter,
+                    }),
+                    '&:hover': {
+                      borderColor: '#F54E00',
+                      transform: 'translateY(-1px)',
+                    },
                   }}
                 />
 
@@ -185,6 +194,13 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
               </Box>
             ),
           }}
+          sx={{
+            color: '#23251d',
+            bgcolor: '#fdfdf8',
+            borderBottom: '1px solid #bfc1b7',
+            boxShadow: 'none',
+            ...header?.sx,
+          }}
         />
       }
       /** **************************************
@@ -220,11 +236,13 @@ export function DashboardLayout({ sx, children, header, data }: DashboardLayoutP
         '--layout-nav-mini-width': '88px',
         '--layout-nav-vertical-width': '300px',
         '--layout-nav-horizontal-height': '64px',
-        '--layout-dashboard-content-pt': theme.spacing(1),
+        '--layout-dashboard-content-pt': theme.spacing(2),
         '--layout-dashboard-content-pb': theme.spacing(8),
-        '--layout-dashboard-content-px': theme.spacing(5),
+        '--layout-dashboard-content-px': theme.spacing(4),
       }}
       sx={{
+        bgcolor: '#fdfdf8',
+        color: '#4d4f46',
         [`& .${layoutClasses.hasSidebar}`]: {
           [theme.breakpoints.up(layoutQuery)]: {
             transition: theme.transitions.create(['padding-left'], {

@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const PostList = ({ postItems, onClickCard, onCommentClick, loading }: Props) => (
-  <Stack spacing={1}>
+  <Stack spacing={1.25}>
     {loading
       ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
       : postItems?.map(
