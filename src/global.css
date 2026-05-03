@@ -12,7 +12,7 @@ body,
   margin: 0;
   min-height: 100%;
   flex-direction: column;
-  background: #fdfdf8;
+  background: #ffffff;
   font-family:
     'Inter Variable',
     Inter,
@@ -63,7 +63,7 @@ input[type='number']::-webkit-inner-spin-button {
 .plain-state-panel {
   width: min(100%, 440px);
   padding: 32px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #dfe3e8;
   border-radius: 8px;
   background: #ffffff;
   text-align: center;
@@ -71,21 +71,21 @@ input[type='number']::-webkit-inner-spin-button {
 
 .plain-state-eyebrow {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: #00a76f;
   font-size: 0.82rem;
   font-weight: 800;
 }
 
 .plain-state-panel h1 {
   margin: 0 0 10px;
-  color: #111827;
+  color: #1c252e;
   font-size: 1.5rem;
   line-height: 1.25;
 }
 
 .plain-state-panel p {
   margin: 0 0 20px;
-  color: #5b6472;
+  color: #637381;
   line-height: 1.7;
 }
 
@@ -96,7 +96,7 @@ input[type='number']::-webkit-inner-spin-button {
   min-height: 40px;
   padding: 0 16px;
   border-radius: 8px;
-  background: #f54e00;
+  background: #00a76f;
   color: #ffffff;
   font-size: 0.92rem;
   font-weight: 700;

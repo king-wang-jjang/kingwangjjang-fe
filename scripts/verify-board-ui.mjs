@@ -10,6 +10,8 @@ const apiHttp = read('src/api/http.ts');
 const oauthForm = read('src/auth/components/form-oauth.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
+const logoSingle = read('public/logo/logo-single.svg');
+const logoFull = read('public/logo/logo-full.svg');
 const packageJson = read('package.json');
 const readme = read('README.md');
 const projectOverview = read('PROJECT_OVERVIEW.md');
@@ -27,19 +29,26 @@ const firstPartyText = [
   themeProvider,
 ].join('\n');
 
-console.log('Verifying Board UI architecture and local server configuration...');
+console.log('Verifying legacy-logo Board UI architecture and local server configuration...');
 
-// Verify Logo logic
+// Verify legacy logo app chrome
 assert.match(
   appShell,
-  /component="img"[\s\S]*src="\/favicon\.svg"/,
-  'app shell should render the existing favicon as the only brand mark'
+  /src="\/logo\/logo-single\.svg"/,
+  'app shell should render the legacy single logo asset'
 );
 assert.doesNotMatch(
   appShell,
-  /Kingwangjjang|Workspace|Drawer/,
-  'app shell should not restore template text/sidebar chrome'
+  /component="img"[\s\S]*src="\/favicon\.svg"/,
+  'app shell should not use the favicon as the header brand mark'
 );
+assert.doesNotMatch(
+  appShell,
+  /페이지 테스트 중 입니다\./,
+  'app shell should not show the legacy test notice'
+);
+assert.match(logoSingle, /#f57e9a|#85dbd9|#ffd483/i, 'legacy single logo asset should exist');
+assert.match(logoFull, /#00A76F|#1C252E/i, 'legacy full logo asset should exist');
 
 // Verify Local Server Config
 assert.match(
@@ -63,15 +72,16 @@ assert.match(
   /CONFIG\.localServerUrl/,
   'local browser auth API requests should use the local API server URL'
 );
-assert.match(themeProvider, /#fdfdf8/i, 'theme should restore the warm app background');
-assert.match(themeProvider, /#F54E00/i, 'theme should restore the orange brand accent');
-assert.match(boardView, /#eeefe9/i, 'board view should use the previous sage panel surface');
-assert.match(boardView, /#bfc1b7/i, 'board view should use the previous neutral border');
+assert.match(themeProvider, /#ffffff/i, 'theme should restore the legacy white app background');
+assert.match(themeProvider, /#00A76F/i, 'theme should restore the legacy green brand accent');
 assert.match(
   boardView,
-  /카드를 누르면 여기에서 댓글을 바로 볼 수 있어요/,
-  'board view should keep card-click comment UX'
+  /<Grid container spacing=\{2\}/,
+  'board view should restore the legacy grid layout'
 );
+assert.match(boardView, /<SocialLoginButtons \/>/, 'board view should restore the left login card');
+assert.match(boardView, /translateX\(-50px\)/, 'board cards should restore the legacy hover slide');
+assert.match(boardView, /Filters/, 'board view should restore the legacy filter label');
 assert.doesNotMatch(
   firstPartyText,
   /Minimal|Minimals|minimal-kit|docs\.minimals|mui\.com\/store|Envato/i,

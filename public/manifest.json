@@ -3,14 +3,14 @@
   "name": "Kingwangjjang",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/logo/logo-single.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }
   ],
   "start_url": "/board",
-  "background_color": "#fdfdf8",
+  "background_color": "#ffffff",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#fdfdf8"
+  "theme_color": "#00A76F"
 }

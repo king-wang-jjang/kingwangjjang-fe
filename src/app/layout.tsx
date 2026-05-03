@@ -15,14 +15,14 @@ import { AuthInitializer } from 'src/auth/auth-initializer';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#fdfdf8',
+  themeColor: '#00A76F',
 };
 
 export const metadata = {
   icons: [
     {
       rel: 'icon',
-      url: '/favicon.svg',
+      url: '/favicon.ico',
     },
   ],
   manifest: '/manifest.json',

@@ -17,38 +17,38 @@ export function AppThemeProvider({ children }: Props) {
         palette: {
           mode: 'light',
           primary: {
-            main: '#F54E00',
-            light: '#ff8a4c',
-            dark: '#b63a00',
+            main: '#00A76F',
+            light: '#5BE49B',
+            dark: '#007867',
             contrastText: '#ffffff',
           },
           secondary: {
-            main: '#4d4f46',
-            light: '#7a7d73',
-            dark: '#23251d',
-            contrastText: '#fdfdf8',
+            main: '#8E33FF',
+            light: '#C684FF',
+            dark: '#5119B7',
+            contrastText: '#ffffff',
           },
           error: {
-            main: '#dc2626',
+            main: '#FF5630',
           },
           warning: {
-            main: '#d97706',
+            main: '#FFAB00',
           },
           success: {
-            main: '#16a34a',
+            main: '#22C55E',
           },
           background: {
-            default: '#fdfdf8',
-            paper: '#fdfdf8',
+            default: '#ffffff',
+            paper: '#ffffff',
           },
           text: {
-            primary: '#23251d',
-            secondary: '#65675e',
+            primary: '#1C252E',
+            secondary: '#637381',
           },
-          divider: '#bfc1b7',
+          divider: '#DFE3E8',
         },
         shape: {
-          borderRadius: 6,
+          borderRadius: 8,
         },
         typography: {
           fontFamily:
@@ -75,7 +75,7 @@ export function AppThemeProvider({ children }: Props) {
           MuiButton: {
             styleOverrides: {
               root: {
-                borderRadius: 6,
+                borderRadius: 8,
               },
             },
           },
@@ -85,7 +85,7 @@ export function AppThemeProvider({ children }: Props) {
             },
             styleOverrides: {
               root: {
-                borderColor: '#bfc1b7',
+                borderColor: '#DFE3E8',
                 boxShadow: 'none',
               },
             },
