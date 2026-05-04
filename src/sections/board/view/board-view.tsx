@@ -8,7 +8,6 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -103,7 +102,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     );
   }, []);
 
-  const handleCommentOpen = useCallback(
+  const handlePostSelect = useCallback(
     (post: BoardPost) => {
       const boardId = getPostId(post);
 
@@ -113,6 +112,13 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       }
     },
     [isMobile]
+  );
+
+  const handleCommentOpen = useCallback(
+    (post: BoardPost) => {
+      handlePostSelect(post);
+    },
+    [handlePostSelect]
   );
 
   const handleCommentClose = () => {
@@ -343,6 +349,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               key={getPostId(post)}
               post={post}
               selected={selectedPost?.boardId === getPostId(post)}
+              onPostSelect={handlePostSelect}
               onCommentOpen={handleCommentOpen}
             />
           ))}
@@ -448,10 +455,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 type BoardPostCardProps = {
   post: BoardPost;
   selected: boolean;
+  onPostSelect: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
 
-function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
+function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPostCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const [currentLikeCount, setCurrentLikeCount] = useState(post.likeCount ?? 0);
@@ -468,13 +476,28 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
     setCurrentLikeCount(post.likeCount ?? 0);
   }, [post.likeCount]);
 
-  const handleToggle = () => {
+  const handleCardClick = () => {
     const selection = window.getSelection();
     if (selection?.toString()) {
       return;
     }
 
+    if (!expanded) {
+      onPostSelect(post);
+    }
+
+    markAsRead(boardId);
+  };
+
+  const handleToggleExpanded = (event: React.MouseEvent) => {
+    event.stopPropagation();
     setExpanded((open) => !open);
+    markAsRead(boardId);
+  };
+
+  const handleCloseExpanded = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExpanded(false);
     markAsRead(boardId);
   };
 
@@ -512,9 +535,6 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
           position: 'relative',
           overflow: 'hidden',
           borderRadius: 1,
-          '&:hover .post-card-surface': {
-            transform: { xs: 'none', md: 'translateX(-46px)' },
-          },
           '&:hover .post-card-title, &:hover .post-card-action': {
             color: '#F54E00',
           },
@@ -534,10 +554,10 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
           }}
         >
           <CardContent
-            onClick={handleToggle}
+            onClick={handleCardClick}
             sx={{
               p: { xs: 1.25, sm: 1.5 },
-              cursor: 'pointer',
+              cursor: expanded ? 'default' : 'pointer',
               '&:last-child': {
                 pb: { xs: 1.25, sm: 1.5 },
               },
@@ -583,73 +603,107 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                   </Typography>
                 </Stack>
 
-                {thumbnailSrc ? (
-                  <Box
-                    component="button"
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setImageOpen(true);
-                    }}
-                    sx={{
-                      p: 0,
-                      width: { xs: 72, sm: 82 },
-                      height: { xs: 72, sm: 82 },
-                      border: 1,
-                      borderColor: '#bfc1b7',
-                      borderRadius: 1,
-                      overflow: 'hidden',
-                      bgcolor: '#eeefe9',
-                      cursor: 'zoom-in',
-                      flexShrink: 0,
-                    }}
-                  >
+                <Stack
+                  direction="row"
+                  spacing={0.75}
+                  alignItems="flex-start"
+                  sx={{ flexShrink: 0 }}
+                >
+                  {thumbnailSrc ? (
                     <Box
-                      component="img"
-                      src={thumbnailSrc}
-                      alt=""
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'block',
-                        objectFit: 'cover',
+                      component="button"
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setImageOpen(true);
                       }}
-                    />
-                  </Box>
-                ) : (
-                  <Box
-                    sx={{
-                      width: { xs: 72, sm: 82 },
-                      height: { xs: 72, sm: 82 },
-                      border: 1,
-                      borderColor: '#bfc1b7',
-                      borderRadius: 1,
-                      display: 'grid',
-                      placeItems: 'center',
-                      bgcolor: '#eeefe9',
-                      color: '#65675e',
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {post.site.slice(0, 1)}
-                  </Box>
-                )}
+                      sx={{
+                        p: 0,
+                        width: { xs: 72, sm: 82 },
+                        height: { xs: 72, sm: 82 },
+                        border: 1,
+                        borderColor: '#bfc1b7',
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        bgcolor: '#eeefe9',
+                        cursor: 'zoom-in',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={thumbnailSrc}
+                        alt=""
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'block',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: { xs: 72, sm: 82 },
+                        height: { xs: 72, sm: 82 },
+                        border: 1,
+                        borderColor: '#bfc1b7',
+                        borderRadius: 1,
+                        display: 'grid',
+                        placeItems: 'center',
+                        bgcolor: '#eeefe9',
+                        color: '#65675e',
+                        fontWeight: 800,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {post.site.slice(0, 1)}
+                    </Box>
+                  )}
+
+                  {expanded && (
+                    <Tooltip title="닫기">
+                      <IconButton
+                        className="expanded-card-close post-card-action"
+                        size="small"
+                        onClick={handleCloseExpanded}
+                        aria-label="확장 닫기"
+                        sx={{
+                          width: 34,
+                          height: 34,
+                          border: 1,
+                          borderColor: '#bfc1b7',
+                          bgcolor: '#fdfdf8',
+                          color: '#4d4f46',
+                          '&:hover': {
+                            bgcolor: '#eeefe9',
+                            color: '#F54E00',
+                          },
+                        }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Stack>
               </Stack>
 
               <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
-                <Tooltip title="댓글 열기">
-                  <Button
-                    className="post-card-action"
-                    size="small"
-                    color="inherit"
-                    startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
-                    onClick={handleOpenComments}
-                    sx={{ color: selected ? '#F54E00' : '#4d4f46' }}
-                  >
-                    {post.commentCount ?? 0}
-                  </Button>
-                </Tooltip>
+                <Chip
+                  icon={<ChatBubbleOutlineIcon fontSize="small" />}
+                  label={`${post.commentCount ?? 0}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    bgcolor: selected ? '#fff2dc' : '#fdfdf8',
+                    borderColor: selected ? '#F54E00' : '#bfc1b7',
+                    color: selected ? '#F54E00' : '#4d4f46',
+                    '& .MuiChip-icon': {
+                      color: 'inherit',
+                    },
+                  }}
+                />
 
                 <Tooltip title="좋아요">
                   <Button
@@ -663,32 +717,17 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                   </Button>
                 </Tooltip>
 
-                <Button
-                  className="post-card-action"
-                  size="small"
-                  component="a"
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  startIcon={<LaunchIcon fontSize="small" />}
-                  onClick={handleOpenSource}
-                  sx={{ display: { xs: 'inline-flex', md: 'none' } }}
-                >
-                  원문
-                </Button>
-
-                <IconButton
-                  className="post-card-action"
-                  size="small"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    handleToggle();
-                  }}
-                  aria-label={expanded ? '요약 닫기' : '요약 열기'}
-                  sx={{ ml: 'auto' }}
-                >
-                  {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
+                {!expanded && (
+                  <IconButton
+                    className="post-card-action"
+                    size="small"
+                    onClick={handleToggleExpanded}
+                    aria-label="요약 열기"
+                    sx={{ ml: 'auto' }}
+                  >
+                    <ExpandMoreIcon />
+                  </IconButton>
+                )}
               </Stack>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -700,31 +739,58 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                 >
                   {summary || '요약 내용이 없습니다.'}
                 </Typography>
+                <Stack
+                  className="expanded-card-actions"
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={0.75}
+                  sx={{ mt: 1.5 }}
+                >
+                  <Button
+                    fullWidth
+                    component="a"
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="outlined"
+                    color="inherit"
+                    startIcon={<LaunchIcon fontSize="small" />}
+                    onClick={handleOpenSource}
+                    sx={{
+                      bgcolor: '#fdfdf8',
+                      borderColor: '#bfc1b7',
+                      color: '#4d4f46',
+                      '&:hover': {
+                        bgcolor: '#eeefe9',
+                        borderColor: '#bfc1b7',
+                        color: '#F54E00',
+                      },
+                    }}
+                  >
+                    원문 바로가기
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                    onClick={handleOpenComments}
+                    sx={{
+                      bgcolor: '#1e1f23',
+                      color: '#ffffff',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        bgcolor: '#2b2c31',
+                        boxShadow: 'none',
+                        color: '#F7A501',
+                      },
+                    }}
+                  >
+                    댓글 열기
+                  </Button>
+                </Stack>
               </Collapse>
             </Stack>
           </CardContent>
         </Card>
-
-        <Box
-          component="a"
-          href={post.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleOpenSource}
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 0,
-            borderRadius: 1,
-            bgcolor: '#1e1f23',
-            display: { xs: 'none', md: 'flex' },
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            pr: 1.25,
-          }}
-        >
-          <LaunchIcon sx={{ width: 36, height: 36, color: '#F7A501' }} />
-        </Box>
       </Box>
 
       <Dialog

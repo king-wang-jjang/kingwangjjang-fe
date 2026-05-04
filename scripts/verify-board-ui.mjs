@@ -62,11 +62,7 @@ assert.match(
   /@import '@fontsource-variable\/ibm-plex-sans'/,
   'global CSS should import IBM Plex Sans Variable'
 );
-assert.match(
-  themeProvider,
-  /#fdfdf8/i,
-  'theme should use warm parchment as the app background'
-);
+assert.match(themeProvider, /#fdfdf8/i, 'theme should use warm parchment as the app background');
 assert.match(themeProvider, /#4d4f46/i, 'theme should use olive ink body text');
 assert.match(themeProvider, /#23251d/i, 'theme should use deep olive headings');
 assert.match(themeProvider, /#bfc1b7/i, 'theme should use sage borders');
@@ -87,8 +83,36 @@ assert.match(appShell, /background\.default/, 'app shell should use themed app b
 assert.match(boardView, /BoardWorkbench/, 'board view should expose a workbench container');
 assert.match(boardView, /renderToolPane/, 'board view should render a dedicated left tool pane');
 assert.match(boardView, /renderFeedHeader/, 'board view should render a feed header');
-assert.match(boardView, /renderCommentEmptyState/, 'board view should keep a stable right-pane empty state');
-assert.match(boardView, /gridTemplateColumns/, 'desktop board should use explicit workbench columns');
+assert.match(
+  boardView,
+  /renderCommentEmptyState/,
+  'board view should keep a stable right-pane empty state'
+);
+assert.match(
+  boardView,
+  /gridTemplateColumns/,
+  'desktop board should use explicit workbench columns'
+);
+assert.match(
+  boardView,
+  /onPostSelect/,
+  'post cards should support selecting a post separately from opening expanded actions'
+);
+assert.match(
+  boardView,
+  /expanded-card-close/,
+  'expanded cards should expose a top-right close control'
+);
+assert.match(
+  boardView,
+  /expanded-card-actions/,
+  'expanded cards should place source and comment actions at the bottom'
+);
+assert.match(
+  boardView,
+  /handleCardClick/,
+  'non-expanded card clicks should select the post for the comment pane'
+);
 assert.match(boardView, /실시간 게시판/, 'board title copy should be valid Korean');
 assert.match(boardView, /필터 초기화/, 'filter reset copy should be valid Korean');
 assert.match(boardView, /게시글이 없습니다/, 'empty feed copy should be valid Korean');
@@ -99,14 +123,38 @@ assert.match(oauthForm, /#1e1f23/i, 'login CTA should use the near-black primary
 assert.match(oauthForm, /카카오 로그인/, 'Kakao login text should remain available');
 assert.match(commentSidebar, /#eeefe9/i, 'comment sidebar should use sage panel surface');
 assert.match(commentDrawer, /#eeefe9/i, 'comment drawer should use sage panel surface');
-assert.match(commentSection, /#eeefe9|background\.default|background\.paper/i, 'comment section should use themed surfaces');
-assert.match(commentList, /첫 댓글을 남겨보세요/, 'comment empty state should keep valid Korean copy');
+assert.match(
+  commentSection,
+  /#eeefe9|background\.default|background\.paper/i,
+  'comment section should use themed surfaces'
+);
+assert.match(
+  commentList,
+  /첫 댓글을 남겨보세요/,
+  'comment empty state should keep valid Korean copy'
+);
 assert.match(commentItem, /#F54E00/i, 'comment actions should use orange hover accents');
 assert.match(commentForm, /#1e1f23/i, 'comment submit buttons should use the dark primary style');
-assert.match(commentSkeleton, /#eeefe9|background\.default|background\.paper/i, 'comment skeleton should use sage-themed surfaces');
+assert.match(
+  commentSkeleton,
+  /#eeefe9|background\.default|background\.paper/i,
+  'comment skeleton should use sage-themed surfaces'
+);
 
-assert.doesNotMatch(redesignedFiles, mojibakePattern, 'redesigned UI files should not contain visible mojibake strings');
-assert.doesNotMatch(redesignedFiles, /#00A76F/i, 'redesigned UI files should not use the legacy green accent');
-assert.doesNotMatch(redesignedFiles, /#8E33FF/i, 'redesigned UI files should not use the legacy purple accent');
+assert.doesNotMatch(
+  redesignedFiles,
+  mojibakePattern,
+  'redesigned UI files should not contain visible mojibake strings'
+);
+assert.doesNotMatch(
+  redesignedFiles,
+  /#00A76F/i,
+  'redesigned UI files should not use the legacy green accent'
+);
+assert.doesNotMatch(
+  redesignedFiles,
+  /#8E33FF/i,
+  'redesigned UI files should not use the legacy purple accent'
+);
 
 console.log('Board workbench redesign contract passed.');
