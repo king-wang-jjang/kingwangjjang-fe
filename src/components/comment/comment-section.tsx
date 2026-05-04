@@ -124,8 +124,8 @@ export const CommentSection = ({
   };
 
   return (
-    <Box onClick={(e) => e.stopPropagation()}>
-      <Box sx={{ pl: 2, pr: 1.5 }}>
+    <Box onClick={(e) => e.stopPropagation()} sx={{ bgcolor: '#eeefe9' }}>
+      <Box sx={{ px: 1, pb: 1 }}>
         <CommentList
           loading={loading}
           comments={rootComments}

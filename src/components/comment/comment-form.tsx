@@ -62,12 +62,10 @@ export const CommentForm = ({
       component="form"
       onSubmit={handleSubmit}
       onClick={(e) => e.stopPropagation()}
-      sx={{ display: 'flex', gap: 1.25, py: 1.25, alignItems: 'flex-start' }}
+      sx={{ display: 'flex', gap: 1, py: 1, alignItems: 'flex-start' }}
     >
       {isAuthenticated && (
-        <Avatar
-          sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', mt: 0.5 }}
-        >
+        <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem', mt: 0.5 }}>
           {user?.nickname.charAt(0).toUpperCase()}
         </Avatar>
       )}
@@ -82,10 +80,15 @@ export const CommentForm = ({
           onFocus={() => setIsActive(true)}
           onKeyDown={handleKeyDown}
           placeholder={isAuthenticated ? placeholder : '로그인 후 댓글을 작성할 수 있습니다.'}
-          variant="standard"
+          variant="outlined"
           fullWidth
           disabled={!isAuthenticated}
           sx={{
+            '& .MuiOutlinedInput-root': {
+              bgcolor: '#eeefe9',
+              borderRadius: 1,
+              fontSize: 14,
+            },
             '& .MuiInputBase-input': {
               maxHeight: 'calc(4 * 1.2em + 16px)', // 4줄의 최대 높이
               overflow: 'auto',
@@ -115,7 +118,17 @@ export const CommentForm = ({
               variant="contained"
               size="small"
               disabled={!isAuthenticated || !content.trim() || isSubmitting}
-              sx={{ textTransform: 'none', minWidth: 'auto' }}
+              sx={{
+                textTransform: 'none',
+                minWidth: 'auto',
+                bgcolor: '#1e1f23',
+                color: '#ffffff',
+                '&:hover': {
+                  bgcolor: '#1e1f23',
+                  color: '#F7A501',
+                  opacity: 0.72,
+                },
+              }}
             >
               {actionPrimaryLabel}
             </Button>

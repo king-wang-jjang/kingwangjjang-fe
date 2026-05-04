@@ -36,7 +36,19 @@ export const CommentList = ({
 
   if (!comments || comments.length === 0) {
     return (
-      <Box sx={{ py: 3, textAlign: 'center', color: 'text.secondary' }}>
+      <Box
+        sx={{
+          py: 3,
+          px: 1,
+          textAlign: 'center',
+          color: 'text.secondary',
+          border: 1,
+          borderColor: '#bfc1b7',
+          bgcolor: '#fdfdf8',
+          borderRadius: 1,
+          mt: 1,
+        }}
+      >
         <Typography variant="caption">{emptyMessage}</Typography>
       </Box>
     );
@@ -44,8 +56,8 @@ export const CommentList = ({
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, pt: 1.5 }}>
-        {comments.map((comment, index) => {
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, pt: 1 }}>
+        {comments.map((comment) => {
           const children = getReplies ? getReplies(comment.Id) : [];
           return (
             <Box key={comment.Id}>

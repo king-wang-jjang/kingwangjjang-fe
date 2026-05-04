@@ -34,9 +34,12 @@ export function CommentDrawer({
   const paperSx = useMemo(
     () => ({
       [`& .${drawerClasses.paper}`]: {
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        height: '70vh',
+        borderTopLeftRadius: 6,
+        borderTopRightRadius: 6,
+        height: '72vh',
+        bgcolor: '#eeefe9',
+        border: '1px solid #bfc1b7',
+        boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
       },
     }),
     []
@@ -56,9 +59,18 @@ export function CommentDrawer({
       ModalProps={{ keepMounted: true }}
       sx={{ ...paperSx, ...sx }}
     >
-      <Box sx={{ px: 2, pt: 2, pb: 0.5, bgcolor: 'action.selected' }}>
+      <Box
+        sx={{
+          px: 2,
+          pt: 1.5,
+          pb: 0.75,
+          bgcolor: '#eeefe9',
+          borderBottom: 1,
+          borderColor: '#bfc1b7',
+        }}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
-          <DragHandleIcon sx={{ color: 'text.disabled' }} />
+          <DragHandleIcon sx={{ color: '#9ea096' }} />
         </Box>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -98,7 +110,7 @@ export function CommentDrawer({
         </Box>
 
         {/* 고정된 댓글 입력 Footer */}
-        <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+        <Box sx={{ borderTop: 1, borderColor: '#bfc1b7', bgcolor: '#fdfdf8' }}>
           <Box sx={{ p: 1.2 }}>
             <CommentForm
               onSubmit={async ({ content }) => {

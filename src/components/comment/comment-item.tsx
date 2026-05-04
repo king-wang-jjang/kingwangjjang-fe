@@ -57,15 +57,23 @@ export const CommentItem = ({
     <Box
       sx={{
         display: 'flex',
-        gap: 1.5,
-        py: 1.25,
+        gap: 1,
+        py: 1,
         px: 1,
+        border: 1,
+        borderColor: '#bfc1b7',
         borderRadius: 1,
-        '&:hover': { bgcolor: 'action.hover' },
+        bgcolor: '#fdfdf8',
+        '&:hover': {
+          bgcolor: '#f4f4f4',
+          '& .comment-action': {
+            color: '#F54E00',
+          },
+        },
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
+      <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem' }}>
         {comment.userNickname.charAt(0).toUpperCase()}
       </Avatar>
 
@@ -86,9 +94,10 @@ export const CommentItem = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
           <Stack direction="row" alignItems="center" spacing={0}>
             <IconButton
+              className="comment-action"
               size="small"
               onClick={handleLike}
-              sx={{ color: isLiked ? 'error.main' : 'text.secondary', p: 0.5 }}
+              sx={{ color: isLiked ? '#F54E00' : 'text.secondary', p: 0.5 }}
             >
               {isLiked ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
             </IconButton>
@@ -98,6 +107,7 @@ export const CommentItem = ({
           </Stack>
           {isRoot && (
             <Button
+              className="comment-action"
               size="small"
               onClick={() => setShowReplyBox((v) => !v)}
               sx={{ textTransform: 'none', minWidth: 0, px: 0.5 }}
@@ -107,6 +117,7 @@ export const CommentItem = ({
           )}
           {!!replies.length && (
             <Button
+              className="comment-action"
               size="small"
               onClick={() => setShowReplies((v) => !v)}
               sx={{ textTransform: 'none', minWidth: 0, px: 0.5 }}
@@ -141,13 +152,13 @@ export const CommentItem = ({
             <Box
               sx={{
                 mt: 1,
-                pl: 2,
-                ml: 1,
+                pl: 1.5,
+                ml: 0.5,
                 borderLeft: 1,
-                borderColor: 'divider',
+                borderColor: '#bfc1b7',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 1,
+                gap: 0.75,
               }}
             >
               {replies.map((child) => (

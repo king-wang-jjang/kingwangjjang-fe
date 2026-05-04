@@ -35,21 +35,24 @@ export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: 
     <Card
       sx={{
         position: 'sticky',
-        top: '80px',
-        height: 'calc(100vh - 100px)',
+        top: '78px',
+        height: 'calc(100vh - 94px)',
         display: 'flex',
         flexDirection: 'column',
+        bgcolor: '#eeefe9',
+        borderColor: '#bfc1b7',
+        borderRadius: 1,
+        overflow: 'hidden',
         ...sx,
       }}
     >
       <Box
         sx={{
-          px: 1.3,
-          pt: 2,
-          pb: 1.3,
+          px: 1.5,
+          py: 1.25,
           borderBottom: 1,
-          borderColor: 'divider',
-          bgcolor: 'action.selected',
+          borderColor: '#bfc1b7',
+          bgcolor: '#eeefe9',
         }}
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -63,8 +66,8 @@ export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: 
               sx={{
                 color: 'text.secondary',
                 '&:hover': {
-                  color: 'text.primary',
-                  bgcolor: 'action.hover',
+                  color: '#F54E00',
+                  bgcolor: '#f4f4f4',
                 },
               }}
             >
@@ -101,7 +104,7 @@ export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: 
       </Box>
 
       {/* 고정된 댓글 입력 Footer */}
-      <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+      <Box sx={{ borderTop: 1, borderColor: '#bfc1b7', bgcolor: '#fdfdf8' }}>
         <Box sx={{ p: 1.2 }}>
           <CommentForm
             onSubmit={async ({ content }) => {
