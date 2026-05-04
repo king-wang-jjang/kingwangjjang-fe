@@ -16,7 +16,6 @@ import {
   Box,
   Card,
   Chip,
-  Grid,
   Menu,
   Stack,
   Alert,
@@ -62,7 +61,7 @@ type SelectedPost = {
   site: string;
 } | null;
 
-export function BoardView({ title = '실시간 인기 게시판' }: Props) {
+export function BoardView({ title = '실시간 게시판' }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
 
@@ -126,81 +125,217 @@ export function BoardView({ title = '실시간 인기 게시판' }: Props) {
   const initialLoading = boardContentsQueryLoading && postData.length === 0;
   const siteMenuOpen = Boolean(siteMenuAnchor);
 
+  const renderSiteMenu = (
+    <Menu
+      anchorEl={siteMenuAnchor}
+      open={siteMenuOpen}
+      onClose={() => setSiteMenuAnchor(null)}
+      PaperProps={{
+        sx: {
+          minWidth: 240,
+          bgcolor: '#fdfdf8',
+          border: 1,
+          borderColor: '#bfc1b7',
+          boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        },
+      }}
+    >
+      {filterCollection.length ? (
+        filterCollection.map((site) => (
+          <MenuItem key={site} onClick={() => handleToggleSite(site)}>
+            <Checkbox checked={selectedSites.includes(site)} size="small" />
+            <ListItemText primary={site} />
+          </MenuItem>
+        ))
+      ) : (
+        <MenuItem disabled>사이트 정보 없음</MenuItem>
+      )}
+      <Divider sx={{ borderColor: '#bfc1b7' }} />
+      <MenuItem
+        disabled={!selectedSites.length}
+        onClick={() => {
+          setSelectedSites([]);
+          setSiteMenuAnchor(null);
+        }}
+      >
+        전체 보기
+      </MenuItem>
+    </Menu>
+  );
+
   const renderFilters = (
-    <Card>
+    <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
       <CardContent
         sx={{
-          p: 2,
+          p: 1.25,
           '&:last-child': {
-            pb: 2,
+            pb: 1.25,
           },
         }}
       >
-        <Stack
-          spacing={1.5}
-          direction={{ xs: 'column', sm: 'row' }}
-          alignItems={{ xs: 'stretch', sm: 'center' }}
-          justifyContent="space-between"
-        >
+        <Stack spacing={1}>
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
             <Button
-              disableRipple
               color="inherit"
+              variant="outlined"
               endIcon={
-                <Badge color="error" variant="dot" invisible={!selectedSites.length}>
+                <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
                   <FilterListIcon />
                 </Badge>
               }
               onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
+              sx={{
+                bgcolor: '#fdfdf8',
+                borderColor: '#bfc1b7',
+                color: '#4d4f46',
+                '&:hover': {
+                  bgcolor: '#f4f4f4',
+                  borderColor: '#bfc1b7',
+                  color: '#F54E00',
+                },
+              }}
             >
-              Filters
+              사이트 필터
             </Button>
 
             {selectedSites.map((site) => (
-              <Chip key={site} size="small" label={site} onDelete={() => handleToggleSite(site)} />
+              <Chip
+                key={site}
+                size="small"
+                label={site}
+                onDelete={() => handleToggleSite(site)}
+                sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+              />
             ))}
+
+            {!!selectedSites.length && (
+              <Button color="inherit" size="small" onClick={() => setSelectedSites([])}>
+                필터 초기화
+              </Button>
+            )}
           </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
+  const renderFeedHeader = (
+    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+          justifyContent="space-between"
+        >
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h5">실시간 게시판</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+              수집된 게시글을 빠르게 훑고 댓글 흐름을 확인하세요.
+            </Typography>
+          </Box>
+          <Chip
+            label={`${filteredPosts.length}개 게시글`}
+            size="small"
+            sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+          />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
+  const renderToolPane = (
+    <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
+          Workspace
+        </Typography>
+        <Typography variant="h6" sx={{ mt: 0.5, mb: 1.5 }}>
+          실시간 게시판
+        </Typography>
+
+        <Box sx={{ mb: 1.5 }}>
+          <SocialLoginButtons />
+        </Box>
+
+        <Divider sx={{ my: 1.5, borderColor: '#bfc1b7' }} />
+
+        <Stack spacing={1}>
+          <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
+            Sites
+          </Typography>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="inherit"
+            endIcon={
+              <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
+                <FilterListIcon />
+              </Badge>
+            }
+            onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
+            sx={{
+              justifyContent: 'space-between',
+              bgcolor: '#fdfdf8',
+              borderColor: '#bfc1b7',
+              color: '#4d4f46',
+              '&:hover': {
+                color: '#F54E00',
+                borderColor: '#bfc1b7',
+                bgcolor: '#f4f4f4',
+              },
+            }}
+          >
+            사이트 필터
+          </Button>
 
           {!!selectedSites.length && (
-            <Button color="inherit" onClick={() => setSelectedSites([])}>
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+              {selectedSites.map((site) => (
+                <Chip
+                  key={site}
+                  size="small"
+                  label={site}
+                  onDelete={() => handleToggleSite(site)}
+                  sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+                />
+              ))}
+            </Stack>
+          )}
+
+          {!!selectedSites.length && (
+            <Button color="inherit" size="small" onClick={() => setSelectedSites([])}>
               필터 초기화
             </Button>
           )}
         </Stack>
+      </CardContent>
+    </Card>
+  );
 
-        <Menu
-          anchorEl={siteMenuAnchor}
-          open={siteMenuOpen}
-          onClose={() => setSiteMenuAnchor(null)}
-          PaperProps={{ sx: { minWidth: 240 } }}
-        >
-          {filterCollection.length ? (
-            filterCollection.map((site) => (
-              <MenuItem key={site} onClick={() => handleToggleSite(site)}>
-                <Checkbox checked={selectedSites.includes(site)} size="small" />
-                <ListItemText primary={site} />
-              </MenuItem>
-            ))
-          ) : (
-            <MenuItem disabled>사이트 정보 없음</MenuItem>
-          )}
-          <Divider />
-          <MenuItem
-            disabled={!selectedSites.length}
-            onClick={() => {
-              setSelectedSites([]);
-              setSiteMenuAnchor(null);
-            }}
-          >
-            전체 보기
-          </MenuItem>
-        </Menu>
+  const renderCommentEmptyState = (
+    <Card sx={{ minHeight: 240, bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
+      <CardContent
+        sx={{
+          minHeight: 240,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <Box>
+          <Typography variant="h6">댓글을 보려면 게시글을 선택하세요.</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            게시글을 열면 이 영역에서 댓글을 바로 확인할 수 있습니다.
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );
 
   const renderPostList = (
-    <Stack spacing={2.8}>
+    <Stack spacing={1}>
       {initialLoading
         ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
         : filteredPosts.map((post) => (
@@ -213,12 +348,22 @@ export function BoardView({ title = '실시간 인기 게시판' }: Props) {
           ))}
 
       {!initialLoading && !filteredPosts.length && (
-        <Card>
-          <CardContent sx={{ py: 6, textAlign: 'center' }}>
-            <Typography variant="h6">표시할 게시글이 없습니다</Typography>
+        <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+          <CardContent sx={{ py: 5, textAlign: 'center' }}>
+            <Typography variant="h6">게시글이 없습니다</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
-              사이트 필터를 초기화하거나 새 게시글이 수집될 때까지 기다려 주세요.
+              필터를 초기화하거나 새 게시글이 수집될 때까지 기다려 주세요.
             </Typography>
+            {!!selectedSites.length && (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => setSelectedSites([])}
+                sx={{ mt: 1.5 }}
+              >
+                필터 초기화
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
@@ -234,57 +379,55 @@ export function BoardView({ title = '실시간 인기 게시판' }: Props) {
   );
 
   return (
-    <Container maxWidth="lg" disableGutters aria-label={title}>
-      <Stack spacing={2.5}>
+    <Container maxWidth={false} disableGutters aria-label={title}>
+      <Stack spacing={1.25}>
         {boardContentsQueryError && (
-          <Alert severity="warning">
+          <Alert
+            severity="warning"
+            sx={{ bgcolor: '#eeefe9', border: 1, borderColor: '#bfc1b7', color: '#4d4f46' }}
+          >
             게시글을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
           </Alert>
         )}
 
-        {isMobile ? (
-          <Stack spacing={2}>
-            {renderFilters}
+        <Box
+          className="BoardWorkbench"
+          sx={{
+            display: { xs: 'block', md: 'grid' },
+            gridTemplateColumns: selectedPost
+              ? '236px minmax(0, 1fr) 360px'
+              : '236px minmax(0, 1fr) 320px',
+            gap: 1.5,
+            alignItems: 'start',
+            maxWidth: 1536,
+            mx: 'auto',
+          }}
+        >
+          <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 78 }}>
+            {renderToolPane}
+          </Box>
+
+          <Stack spacing={1.25} sx={{ minWidth: 0 }}>
+            {renderFeedHeader}
+            {isMobile && renderFilters}
             {renderPostList}
           </Stack>
-        ) : (
-          <Grid container spacing={2} position="relative">
-            <Grid item xs={12} md={3}>
-              <Card
-                sx={{
-                  width: '100%',
-                  position: 'sticky',
-                  top: 136,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  p: 2,
-                }}
-              >
-                <SocialLoginButtons />
-              </Card>
-            </Grid>
 
-            <Grid item xs={12} md={selectedPost ? 5 : 6}>
-              <Stack spacing={2}>
-                {renderFilters}
-                {renderPostList}
-              </Stack>
-            </Grid>
+          <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 78 }}>
+            {selectedPost ? (
+              <CommentSidebar
+                postId={selectedPost.boardId}
+                site={selectedPost.site}
+                title="댓글"
+                onClose={handleCommentClose}
+              />
+            ) : (
+              renderCommentEmptyState
+            )}
+          </Box>
+        </Box>
 
-            <Grid item xs={12} md={selectedPost ? 4 : 3}>
-              {selectedPost ? (
-                <CommentSidebar
-                  postId={selectedPost.boardId}
-                  site={selectedPost.site}
-                  title="댓글"
-                  onClose={handleCommentClose}
-                />
-              ) : (
-                <Box sx={{ display: { xs: 'none', md: 'block' }, minHeight: 1 }} />
-              )}
-            </Grid>
-          </Grid>
-        )}
+        {renderSiteMenu}
 
         {selectedPost && (
           <CommentDrawer
@@ -368,9 +511,12 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
         sx={{
           position: 'relative',
           overflow: 'hidden',
-          borderRadius: 2,
+          borderRadius: 1,
           '&:hover .post-card-surface': {
-            transform: { xs: 'none', md: 'translateX(-50px)' },
+            transform: { xs: 'none', md: 'translateX(-46px)' },
+          },
+          '&:hover .post-card-title, &:hover .post-card-action': {
+            color: '#F54E00',
           },
         }}
       >
@@ -380,38 +526,55 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
             width: '100%',
             zIndex: 1,
             position: 'relative',
-            borderColor: selected ? 'primary.main' : 'divider',
-            bgcolor: readStatus ? 'rgba(255,255,255,0.68)' : 'background.paper',
+            borderColor: selected ? '#F54E00' : '#bfc1b7',
+            bgcolor: readStatus ? '#eeefe9' : '#ffffff',
+            borderRadius: 1,
             transition:
-              'transform 300ms ease, border-color 160ms ease, background-color 160ms ease',
+              'transform 180ms ease, border-color 160ms ease, background-color 160ms ease',
           }}
         >
           <CardContent
             onClick={handleToggle}
             sx={{
-              p: { xs: 1.5, sm: 2 },
+              p: { xs: 1.25, sm: 1.5 },
               cursor: 'pointer',
               '&:last-child': {
-                pb: { xs: 1.5, sm: 2 },
+                pb: { xs: 1.25, sm: 1.5 },
               },
             }}
           >
-            <Stack spacing={1.5}>
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+            <Stack spacing={1.25}>
+              <Stack direction="row" spacing={1.25} alignItems="flex-start">
                 <Stack spacing={0.75} sx={{ minWidth: 0, flex: 1 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-                    <Chip label={post.site} size="small" color="primary" variant="outlined" />
+                  <Stack
+                    direction="row"
+                    spacing={0.75}
+                    alignItems="center"
+                    flexWrap="wrap"
+                    useFlexGap
+                  >
+                    <Chip
+                      label={post.site}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        bgcolor: '#e5e7e0',
+                        borderColor: '#bfc1b7',
+                        color: '#4d4f46',
+                      }}
+                    />
                     <Typography variant="caption" color="text.secondary">
                       {formatRelativeTime(post.createTime)}
                     </Typography>
                   </Stack>
 
                   <Typography
+                    className="post-card-title"
                     variant="subtitle1"
                     sx={{
-                      fontWeight: 750,
-                      lineHeight: 1.45,
-                      opacity: readStatus ? 0.68 : 1,
+                      color: readStatus ? '#4d4f46' : '#23251d',
+                      fontWeight: readStatus ? 700 : 800,
+                      lineHeight: 1.38,
                       wordBreak: 'keep-all',
                       overflowWrap: 'anywhere',
                     }}
@@ -430,12 +593,13 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                     }}
                     sx={{
                       p: 0,
-                      width: { xs: 72, sm: 88 },
-                      height: { xs: 72, sm: 88 },
-                      border: 0,
+                      width: { xs: 72, sm: 82 },
+                      height: { xs: 72, sm: 82 },
+                      border: 1,
+                      borderColor: '#bfc1b7',
                       borderRadius: 1,
                       overflow: 'hidden',
-                      bgcolor: 'action.hover',
+                      bgcolor: '#eeefe9',
                       cursor: 'zoom-in',
                       flexShrink: 0,
                     }}
@@ -455,13 +619,15 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                 ) : (
                   <Box
                     sx={{
-                      width: { xs: 72, sm: 88 },
-                      height: { xs: 72, sm: 88 },
+                      width: { xs: 72, sm: 82 },
+                      height: { xs: 72, sm: 82 },
+                      border: 1,
+                      borderColor: '#bfc1b7',
                       borderRadius: 1,
                       display: 'grid',
                       placeItems: 'center',
-                      bgcolor: 'action.hover',
-                      color: 'text.secondary',
+                      bgcolor: '#eeefe9',
+                      color: '#65675e',
                       fontWeight: 800,
                       flexShrink: 0,
                     }}
@@ -471,13 +637,15 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                 )}
               </Stack>
 
-              <Stack direction="row" spacing={0.75} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
                 <Tooltip title="댓글 열기">
                   <Button
+                    className="post-card-action"
                     size="small"
-                    color={selected ? 'primary' : 'inherit'}
+                    color="inherit"
                     startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
                     onClick={handleOpenComments}
+                    sx={{ color: selected ? '#F54E00' : '#4d4f46' }}
                   >
                     {post.commentCount ?? 0}
                   </Button>
@@ -485,6 +653,7 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
 
                 <Tooltip title="좋아요">
                   <Button
+                    className="post-card-action"
                     size="small"
                     color="inherit"
                     startIcon={<FavoriteBorderIcon fontSize="small" />}
@@ -495,6 +664,7 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                 </Tooltip>
 
                 <Button
+                  className="post-card-action"
                   size="small"
                   component="a"
                   href={post.url}
@@ -508,6 +678,7 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
                 </Button>
 
                 <IconButton
+                  className="post-card-action"
                   size="small"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -521,11 +692,11 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
               </Stack>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <Divider sx={{ mb: 1.5 }} />
+                <Divider sx={{ mb: 1.25, borderColor: '#bfc1b7' }} />
                 <Typography
                   variant="body2"
                   color={summary ? 'text.primary' : 'text.secondary'}
-                  sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}
+                  sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}
                 >
                   {summary || '요약 내용이 없습니다.'}
                 </Typography>
@@ -544,19 +715,29 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
             position: 'absolute',
             inset: 0,
             zIndex: 0,
-            borderRadius: 2,
-            bgcolor: '#3b82f6',
+            borderRadius: 1,
+            bgcolor: '#1e1f23',
             display: { xs: 'none', md: 'flex' },
             alignItems: 'center',
             justifyContent: 'flex-end',
-            pr: 1.5,
+            pr: 1.25,
           }}
         >
-          <LaunchIcon sx={{ width: 42, height: 42, color: '#ffffff' }} />
+          <LaunchIcon sx={{ width: 36, height: 36, color: '#F7A501' }} />
         </Box>
       </Box>
 
-      <Dialog open={imageOpen} onClose={() => setImageOpen(false)} maxWidth="lg">
+      <Dialog
+        open={imageOpen}
+        onClose={() => setImageOpen(false)}
+        maxWidth="lg"
+        PaperProps={{
+          sx: {
+            boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            borderRadius: 1,
+          },
+        }}
+      >
         <DialogContent sx={{ position: 'relative', p: 0 }}>
           <IconButton
             onClick={() => setImageOpen(false)}
@@ -570,6 +751,7 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
               color: '#ffffff',
               '&:hover': {
                 bgcolor: 'rgba(17, 24, 39, 0.86)',
+                color: '#F7A501',
               },
             }}
           >
@@ -599,15 +781,15 @@ function BoardPostCard({ post, selected, onCommentOpen }: BoardPostCardProps) {
 
 function PostCardSkeleton() {
   return (
-    <Card>
-      <CardContent>
-        <Stack direction="row" spacing={1.5}>
+    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack direction="row" spacing={1.25}>
           <Stack spacing={1} sx={{ flex: 1 }}>
             <Skeleton width={92} height={24} />
             <Skeleton width="88%" height={28} />
             <Skeleton width="54%" />
           </Stack>
-          <Skeleton variant="rounded" width={88} height={88} />
+          <Skeleton variant="rounded" width={82} height={82} />
         </Stack>
       </CardContent>
     </Card>
