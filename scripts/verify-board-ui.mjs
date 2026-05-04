@@ -34,6 +34,22 @@ const redesignedFiles = [
   commentSkeleton,
 ].join('\n');
 
+const mojibakePattern = new RegExp(
+  [
+    '\\?\\u317c',
+    '\\?\\ubce4',
+    '\\?\\ub300',
+    '\\u91ab\\ub5ed',
+    '\\u8adb\\u2477',
+    '\\u907a\\ub348',
+    '\\u5bc3\\ub6af',
+    '\\u6e72\\x80',
+    '\\u6e72\\u0080',
+    '\\uf9cf\\uc0b5',
+    '\\ufffd',
+  ].join('|')
+);
+
 console.log('Verifying Board workbench redesign contract...');
 
 assert.match(
@@ -89,7 +105,7 @@ assert.match(commentItem, /#F54E00/i, 'comment actions should use orange hover a
 assert.match(commentForm, /#1e1f23/i, 'comment submit buttons should use the dark primary style');
 assert.match(commentSkeleton, /#eeefe9|background\.default|background\.paper/i, 'comment skeleton should use sage-themed surfaces');
 
-assert.doesNotMatch(redesignedFiles, /\?ㅼ|\?볤|\?대|醫뗭|諛⑷|遺덈|寃뚯|湲|紐삵|�/, 'redesigned UI files should not contain visible mojibake strings');
+assert.doesNotMatch(redesignedFiles, mojibakePattern, 'redesigned UI files should not contain visible mojibake strings');
 assert.doesNotMatch(redesignedFiles, /#00A76F/i, 'redesigned UI files should not use the legacy green accent');
 assert.doesNotMatch(redesignedFiles, /#8E33FF/i, 'redesigned UI files should not use the legacy purple accent');
 
