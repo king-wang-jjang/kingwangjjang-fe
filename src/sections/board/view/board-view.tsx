@@ -388,7 +388,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   return (
     <Container maxWidth={false} disableGutters aria-label={title}>
       <Stack spacing={1.25}>
-        {boardContentsQueryError && (
+        {boardContentsQueryError && !postData.length && (
           <Alert
             severity="warning"
             sx={{ bgcolor: '#eeefe9', border: 1, borderColor: '#bfc1b7', color: '#4d4f46' }}
@@ -482,16 +482,15 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
       return;
     }
 
-    if (!expanded) {
-      onPostSelect(post);
-    }
-
+    setExpanded(true);
+    onPostSelect(post);
     markAsRead(boardId);
   };
 
-  const handleToggleExpanded = (event: React.MouseEvent) => {
+  const handleExpand = (event: React.MouseEvent) => {
     event.stopPropagation();
-    setExpanded((open) => !open);
+    setExpanded(true);
+    onPostSelect(post);
     markAsRead(boardId);
   };
 
@@ -721,7 +720,7 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                   <IconButton
                     className="post-card-action"
                     size="small"
-                    onClick={handleToggleExpanded}
+                    onClick={handleExpand}
                     aria-label="요약 열기"
                     sx={{ ml: 'auto' }}
                   >

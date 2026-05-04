@@ -111,7 +111,22 @@ assert.match(
 assert.match(
   boardView,
   /handleCardClick/,
-  'non-expanded card clicks should select the post for the comment pane'
+  'post card clicks should have a dedicated click handler'
+);
+assert.match(
+  boardView,
+  /const handleCardClick = \(\) => \{[\s\S]*setExpanded\(true\)[\s\S]*onPostSelect\(post\)/,
+  'post card clicks should expand the post and select its comments'
+);
+assert.doesNotMatch(
+  boardView,
+  /const handleCardClick = \(\) => \{[\s\S]*setExpanded\(\(open\) => !open\)/,
+  'post card clicks should not toggle/collapse an already expanded post'
+);
+assert.match(
+  boardView,
+  /boardContentsQueryError && !postData\.length/,
+  'board error banner should only show when the initial feed is empty'
 );
 assert.match(boardView, /실시간 게시판/, 'board title copy should be valid Korean');
 assert.match(boardView, /필터 초기화/, 'filter reset copy should be valid Korean');
