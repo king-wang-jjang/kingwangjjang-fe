@@ -31,19 +31,20 @@ const SocialLoginButtons: React.FC = () => {
     <Button
       fullWidth
       size="large"
-      variant="outlined"
+      variant="contained"
       onClick={handleKakaoLogin}
       sx={{
         py: 1,
-        px: 2,
-        bgcolor: '#FEE500',
-        color: '#000000',
-        borderColor: '#FEE500',
+        px: 1.5,
+        bgcolor: '#1e1f23',
+        color: '#ffffff',
+        borderColor: '#1e1f23',
+        borderRadius: 1.5,
         fontWeight: 800,
         '&:hover': {
-          bgcolor: '#FEE500',
-          borderColor: '#FEE500',
-          opacity: 0.9,
+          bgcolor: '#1e1f23',
+          color: '#F7A501',
+          opacity: 0.72,
         },
       }}
     >

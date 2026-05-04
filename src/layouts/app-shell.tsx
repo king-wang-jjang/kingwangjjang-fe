@@ -18,8 +18,8 @@ import {
   ListItemButton,
 } from '@mui/material';
 
-const drawerWidth = 232;
-const headerHeight = 64;
+const drawerWidth = 236;
+const headerHeight = 58;
 
 type Props = {
   children: React.ReactNode;
@@ -57,20 +57,39 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             sx={{
               mb: 0.5,
               borderRadius: 1,
-              minHeight: 44,
-              '&.Mui-selected': {
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
+              minHeight: 40,
+              color: selected ? '#23251d' : 'text.primary',
+              border: 1,
+              borderColor: selected ? '#bfc1b7' : 'transparent',
+              bgcolor: selected ? '#e5e7e0' : 'transparent',
+              '&:hover': {
+                bgcolor: '#f4f4f4',
+                color: '#F54E00',
                 '& .MuiListItemIcon-root': {
-                  color: 'primary.contrastText',
+                  color: '#F54E00',
+                },
+              },
+              '&.Mui-selected': {
+                bgcolor: '#e5e7e0',
+                color: '#23251d',
+                '& .MuiListItemIcon-root': {
+                  color: '#23251d',
                 },
                 '&:hover': {
-                  bgcolor: 'primary.dark',
+                  bgcolor: '#f4f4f4',
+                  color: '#F54E00',
                 },
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 34, color: 'text.secondary' }}>{item.icon}</ListItemIcon>
+            <ListItemIcon
+              sx={{
+                minWidth: 34,
+                color: selected ? '#23251d' : 'text.secondary',
+              }}
+            >
+              {item.icon}
+            </ListItemIcon>
             <ListItemText
               primary={item.label}
               primaryTypographyProps={{ variant: 'body2', fontWeight: 700 }}
@@ -90,22 +109,23 @@ export function AppShell({ children }: Props) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
           color: 'text.primary',
-          bgcolor: 'background.paper',
+          bgcolor: 'background.default',
+          borderBottom: 1,
+          borderColor: '#bfc1b7',
+          boxShadow: 'none',
         }}
       >
         <Toolbar
           sx={{
             minHeight: headerHeight,
-            px: { xs: 2, md: 5 },
-            borderBottom: 1,
-            borderColor: 'divider',
+            px: { xs: 1.5, md: 3 },
             justifyContent: 'space-between',
           }}
         >
@@ -150,6 +170,8 @@ export function AppShell({ children }: Props) {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            bgcolor: 'background.default',
+            borderColor: '#bfc1b7',
           },
         }}
       >
@@ -160,11 +182,11 @@ export function AppShell({ children }: Props) {
       <Box
         component="main"
         sx={{
-          px: { xs: 2, sm: 2.5, md: 5 },
-          py: { xs: 2, md: 3 },
+          px: { xs: 1.5, sm: 2, md: 3 },
+          py: { xs: 1.5, md: 2 },
           pt: {
-            xs: `${headerHeight + 24}px`,
-            md: `${headerHeight + 32}px`,
+            xs: `${headerHeight + 16}px`,
+            md: `${headerHeight + 20}px`,
           },
         }}
       >
