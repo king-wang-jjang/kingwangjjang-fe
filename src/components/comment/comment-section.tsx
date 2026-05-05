@@ -90,18 +90,6 @@ export const CommentSection = ({
 
     try {
       await onLikeComment(commentId);
-      // API 성공 후 로컬 상태 업데이트
-      setLocalComments((prev) =>
-        prev.map((comment) =>
-          comment.Id === commentId
-            ? {
-                ...comment,
-                isLiked: !comment.isLiked,
-                likeCount: comment.isLiked ? comment.likeCount - 1 : comment.likeCount + 1,
-              }
-            : comment
-        )
-      );
     } catch (error) {
       console.error('댓글 좋아요 실패:', error);
     }
