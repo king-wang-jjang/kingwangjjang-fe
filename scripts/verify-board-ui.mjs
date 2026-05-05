@@ -110,6 +110,26 @@ assert.match(
 );
 assert.match(
   boardView,
+  /quiet-list-card/,
+  'post cards should use the approved quiet list-card layout'
+);
+assert.match(
+  boardView,
+  /compact-site-marker/,
+  'collapsed cards should use a compact site marker instead of a large placeholder'
+);
+assert.match(
+  boardView,
+  /expanded-summary-panel/,
+  'expanded content should be contained in a quiet summary panel'
+);
+assert.doesNotMatch(
+  boardView,
+  /width:\s*\{\s*xs:\s*72,\s*sm:\s*82\s*\}/,
+  'collapsed cards should not use the old large 72/82px placeholder block'
+);
+assert.match(
+  boardView,
   /handleCardClick/,
   'post card clicks should have a dedicated click handler'
 );

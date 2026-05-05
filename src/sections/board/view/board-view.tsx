@@ -534,40 +534,45 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
           position: 'relative',
           overflow: 'hidden',
           borderRadius: 1,
-          '&:hover .post-card-title, &:hover .post-card-action': {
+          '&:hover .post-card-action': {
             color: '#F54E00',
           },
         }}
       >
         <Card
-          className="post-card-surface"
+          className="quiet-list-card post-card-surface"
           sx={{
             width: '100%',
             zIndex: 1,
             position: 'relative',
-            borderColor: selected ? '#F54E00' : '#bfc1b7',
-            bgcolor: readStatus ? '#eeefe9' : '#ffffff',
+            borderColor: selected ? '#d9b59f' : '#bfc1b7',
+            bgcolor: readStatus ? '#f3f4ee' : '#fdfdf8',
             borderRadius: 1,
+            boxShadow: selected ? 'inset 3px 0 0 #F54E00' : 'inset 3px 0 0 transparent',
             transition:
-              'transform 180ms ease, border-color 160ms ease, background-color 160ms ease',
+              'border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease',
+            '&:hover': {
+              borderColor: selected ? '#d9b59f' : '#aeb1a6',
+              bgcolor: '#fbfbf5',
+            },
           }}
         >
           <CardContent
             onClick={handleCardClick}
             sx={{
-              p: { xs: 1.25, sm: 1.5 },
-              cursor: expanded ? 'default' : 'pointer',
+              p: { xs: 1, sm: 1.25 },
+              cursor: 'pointer',
               '&:last-child': {
-                pb: { xs: 1.25, sm: 1.5 },
+                pb: { xs: 1, sm: 1.25 },
               },
             }}
           >
-            <Stack spacing={1.25}>
-              <Stack direction="row" spacing={1.25} alignItems="flex-start">
-                <Stack spacing={0.75} sx={{ minWidth: 0, flex: 1 }}>
+            <Stack spacing={0.875}>
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
                   <Stack
                     direction="row"
-                    spacing={0.75}
+                    spacing={0.625}
                     alignItems="center"
                     flexWrap="wrap"
                     useFlexGap
@@ -580,6 +585,10 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                         bgcolor: '#e5e7e0',
                         borderColor: '#bfc1b7',
                         color: '#4d4f46',
+                        height: 22,
+                        '& .MuiChip-label': {
+                          px: 0.75,
+                        },
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
@@ -592,8 +601,8 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                     variant="subtitle1"
                     sx={{
                       color: readStatus ? '#4d4f46' : '#23251d',
-                      fontWeight: readStatus ? 700 : 800,
-                      lineHeight: 1.38,
+                      fontWeight: readStatus ? 650 : 750,
+                      lineHeight: 1.34,
                       wordBreak: 'keep-all',
                       overflowWrap: 'anywhere',
                     }}
@@ -602,14 +611,10 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                   </Typography>
                 </Stack>
 
-                <Stack
-                  direction="row"
-                  spacing={0.75}
-                  alignItems="flex-start"
-                  sx={{ flexShrink: 0 }}
-                >
+                <Stack direction="row" spacing={0.5} alignItems="flex-start" sx={{ flexShrink: 0 }}>
                   {thumbnailSrc ? (
                     <Box
+                      className="compact-site-marker"
                       component="button"
                       type="button"
                       onClick={(event) => {
@@ -618,8 +623,8 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                       }}
                       sx={{
                         p: 0,
-                        width: { xs: 72, sm: 82 },
-                        height: { xs: 72, sm: 82 },
+                        width: { xs: 40, sm: 44 },
+                        height: { xs: 40, sm: 44 },
                         border: 1,
                         borderColor: '#bfc1b7',
                         borderRadius: 1,
@@ -627,6 +632,7 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                         bgcolor: '#eeefe9',
                         cursor: 'zoom-in',
                         flexShrink: 0,
+                        opacity: 0.78,
                       }}
                     >
                       <Box
@@ -643,47 +649,24 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                     </Box>
                   ) : (
                     <Box
+                      className="compact-site-marker"
                       sx={{
-                        width: { xs: 72, sm: 82 },
-                        height: { xs: 72, sm: 82 },
+                        width: { xs: 40, sm: 44 },
+                        height: { xs: 40, sm: 44 },
                         border: 1,
-                        borderColor: '#bfc1b7',
+                        borderColor: '#d5d7cd',
                         borderRadius: 1,
                         display: 'grid',
                         placeItems: 'center',
-                        bgcolor: '#eeefe9',
+                        bgcolor: '#f1f2ec',
                         color: '#65675e',
-                        fontWeight: 800,
+                        fontSize: 13,
+                        fontWeight: 750,
                         flexShrink: 0,
                       }}
                     >
                       {post.site.slice(0, 1)}
                     </Box>
-                  )}
-
-                  {expanded && (
-                    <Tooltip title="닫기">
-                      <IconButton
-                        className="expanded-card-close post-card-action"
-                        size="small"
-                        onClick={handleCloseExpanded}
-                        aria-label="확장 닫기"
-                        sx={{
-                          width: 34,
-                          height: 34,
-                          border: 1,
-                          borderColor: '#bfc1b7',
-                          bgcolor: '#fdfdf8',
-                          color: '#4d4f46',
-                          '&:hover': {
-                            bgcolor: '#eeefe9',
-                            color: '#F54E00',
-                          },
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
                   )}
                 </Stack>
               </Stack>
@@ -695,11 +678,16 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                   size="small"
                   variant="outlined"
                   sx={{
-                    bgcolor: selected ? '#fff2dc' : '#fdfdf8',
-                    borderColor: selected ? '#F54E00' : '#bfc1b7',
-                    color: selected ? '#F54E00' : '#4d4f46',
+                    height: 24,
+                    bgcolor: 'transparent',
+                    borderColor: selected ? '#e7b89a' : 'transparent',
+                    color: selected ? '#F54E00' : '#65675e',
+                    '& .MuiChip-label': {
+                      px: 0.5,
+                    },
                     '& .MuiChip-icon': {
                       color: 'inherit',
+                      ml: 0,
                     },
                   }}
                 />
@@ -711,6 +699,15 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                     color="inherit"
                     startIcon={<FavoriteBorderIcon fontSize="small" />}
                     onClick={handleLike}
+                    sx={{
+                      minWidth: 0,
+                      px: 0.5,
+                      py: 0,
+                      color: '#65675e',
+                      '& .MuiButton-startIcon': {
+                        mr: 0.5,
+                      },
+                    }}
                   >
                     {currentLikeCount}
                   </Button>
@@ -730,62 +727,107 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
               </Stack>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <Divider sx={{ mb: 1.25, borderColor: '#bfc1b7' }} />
-                <Typography
-                  variant="body2"
-                  color={summary ? 'text.primary' : 'text.secondary'}
-                  sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}
+                <Box
+                  className="expanded-summary-panel"
+                  sx={{
+                    mt: 0.25,
+                    pt: 1,
+                    borderTop: 1,
+                    borderColor: '#d7d9cf',
+                  }}
                 >
-                  {summary || '요약 내용이 없습니다.'}
-                </Typography>
-                <Stack
-                  className="expanded-card-actions"
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={0.75}
-                  sx={{ mt: 1.5 }}
-                >
-                  <Button
-                    fullWidth
-                    component="a"
-                    href={post.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<LaunchIcon fontSize="small" />}
-                    onClick={handleOpenSource}
-                    sx={{
-                      bgcolor: '#fdfdf8',
-                      borderColor: '#bfc1b7',
-                      color: '#4d4f46',
-                      '&:hover': {
-                        bgcolor: '#eeefe9',
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="flex-start"
+                    justifyContent="space-between"
+                    sx={{ mb: 0.75 }}
+                  >
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+                      요약
+                    </Typography>
+                    <Tooltip title="닫기">
+                      <IconButton
+                        className="expanded-card-close post-card-action"
+                        size="small"
+                        onClick={handleCloseExpanded}
+                        aria-label="확장 닫기"
+                        sx={{
+                          width: 26,
+                          height: 26,
+                          color: '#65675e',
+                          '&:hover': {
+                            bgcolor: '#eeefe9',
+                            color: '#F54E00',
+                          },
+                        }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+
+                  <Typography
+                    variant="body2"
+                    color={summary ? 'text.primary' : 'text.secondary'}
+                    sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
+                  >
+                    {summary || '요약 내용이 없습니다.'}
+                  </Typography>
+
+                  <Stack
+                    className="expanded-card-actions"
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={0.75}
+                    justifyContent="flex-end"
+                    sx={{ mt: 1 }}
+                  >
+                    <Button
+                      component="a"
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="small"
+                      variant="outlined"
+                      color="inherit"
+                      startIcon={<LaunchIcon fontSize="small" />}
+                      onClick={handleOpenSource}
+                      sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        bgcolor: '#fdfdf8',
                         borderColor: '#bfc1b7',
-                        color: '#F54E00',
-                      },
-                    }}
-                  >
-                    원문 바로가기
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
-                    onClick={handleOpenComments}
-                    sx={{
-                      bgcolor: '#1e1f23',
-                      color: '#ffffff',
-                      boxShadow: 'none',
-                      '&:hover': {
-                        bgcolor: '#2b2c31',
-                        boxShadow: 'none',
-                        color: '#F7A501',
-                      },
-                    }}
-                  >
-                    댓글 열기
-                  </Button>
-                </Stack>
+                        color: '#4d4f46',
+                        '&:hover': {
+                          bgcolor: '#eeefe9',
+                          borderColor: '#bfc1b7',
+                          color: '#F54E00',
+                        },
+                      }}
+                    >
+                      원문 바로가기
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="inherit"
+                      startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                      onClick={handleOpenComments}
+                      sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        bgcolor: '#fdfdf8',
+                        borderColor: '#bfc1b7',
+                        color: '#4d4f46',
+                        '&:hover': {
+                          bgcolor: '#eeefe9',
+                          borderColor: '#bfc1b7',
+                          color: '#F54E00',
+                        },
+                      }}
+                    >
+                      댓글 열기
+                    </Button>
+                  </Stack>
+                </Box>
               </Collapse>
             </Stack>
           </CardContent>
