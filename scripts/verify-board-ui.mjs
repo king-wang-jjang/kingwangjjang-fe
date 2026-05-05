@@ -120,6 +120,31 @@ assert.match(
 );
 assert.match(
   boardView,
+  /collapsed-expand-indicator/,
+  'collapsed cards should show expansion as a passive indicator, not a clickable button'
+);
+assert.doesNotMatch(
+  boardView,
+  /onClick=\{handleExpand\}/,
+  'collapsed expansion affordance should not render as a clickable button'
+);
+assert.doesNotMatch(
+  boardView,
+  /borderColor:\s*selected\s*\?\s*'#e7b89a'\s*:\s*'transparent'/,
+  'collapsed comment count should not show a selected button-like border'
+);
+assert.doesNotMatch(
+  boardView,
+  /color:\s*selected\s*\?\s*'#F54E00'\s*:\s*'#65675e'/,
+  'collapsed comment count should not turn into a selected button-like accent'
+);
+assert.doesNotMatch(
+  boardView,
+  /&:hover \.post-card-action/,
+  'hovering the card should not activate child action button styling'
+);
+assert.match(
+  boardView,
   /expanded-summary-panel/,
   'expanded content should be contained in a quiet summary panel'
 );

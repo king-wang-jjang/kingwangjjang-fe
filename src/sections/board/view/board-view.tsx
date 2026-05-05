@@ -487,13 +487,6 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
     markAsRead(boardId);
   };
 
-  const handleExpand = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setExpanded(true);
-    onPostSelect(post);
-    markAsRead(boardId);
-  };
-
   const handleCloseExpanded = (event: React.MouseEvent) => {
     event.stopPropagation();
     setExpanded(false);
@@ -534,9 +527,6 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
           position: 'relative',
           overflow: 'hidden',
           borderRadius: 1,
-          '&:hover .post-card-action': {
-            color: '#F54E00',
-          },
         }}
       >
         <Card
@@ -680,8 +670,8 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                   sx={{
                     height: 24,
                     bgcolor: 'transparent',
-                    borderColor: selected ? '#e7b89a' : 'transparent',
-                    color: selected ? '#F54E00' : '#65675e',
+                    borderColor: 'transparent',
+                    color: '#65675e',
                     '& .MuiChip-label': {
                       px: 0.5,
                     },
@@ -697,6 +687,7 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                     className="post-card-action"
                     size="small"
                     color="inherit"
+                    disableRipple
                     startIcon={<FavoriteBorderIcon fontSize="small" />}
                     onClick={handleLike}
                     sx={{
@@ -704,6 +695,12 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                       px: 0.5,
                       py: 0,
                       color: '#65675e',
+                      '&:hover': {
+                        bgcolor: 'transparent',
+                      },
+                      '&:active': {
+                        bgcolor: 'transparent',
+                      },
                       '& .MuiButton-startIcon': {
                         mr: 0.5,
                       },
@@ -714,15 +711,21 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                 </Tooltip>
 
                 {!expanded && (
-                  <IconButton
-                    className="post-card-action"
-                    size="small"
-                    onClick={handleExpand}
-                    aria-label="요약 열기"
-                    sx={{ ml: 'auto' }}
+                  <Box
+                    className="collapsed-expand-indicator"
+                    aria-hidden="true"
+                    sx={{
+                      ml: 'auto',
+                      width: 28,
+                      height: 28,
+                      display: 'grid',
+                      placeItems: 'center',
+                      color: '#65675e',
+                      flexShrink: 0,
+                    }}
                   >
-                    <ExpandMoreIcon />
-                  </IconButton>
+                    <ExpandMoreIcon fontSize="small" />
+                  </Box>
                 )}
               </Stack>
 
