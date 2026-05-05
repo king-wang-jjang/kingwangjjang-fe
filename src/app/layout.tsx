@@ -6,6 +6,7 @@ import type { Viewport } from 'next';
 
 import { Toaster } from 'sonner';
 
+import { QueryProvider } from 'src/providers/query-provider';
 import { AppThemeProvider } from 'src/theme/app-theme-provider';
 
 import { AuthInitializer } from 'src/auth/auth-initializer';
@@ -36,12 +37,14 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang="ko">
       <body>
-        <AuthInitializer>
-          <AppThemeProvider>
-            <Toaster richColors position="top-center" />
-            {children}
-          </AppThemeProvider>
-        </AuthInitializer>
+        <QueryProvider>
+          <AuthInitializer>
+            <AppThemeProvider>
+              <Toaster richColors position="top-center" />
+              {children}
+            </AppThemeProvider>
+          </AuthInitializer>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,6 +1,8 @@
 import type { Comment } from 'src/types/comment';
+import type { CommentListResponse } from 'src/api/comment-api';
 
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthStore } from 'src/store/auth-store';
 import {
@@ -15,87 +17,86 @@ type UseCommentsParams = {
   enabled?: boolean;
 };
 
+const EMPTY_COMMENTS: Comment[] = [];
+
+function updateCommentById(comments: Comment[], updated: Comment) {
+  return comments.map((comment) => (comment.Id === updated.Id ? { ...comment, ...updated } : comment));
+}
+
 export const useComments = ({ boardId, enabled = true }: UseCommentsParams) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [creatingComment, setCreatingComment] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const queryKey = useMemo(() => ['comments', boardId] as const, [boardId]);
 
-  const refetch = useCallback(async () => {
-    if (!enabled || !boardId) return;
+  const commentsQuery = useQuery({
+    queryKey,
+    queryFn: () => getComments(`${boardId}`, 1, 100),
+    enabled: enabled && Boolean(boardId),
+  });
 
-    setLoading(true);
-    try {
-      const data = await getComments(`${boardId}`, 1, 100);
-      setComments(data.comments);
-      setTotalCount(data.totalCount);
-      setError(null);
-    } catch (err) {
-      setError(err as Error);
-    } finally {
-      setLoading(false);
-    }
-  }, [boardId, enabled]);
+  const createCommentMutation = useMutation({
+    mutationFn: createCommentRequest,
+  });
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  const likeCommentMutation = useMutation({
+    mutationFn: likeCommentRequest,
+  });
+
+  const comments = commentsQuery.data?.comments ?? EMPTY_COMMENTS;
+  const totalCount = commentsQuery.data?.totalCount ?? 0;
 
   const addComment = useCallback(
     async (content: string) => {
       if (!user) throw new Error('User not authenticated');
 
-      setCreatingComment(true);
-      try {
-        const created = await createCommentRequest({ boardId: `${boardId}`, content });
-        setComments((prev) => [created, ...prev]);
-        setTotalCount((prev) => prev + 1);
-        return created.Id;
-      } finally {
-        setCreatingComment(false);
-      }
+      const created = await createCommentMutation.mutateAsync({ boardId: `${boardId}`, content });
+      queryClient.setQueryData<CommentListResponse>(queryKey, (current) => ({
+        boardId: current?.boardId ?? `${boardId}`,
+        totalCount: (current?.totalCount ?? 0) + 1,
+        comments: [created, ...(current?.comments ?? EMPTY_COMMENTS)],
+      }));
+
+      return created.Id;
     },
-    [boardId, user]
+    [boardId, createCommentMutation, queryClient, queryKey, user]
   );
 
   const addReply = useCallback(
     async (parentId: string, content: string) => {
       if (!user) throw new Error('User not authenticated');
 
-      const created = await createCommentRequest({ boardId: `${boardId}`, parentId, content });
-      await refetch();
+      const created = await createCommentMutation.mutateAsync({ boardId: `${boardId}`, parentId, content });
+      await queryClient.invalidateQueries({ queryKey });
+
       return created.Id;
     },
-    [boardId, user, refetch]
+    [boardId, createCommentMutation, queryClient, queryKey, user]
   );
 
-  const likeComment = useCallback(async (commentId: string) => {
-    const result = await likeCommentRequest(commentId);
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.Id === commentId
+  const likeComment = useCallback(
+    async (commentId: string) => {
+      const result = await likeCommentMutation.mutateAsync(commentId);
+      queryClient.setQueryData<CommentListResponse>(queryKey, (current) =>
+        current
           ? {
-              ...comment,
-              likeCount: result.likeCount,
-              isLiked: result.isLiked,
-              updatedAt: result.updatedAt,
+              ...current,
+              comments: updateCommentById(current.comments, result),
             }
-          : comment
-      )
-    );
-  }, []);
+          : current
+      );
+    },
+    [likeCommentMutation, queryClient, queryKey]
+  );
 
   const memoizedTotalCount = useMemo(() => totalCount, [totalCount]);
 
   return {
     comments,
     totalCount: memoizedTotalCount,
-    loading,
-    error,
-    refetch,
-    creatingComment,
+    loading: commentsQuery.isLoading,
+    error: commentsQuery.error,
+    refetch: commentsQuery.refetch,
+    creatingComment: createCommentMutation.isPending,
     addComment,
     addReply,
     likeComment,
