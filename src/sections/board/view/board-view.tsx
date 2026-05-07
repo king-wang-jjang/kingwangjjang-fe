@@ -7,7 +7,6 @@ import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -247,31 +246,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     </Card>
   );
 
-  const renderFeedHeader = (
-    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
-      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1}
-          alignItems={{ xs: 'stretch', sm: 'center' }}
-          justifyContent="space-between"
-        >
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="h5">실시간 게시판</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-              수집된 게시글을 빠르게 훑고 댓글 흐름을 확인하세요.
-            </Typography>
-          </Box>
-          <Chip
-            label={`${filteredPosts.length}개 게시글`}
-            size="small"
-            sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
-          />
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-
   const renderToolPane = (
     <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
       <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
@@ -424,12 +398,16 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           className="BoardWorkbench"
           sx={{
             display: { xs: 'block', md: 'grid' },
-            gridTemplateColumns: selectedPost
-              ? '236px minmax(0, 1fr) 360px'
-              : '236px minmax(0, 1fr) 320px',
-            gap: 1.5,
+            gridTemplateColumns: {
+              md: '236px minmax(0, 1fr) 236px',
+              lg: '300px minmax(0, 1fr) 300px',
+              xl: '340px minmax(0, 1fr) 340px',
+            },
+            gap: { xs: 1.25, md: 2.5, lg: 3 },
             alignItems: 'start',
-            maxWidth: 1536,
+            alignSelf: 'center',
+            width: '100%',
+            maxWidth: { md: 1120, lg: 1280, xl: 1360 },
             mx: 'auto',
           }}
         >
@@ -438,7 +416,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           </Box>
 
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
-            {renderFeedHeader}
             {isMobile && renderFilters}
             {renderPostList}
           </Stack>
@@ -589,8 +566,18 @@ function BoardPostCard({
             }}
           >
             <Stack spacing={0.875}>
-              <Stack direction="row" spacing={1} alignItems="flex-start">
-                <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: 'minmax(0, 1fr) 64px',
+                    sm: 'minmax(0, 1fr) 76px',
+                  },
+                  gap: 1,
+                  alignItems: 'stretch',
+                }}
+              >
+                <Stack spacing={0.625} sx={{ minWidth: 0 }}>
                   <Stack
                     direction="row"
                     spacing={0.625}
@@ -652,135 +639,121 @@ function BoardPostCard({
                       ))}
                     </Stack>
                   )}
-                </Stack>
 
-                <Stack direction="row" spacing={0.5} alignItems="flex-start" sx={{ flexShrink: 0 }}>
-                  {thumbnailSrc ? (
-                    <Box
-                      className="compact-site-marker"
-                      component="button"
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setImageOpen(true);
-                      }}
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    alignItems="center"
+                    flexWrap="wrap"
+                    useFlexGap
+                  >
+                    <Chip
+                      icon={<ChatBubbleOutlineIcon fontSize="small" />}
+                      label={`${post.commentCount ?? 0}`}
+                      size="small"
+                      variant="outlined"
                       sx={{
-                        p: 0,
-                        width: { xs: 40, sm: 44 },
-                        height: { xs: 40, sm: 44 },
-                        border: 1,
-                        borderColor: '#bfc1b7',
-                        borderRadius: 1,
-                        overflow: 'hidden',
-                        bgcolor: '#eeefe9',
-                        cursor: 'zoom-in',
-                        flexShrink: 0,
-                        opacity: 0.78,
-                      }}
-                    >
-                      <Box
-                        component="img"
-                        src={thumbnailSrc}
-                        alt=""
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'block',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <Box
-                      className="compact-site-marker"
-                      sx={{
-                        width: { xs: 40, sm: 44 },
-                        height: { xs: 40, sm: 44 },
-                        border: 1,
-                        borderColor: '#d5d7cd',
-                        borderRadius: 1,
-                        display: 'grid',
-                        placeItems: 'center',
-                        bgcolor: '#f1f2ec',
+                        height: 24,
+                        bgcolor: 'transparent',
+                        borderColor: 'transparent',
                         color: '#65675e',
-                        fontSize: 13,
-                        fontWeight: 750,
-                        flexShrink: 0,
+                        '& .MuiChip-label': {
+                          px: 0.5,
+                        },
+                        '& .MuiChip-icon': {
+                          color: 'inherit',
+                          ml: 0,
+                        },
                       }}
-                    >
-                      {post.site.slice(0, 1)}
-                    </Box>
-                  )}
+                    />
+
+                    <Tooltip title="좋아요">
+                      <Button
+                        className="post-card-action"
+                        size="small"
+                        color="inherit"
+                        disableRipple
+                        startIcon={<FavoriteBorderIcon fontSize="small" />}
+                        onClick={handleLike}
+                        sx={{
+                          minWidth: 0,
+                          px: 0.5,
+                          py: 0,
+                          color: '#65675e',
+                          '&:hover': {
+                            bgcolor: 'transparent',
+                          },
+                          '&:active': {
+                            bgcolor: 'transparent',
+                          },
+                          '& .MuiButton-startIcon': {
+                            mr: 0.5,
+                          },
+                        }}
+                      >
+                        {currentLikeCount}
+                      </Button>
+                    </Tooltip>
+                  </Stack>
                 </Stack>
-              </Stack>
 
-              <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
-                <Chip
-                  icon={<ChatBubbleOutlineIcon fontSize="small" />}
-                  label={`${post.commentCount ?? 0}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 24,
-                    bgcolor: 'transparent',
-                    borderColor: 'transparent',
-                    color: '#65675e',
-                    '& .MuiChip-label': {
-                      px: 0.5,
-                    },
-                    '& .MuiChip-icon': {
-                      color: 'inherit',
-                      ml: 0,
-                    },
-                  }}
-                />
-
-                <Tooltip title="좋아요">
-                  <Button
-                    className="post-card-action"
-                    size="small"
-                    color="inherit"
-                    disableRipple
-                    startIcon={<FavoriteBorderIcon fontSize="small" />}
-                    onClick={handleLike}
+                {thumbnailSrc ? (
+                  <Box
+                    className="compact-site-marker"
+                    component="button"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setImageOpen(true);
+                    }}
                     sx={{
-                      minWidth: 0,
-                      px: 0.5,
-                      py: 0,
-                      color: '#65675e',
-                      '&:hover': {
-                        bgcolor: 'transparent',
-                      },
-                      '&:active': {
-                        bgcolor: 'transparent',
-                      },
-                      '& .MuiButton-startIcon': {
-                        mr: 0.5,
-                      },
+                      p: 0,
+                      width: '100%',
+                      minHeight: { xs: 72, sm: 84 },
+                      height: '100%',
+                      border: 1,
+                      borderColor: '#bfc1b7',
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                      bgcolor: '#eeefe9',
+                      cursor: 'zoom-in',
+                      opacity: 0.78,
                     }}
                   >
-                    {currentLikeCount}
-                  </Button>
-                </Tooltip>
-
-                {!expanded && (
+                    <Box
+                      component="img"
+                      src={thumbnailSrc}
+                      alt=""
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'block',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </Box>
+                ) : (
                   <Box
-                    className="collapsed-expand-indicator"
-                    aria-hidden="true"
+                    className="compact-site-marker"
                     sx={{
-                      ml: 'auto',
-                      width: 28,
-                      height: 28,
+                      width: '100%',
+                      minHeight: { xs: 72, sm: 84 },
+                      height: '100%',
+                      border: 1,
+                      borderColor: '#d5d7cd',
+                      borderRadius: 1,
                       display: 'grid',
                       placeItems: 'center',
+                      bgcolor: '#f1f2ec',
                       color: '#65675e',
-                      flexShrink: 0,
+                      fontSize: 15,
+                      fontWeight: 750,
                     }}
                   >
-                    <ExpandMoreIcon fontSize="small" />
+                    {post.site.slice(0, 1)}
                   </Box>
                 )}
-              </Stack>
+              </Box>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <Box

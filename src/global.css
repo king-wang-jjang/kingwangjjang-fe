@@ -3,6 +3,7 @@
 html {
   height: 100%;
   -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
 }
 
 body,
