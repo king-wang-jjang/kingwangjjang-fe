@@ -5,14 +5,13 @@ type RequestOptions = RequestInit & {
 };
 
 const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
-const LOCAL_AUTH_PREFIXES = ['/userservice/'];
 
 function isLocalBrowserHost() {
   return typeof window !== 'undefined' && LOCAL_HOSTNAMES.has(window.location.hostname);
 }
 
 function resolveApiBaseUrl(path: string) {
-  if (isLocalBrowserHost() && LOCAL_AUTH_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+  if (isLocalBrowserHost()) {
     return CONFIG.localServerUrl;
   }
 

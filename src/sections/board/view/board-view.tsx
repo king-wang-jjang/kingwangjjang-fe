@@ -3,7 +3,7 @@
 import type { BoardPost } from 'src/api/board-api';
 
 import { toast } from 'sonner';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -41,7 +41,7 @@ import {
 import { useBoard } from 'src/hooks/use-board';
 
 import { CONFIG } from 'src/config-global';
-import { addBoardLike } from 'src/api/board-api';
+import { addBoardLike, analyzeBoardPost } from 'src/api/board-api';
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
 
@@ -68,9 +68,12 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
+  const [analyzingPostIds, setAnalyzingPostIds] = useState<string[]>([]);
+  const analysisRequestsRef = useRef(new Set<string>());
 
   const {
     postData,
+    updatePostAnalysis,
     loadingRef,
     filterCollection,
     boardContentsQueryError,
@@ -110,8 +113,27 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       if (isMobile) {
         setMobileCommentOpen(true);
       }
+
+      if (shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
+        analysisRequestsRef.current.add(boardId);
+        setAnalyzingPostIds((current) =>
+          current.includes(boardId) ? current : [...current, boardId]
+        );
+
+        analyzeBoardPost(boardId)
+          .then((analysis) => {
+            updatePostAnalysis(analysis);
+          })
+          .catch((error: any) => {
+            analysisRequestsRef.current.delete(boardId);
+            toast.warning(`요약 생성 실패: ${error.message || error}`);
+          })
+          .finally(() => {
+            setAnalyzingPostIds((current) => current.filter((id) => id !== boardId));
+          });
+      }
     },
-    [isMobile]
+    [isMobile, updatePostAnalysis]
   );
 
   const handleCommentOpen = useCallback(
@@ -349,6 +371,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               key={getPostId(post)}
               post={post}
               selected={selectedPost?.boardId === getPostId(post)}
+              analyzing={analyzingPostIds.includes(getPostId(post))}
               onPostSelect={handlePostSelect}
               onCommentOpen={handleCommentOpen}
             />
@@ -455,11 +478,18 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 type BoardPostCardProps = {
   post: BoardPost;
   selected: boolean;
+  analyzing: boolean;
   onPostSelect: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
 
-function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPostCardProps) {
+function BoardPostCard({
+  post,
+  selected,
+  analyzing,
+  onPostSelect,
+  onCommentOpen,
+}: BoardPostCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const [currentLikeCount, setCurrentLikeCount] = useState(post.likeCount ?? 0);
@@ -471,6 +501,7 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
   const readStatus = isRead(boardId);
   const thumbnailSrc = post.thumbnail ? `${CONFIG.imageServerUrl}/${post.thumbnail}` : '';
   const summary = getPostSummary(post);
+  const tags = getPostTags(post);
 
   useEffect(() => {
     setCurrentLikeCount(post.likeCount ?? 0);
@@ -599,6 +630,28 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                   >
                     {post.title}
                   </Typography>
+
+                  {!!tags.length && (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                      {tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            height: 22,
+                            bgcolor: '#f8f3ec',
+                            borderColor: '#e2c6b0',
+                            color: '#6b4b36',
+                            '& .MuiChip-label': {
+                              px: 0.75,
+                            },
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  )}
                 </Stack>
 
                 <Stack direction="row" spacing={0.5} alignItems="flex-start" sx={{ flexShrink: 0 }}>
@@ -770,13 +823,43 @@ function BoardPostCard({ post, selected, onPostSelect, onCommentOpen }: BoardPos
                     </Tooltip>
                   </Stack>
 
-                  <Typography
-                    variant="body2"
-                    color={summary ? 'text.primary' : 'text.secondary'}
-                    sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
-                  >
-                    {summary || '요약 내용이 없습니다.'}
-                  </Typography>
+                  {analyzing ? (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CircularProgress size={16} />
+                      <Typography variant="body2" color="text.secondary">
+                        요약 생성 중...
+                      </Typography>
+                    </Stack>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      color={summary ? 'text.primary' : 'text.secondary'}
+                      sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
+                    >
+                      {summary || '요약 내용이 없습니다.'}
+                    </Typography>
+                  )}
+
+                  {!!tags.length && (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                      {tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          size="small"
+                          sx={{
+                            height: 22,
+                            bgcolor: '#f8f3ec',
+                            borderColor: '#e2c6b0',
+                            color: '#6b4b36',
+                            '& .MuiChip-label': {
+                              px: 0.75,
+                            },
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  )}
 
                   <Stack
                     className="expanded-card-actions"
@@ -910,20 +993,19 @@ function getPostId(post: BoardPost) {
   return post.Id || `${post.site}-${post.no}`;
 }
 
+const DEFAULT_GPT_ANSWER = 'GPT 생성 중입니다. 이미지가 많은 경우 오래 걸립니다.';
+
 function getPostSummary(post: BoardPost) {
-  if (post.gptAnswer) {
-    return post.gptAnswer;
-  }
+  const summary = typeof post.gptAnswer === 'string' ? post.gptAnswer.trim() : '';
+  return summary && summary !== DEFAULT_GPT_ANSWER ? summary : '';
+}
 
-  if (typeof post.contents === 'string') {
-    return post.contents;
-  }
+function shouldAnalyzePost(post: BoardPost) {
+  return Boolean(post.Id) && !getPostSummary(post);
+}
 
-  if (Array.isArray(post.contents)) {
-    return post.contents.map((item) => String(item)).join('\n');
-  }
-
-  return '';
+function getPostTags(post: BoardPost) {
+  return Array.isArray(post.tags) ? post.tags.filter(Boolean) : [];
 }
 
 function formatRelativeTime(value: string) {

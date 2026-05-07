@@ -1,6 +1,6 @@
-import type { BoardPost } from 'src/api/board-api';
+import type { BoardAnalysis, BoardPost } from 'src/api/board-api';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
@@ -16,10 +16,6 @@ export const useBoard = () => {
     error: boardContentsQueryError,
     data: boardContentsData,
   } = useInfiniteScrollablePostList();
-
-  const handleSummaryBoard = (boardId: string, site: string) => {
-    console.log('handleSummaryBoard', boardId, site);
-  };
 
   useEffect(() => {
     const modifiedData = (boardContentsData?.realtimePagination ?? EMPTY_POSTS).map((value) => {
@@ -51,12 +47,22 @@ export const useBoard = () => {
     }
   }, [boardContentsData]);
 
+  const updatePostAnalysis = useCallback((analysis: BoardAnalysis) => {
+    setPostData((current) =>
+      current.map((post) =>
+        post.Id === analysis.boardId
+          ? { ...post, gptAnswer: analysis.summary, tags: analysis.tags }
+          : post
+      )
+    );
+  }, []);
+
   return {
     postData,
     filterCollection,
+    updatePostAnalysis,
     loadingRef,
     boardContentsQueryLoading,
     boardContentsQueryError,
-    handleSummaryBoard,
   };
 };

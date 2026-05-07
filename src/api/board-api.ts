@@ -9,6 +9,7 @@ type BoardRestPost = {
   url: string;
   contents?: string | unknown[] | null;
   gpt_answer?: string | null;
+  tags?: string[] | null;
   create_time: string;
   thumbnail?: string | null;
   comment_count?: number | null;
@@ -24,10 +25,17 @@ export type BoardPost = {
   url: string;
   contents?: string | unknown[] | null;
   gptAnswer?: string | null;
+  tags?: string[];
   createTime: string;
   thumbnail?: string | null;
   commentCount?: number | null;
   likeCount?: number | null;
+};
+
+export type BoardAnalysis = {
+  boardId: string;
+  summary: string;
+  tags: string[];
 };
 
 function normalizeBoardPost(post: BoardRestPost): BoardPost {
@@ -40,6 +48,7 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     url: post.url,
     contents: post.contents,
     gptAnswer: post.gpt_answer,
+    tags: Array.isArray(post.tags) ? post.tags : [],
     createTime: post.create_time,
     thumbnail: post.thumbnail,
     commentCount: post.comment_count,
@@ -66,4 +75,8 @@ export function addBoardLike(boardId: string) {
     `/boardservice/api/boards/${boardId}/likes`,
     { method: 'POST' }
   );
+}
+
+export function analyzeBoardPost(boardId: string) {
+  return apiFetch<BoardAnalysis>(`/boardservice/api/boards/${boardId}/ai`, { method: 'POST' });
 }
