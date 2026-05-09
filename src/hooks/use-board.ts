@@ -1,4 +1,4 @@
-import type { BoardAnalysis, BoardPost } from 'src/api/board-api';
+import type { BoardPost, BoardAnalysis } from 'src/api/board-api';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -51,7 +51,14 @@ export const useBoard = () => {
     setPostData((current) =>
       current.map((post) =>
         post.Id === analysis.boardId
-          ? { ...post, gptAnswer: analysis.summary, tags: analysis.tags }
+          ? {
+              ...post,
+              gptAnswer: analysis.summary ?? post.gptAnswer,
+              tags: analysis.status === 'done' || analysis.tags.length ? analysis.tags : post.tags,
+              analysisStatus: analysis.status,
+              analysisRetryCount: analysis.retryCount,
+              analysisError: analysis.error,
+            }
           : post
       )
     );

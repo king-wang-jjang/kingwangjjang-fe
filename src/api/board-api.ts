@@ -10,6 +10,9 @@ type BoardRestPost = {
   contents?: string | unknown[] | null;
   gpt_answer?: string | null;
   tags?: string[] | null;
+  analysis_status?: AnalysisStatus | null;
+  analysis_retry_count?: number | null;
+  analysis_error?: string | null;
   create_time: string;
   thumbnail?: string | null;
   comment_count?: number | null;
@@ -26,6 +29,9 @@ export type BoardPost = {
   contents?: string | unknown[] | null;
   gptAnswer?: string | null;
   tags?: string[];
+  analysisStatus?: AnalysisStatus | null;
+  analysisRetryCount?: number | null;
+  analysisError?: string | null;
   createTime: string;
   thumbnail?: string | null;
   commentCount?: number | null;
@@ -34,9 +40,17 @@ export type BoardPost = {
 
 export type BoardAnalysis = {
   boardId: string;
-  summary: string;
+  status: AnalysisStatus;
+  summary?: string | null;
   tags: string[];
+  retryCount?: number | null;
+  error?: string | null;
+  requestedAt?: string | null;
+  startedAt?: string | null;
+  updatedAt?: string | null;
 };
+
+export type AnalysisStatus = 'pending' | 'processing' | 'done' | 'failed';
 
 function normalizeBoardPost(post: BoardRestPost): BoardPost {
   return {
@@ -49,6 +63,9 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     contents: post.contents,
     gptAnswer: post.gpt_answer,
     tags: Array.isArray(post.tags) ? post.tags : [],
+    analysisStatus: post.analysis_status,
+    analysisRetryCount: post.analysis_retry_count,
+    analysisError: post.analysis_error,
     createTime: post.create_time,
     thumbnail: post.thumbnail,
     commentCount: post.comment_count,
@@ -79,4 +96,8 @@ export function addBoardLike(boardId: string) {
 
 export function analyzeBoardPost(boardId: string) {
   return apiFetch<BoardAnalysis>(`/boardservice/api/boards/${boardId}/ai`, { method: 'POST' });
+}
+
+export function getBoardAnalysis(boardId: string) {
+  return apiFetch<BoardAnalysis>(`/boardservice/api/boards/${boardId}/ai`);
 }

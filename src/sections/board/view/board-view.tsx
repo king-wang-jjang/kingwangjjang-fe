@@ -1,6 +1,6 @@
 'use client';
 
-import type { BoardPost } from 'src/api/board-api';
+import type { BoardPost, BoardAnalysis, AnalysisStatus } from 'src/api/board-api';
 
 import { toast } from 'sonner';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
@@ -40,9 +40,9 @@ import {
 import { useBoard } from 'src/hooks/use-board';
 
 import { CONFIG } from 'src/config-global';
-import { addBoardLike, analyzeBoardPost } from 'src/api/board-api';
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
+import { addBoardLike, analyzeBoardPost, getBoardAnalysis } from 'src/api/board-api';
 
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
 
@@ -67,7 +67,8 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
-  const [analyzingPostIds, setAnalyzingPostIds] = useState<string[]>([]);
+  const [analysisStatuses, setAnalysisStatuses] = useState<Record<string, AnalysisStatus>>({});
+  const [analysisErrors, setAnalysisErrors] = useState<Record<string, string>>({});
   const analysisRequestsRef = useRef(new Set<string>());
 
   const {
@@ -104,6 +105,63 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     );
   }, []);
 
+  const applyAnalysisResult = useCallback(
+    (analysis: BoardAnalysis) => {
+      updatePostAnalysis(analysis);
+
+      if (analysis.status === 'done' && analysis.summary) {
+        analysisRequestsRef.current.delete(analysis.boardId);
+        setAnalysisStatuses((current) => {
+          const next = { ...current };
+          delete next[analysis.boardId];
+          return next;
+        });
+        setAnalysisErrors((current) => {
+          const next = { ...current };
+          delete next[analysis.boardId];
+          return next;
+        });
+        return;
+      }
+
+      if (analysis.status === 'failed') {
+        analysisRequestsRef.current.delete(analysis.boardId);
+        setAnalysisErrors((current) => ({
+          ...current,
+          [analysis.boardId]: analysis.error || '요약 생성에 실패했습니다.',
+        }));
+      }
+
+      setAnalysisStatuses((current) => ({
+        ...current,
+        [analysis.boardId]: analysis.status,
+      }));
+    },
+    [updatePostAnalysis]
+  );
+
+  useEffect(() => {
+    const activeIds = Object.entries(analysisStatuses)
+      .filter(([, status]) => status === 'pending' || status === 'processing')
+      .map(([boardId]) => boardId);
+
+    if (!activeIds.length) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      activeIds.forEach((boardId) => {
+        getBoardAnalysis(boardId)
+          .then(applyAnalysisResult)
+          .catch(() => {
+            // Polling failures are transient; the next interval will retry.
+          });
+      });
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [analysisStatuses, applyAnalysisResult]);
+
   const handlePostSelect = useCallback(
     (post: BoardPost) => {
       const boardId = getPostId(post);
@@ -115,24 +173,33 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
       if (shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
         analysisRequestsRef.current.add(boardId);
-        setAnalyzingPostIds((current) =>
-          current.includes(boardId) ? current : [...current, boardId]
-        );
+        setAnalysisStatuses((current) => ({
+          ...current,
+          [boardId]: post.analysisStatus === 'processing' ? 'processing' : 'pending',
+        }));
+        setAnalysisErrors((current) => {
+          const next = { ...current };
+          delete next[boardId];
+          return next;
+        });
 
         analyzeBoardPost(boardId)
-          .then((analysis) => {
-            updatePostAnalysis(analysis);
-          })
+          .then(applyAnalysisResult)
           .catch((error: any) => {
             analysisRequestsRef.current.delete(boardId);
+            setAnalysisStatuses((current) => ({
+              ...current,
+              [boardId]: 'failed',
+            }));
+            setAnalysisErrors((current) => ({
+              ...current,
+              [boardId]: error.message || String(error),
+            }));
             toast.warning(`요약 생성 실패: ${error.message || error}`);
-          })
-          .finally(() => {
-            setAnalyzingPostIds((current) => current.filter((id) => id !== boardId));
           });
       }
     },
-    [isMobile, updatePostAnalysis]
+    [applyAnalysisResult, isMobile]
   );
 
   const handleCommentOpen = useCallback(
@@ -345,7 +412,8 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               key={getPostId(post)}
               post={post}
               selected={selectedPost?.boardId === getPostId(post)}
-              analyzing={analyzingPostIds.includes(getPostId(post))}
+              analysisStatus={analysisStatuses[getPostId(post)] ?? post.analysisStatus}
+              analysisError={analysisErrors[getPostId(post)] ?? post.analysisError ?? undefined}
               onPostSelect={handlePostSelect}
               onCommentOpen={handleCommentOpen}
             />
@@ -455,7 +523,8 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 type BoardPostCardProps = {
   post: BoardPost;
   selected: boolean;
-  analyzing: boolean;
+  analysisStatus?: AnalysisStatus | null;
+  analysisError?: string;
   onPostSelect: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
@@ -463,7 +532,8 @@ type BoardPostCardProps = {
 function BoardPostCard({
   post,
   selected,
-  analyzing,
+  analysisStatus,
+  analysisError,
   onPostSelect,
   onCommentOpen,
 }: BoardPostCardProps) {
@@ -479,6 +549,7 @@ function BoardPostCard({
   const thumbnailSrc = post.thumbnail ? `${CONFIG.imageServerUrl}/${post.thumbnail}` : '';
   const summary = getPostSummary(post);
   const tags = getPostTags(post);
+  const visibleAnalysisStatus = summary ? 'done' : analysisStatus;
 
   useEffect(() => {
     setCurrentLikeCount(post.likeCount ?? 0);
@@ -796,11 +867,11 @@ function BoardPostCard({
                     </Tooltip>
                   </Stack>
 
-                  {analyzing ? (
+                  {visibleAnalysisStatus && visibleAnalysisStatus !== 'done' ? (
                     <Stack direction="row" spacing={1} alignItems="center">
-                      <CircularProgress size={16} />
+                      {visibleAnalysisStatus !== 'failed' && <CircularProgress size={16} />}
                       <Typography variant="body2" color="text.secondary">
-                        요약 생성 중...
+                        {getAnalysisStatusText(visibleAnalysisStatus, analysisError)}
                       </Typography>
                     </Stack>
                   ) : (
@@ -975,6 +1046,19 @@ function getPostSummary(post: BoardPost) {
 
 function shouldAnalyzePost(post: BoardPost) {
   return Boolean(post.Id) && !getPostSummary(post);
+}
+
+function getAnalysisStatusText(status: AnalysisStatus, error?: string) {
+  if (status === 'pending') {
+    return '요약 대기 중';
+  }
+  if (status === 'processing') {
+    return '요약 생성 중...';
+  }
+  if (status === 'failed') {
+    return error ? `요약 생성 실패: ${error}` : '요약 생성 실패';
+  }
+  return '';
 }
 
 function getPostTags(post: BoardPost) {
