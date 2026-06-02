@@ -1,5 +1,7 @@
 import { apiFetch } from './http';
 
+export type AnalysisStatus = 'pending' | 'processing' | 'done' | 'failed';
+
 type BoardRestPost = {
   _id?: string | null;
   category: string;
@@ -24,6 +26,7 @@ export type BoardPost = {
   category: string;
   no: number;
   site: string;
+  siteLabel: string;
   title: string;
   url: string;
   contents?: string | unknown[] | null;
@@ -50,7 +53,30 @@ export type BoardAnalysis = {
   updatedAt?: string | null;
 };
 
-export type AnalysisStatus = 'pending' | 'processing' | 'done' | 'failed';
+export type BoardAnalysisJobStatus = {
+  jobId: string;
+  boardId: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  progressPercent: number;
+  estimatedSecondsRemaining: number | null;
+  message: string;
+  summary?: string | null;
+  tags?: string[];
+  error?: string | null;
+};
+
+function getSiteLabel(site: string) {
+  switch (site) {
+    case 'ygosu':
+      return '와이고수';
+    case 'dcinside':
+      return '디시인사이드';
+    case 'ppomppu':
+      return '뽐뿌';
+    default:
+      return site;
+  }
+}
 
 function normalizeBoardPost(post: BoardRestPost): BoardPost {
   return {
@@ -58,6 +84,7 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     category: post.category,
     no: post.no,
     site: post.site,
+    siteLabel: getSiteLabel(post.site),
     title: post.title,
     url: post.url,
     contents: post.contents,
@@ -95,7 +122,13 @@ export function addBoardLike(boardId: string) {
 }
 
 export function analyzeBoardPost(boardId: string) {
-  return apiFetch<BoardAnalysis>(`/boardservice/api/boards/${boardId}/ai`, { method: 'POST' });
+  return apiFetch<BoardAnalysisJobStatus>(`/boardservice/api/boards/${boardId}/ai`, {
+    method: 'POST',
+  });
+}
+
+export function getBoardAnalysisJob(jobId: string) {
+  return apiFetch<BoardAnalysisJobStatus>(`/boardservice/api/boards/ai/jobs/${jobId}`);
 }
 
 export function getBoardAnalysis(boardId: string) {

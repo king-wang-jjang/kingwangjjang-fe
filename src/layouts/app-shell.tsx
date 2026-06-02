@@ -18,6 +18,8 @@ import {
   ListItemButton,
 } from '@mui/material';
 
+import SocialLoginButtons from 'src/auth/components/form-oauth';
+
 const drawerWidth = 236;
 const headerHeight = 58;
 
@@ -92,7 +94,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </ListItemIcon>
             <ListItemText
               primary={item.label}
-              primaryTypographyProps={{ variant: 'body2', fontWeight: 700 }}
+              slotProps={{ primary: { variant: 'body2', sx: { fontWeight: 700 } } }}
             />
           </ListItemButton>
         );
@@ -109,7 +111,14 @@ export function AppShell({ children }: Props) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        color: 'text.primary',
+      }}
+    >
       <AppBar
         position="fixed"
         elevation={0}
@@ -150,13 +159,25 @@ export function AppShell({ children }: Props) {
             />
           </Box>
 
-          <IconButton
-            onClick={toggleMobileNav}
-            aria-label="메뉴 열기"
-            sx={{ display: { md: 'none' } }}
+          <Box
+            className="header-login-actions"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1,
+              flexShrink: 0,
+            }}
           >
-            <MenuIcon />
-          </IconButton>
+            <SocialLoginButtons />
+
+            <IconButton
+              onClick={toggleMobileNav}
+              aria-label="메뉴 열기"
+              sx={{ display: { md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -182,6 +203,8 @@ export function AppShell({ children }: Props) {
       <Box
         component="main"
         sx={{
+          width: '100%',
+          boxSizing: 'border-box',
           px: { xs: 1.5, sm: 2, md: 3 },
           py: { xs: 1.5, md: 2 },
           pt: {

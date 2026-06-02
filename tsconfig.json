@@ -2,11 +2,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es5",
-    "lib": ["dom", "esnext", "dom.iterable"],
+    "lib": [
+      "dom",
+      "esnext",
+      "dom.iterable"
+    ],
     "strict": true,
     "noEmit": true,
     "allowJs": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "module": "esnext",
     "incremental": true,
     "skipLibCheck": true,
@@ -28,7 +32,9 @@
     ]
   },
   "paths": {
-    "@/*": ["./*"]
+    "@/*": [
+      "./*"
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -37,5 +43,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

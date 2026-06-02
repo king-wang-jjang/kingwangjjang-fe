@@ -1,21 +1,11 @@
 import React from 'react';
 
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
-import { CONFIG } from 'src/config-global';
-
-const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
-
-function isLocalHostname(hostname: string) {
-  return LOCAL_HOSTNAMES.has(hostname);
-}
+import { resolveApiBaseUrl } from 'src/api/api-base-url';
 
 function getKakaoLoginUrl() {
-  const authServerUrl = isLocalHostname(window.location.hostname)
-    ? CONFIG.localServerUrl
-    : CONFIG.serverUrl;
-
-  return `${authServerUrl}/login`;
+  return `${resolveApiBaseUrl()}/login`;
 }
 
 const SocialLoginButtons: React.FC = () => {
@@ -29,26 +19,37 @@ const SocialLoginButtons: React.FC = () => {
 
   return (
     <Button
-      fullWidth
-      size="large"
-      variant="contained"
+      className="kakao-login-button"
+      size="small"
+      variant="text"
+      color="inherit"
       onClick={handleKakaoLogin}
+      aria-label="카카오 로그인"
       sx={{
-        py: 1,
-        px: 1.5,
-        bgcolor: '#1e1f23',
-        color: '#ffffff',
-        borderColor: '#1e1f23',
-        borderRadius: 1.5,
-        fontWeight: 800,
+        height: 34,
+        minWidth: 0,
+        py: 0,
+        px: 0.5,
+        bgcolor: 'transparent',
+        color: 'inherit',
+        borderRadius: 1,
         '&:hover': {
-          bgcolor: '#1e1f23',
-          color: '#F7A501',
-          opacity: 0.72,
+          bgcolor: '#f4f4f4',
         },
       }}
     >
-      카카오 로그인
+      <Box
+        component="img"
+        className="kakao-login-image"
+        src="/kakao_login_small.png"
+        alt=""
+        aria-hidden="true"
+        sx={{
+          width: 60,
+          height: 30,
+          display: 'block',
+        }}
+      />
     </Button>
   );
 };

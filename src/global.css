@@ -2,12 +2,14 @@
 
 html {
   height: 100%;
+  scrollbar-gutter: stable both-edges;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable both-edges;
 }
 
 body,
 #root {
+  box-sizing: border-box;
   display: flex;
   flex: 1 1 auto;
   margin: 0;

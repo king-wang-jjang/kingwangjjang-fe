@@ -1,15 +1,22 @@
 'use client';
 
-import type { BoardPost, BoardAnalysis, AnalysisStatus } from 'src/api/board-api';
+import type {
+  BoardPost,
+  BoardAnalysis,
+  AnalysisStatus,
+  BoardAnalysisJobStatus,
+} from 'src/api/board-api';
 
 import { toast } from 'sonner';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
+import { useTheme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
 import {
   Box,
   Card,
@@ -26,14 +33,12 @@ import {
   Skeleton,
   MenuItem,
   Checkbox,
-  useTheme,
   Container,
   IconButton,
   Typography,
   CardContent,
   ListItemText,
   DialogContent,
-  useMediaQuery,
   CircularProgress,
 } from '@mui/material';
 
@@ -42,11 +47,14 @@ import { useBoard } from 'src/hooks/use-board';
 import { CONFIG } from 'src/config-global';
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
-import { addBoardLike, analyzeBoardPost, getBoardAnalysis } from 'src/api/board-api';
+import {
+  addBoardLike,
+  analyzeBoardPost,
+  getBoardAnalysis,
+  getBoardAnalysisJob,
+} from 'src/api/board-api';
 
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
-
-import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 // ----------------------------------------------------------------------
 
@@ -59,6 +67,10 @@ type SelectedPost = {
   site: string;
 } | null;
 
+const workbenchSideColumnWidth = 320;
+const analysisPollIntervalMs = 1500;
+const analysisPollLimit = 80;
+
 export function BoardView({ title = '실시간 게시판' }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
@@ -67,9 +79,13 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
+  const [analysisJobsByPostId, setAnalysisJobsByPostId] = useState<
+    Record<string, BoardAnalysisJobStatus>
+  >({});
   const [analysisStatuses, setAnalysisStatuses] = useState<Record<string, AnalysisStatus>>({});
   const [analysisErrors, setAnalysisErrors] = useState<Record<string, string>>({});
   const analysisRequestsRef = useRef(new Set<string>());
+  const { isAuthenticated } = useAuthStore();
 
   const {
     postData,
@@ -87,6 +103,15 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
     return postData.filter((post) => selectedSites.includes(post.site));
   }, [postData, selectedSites]);
+
+  const siteLabels = useMemo(
+    () =>
+      postData.reduce<Record<string, string>>((labels, post) => {
+        labels[post.site] = post.siteLabel;
+        return labels;
+      }, {}),
+    [postData]
+  );
 
   useEffect(() => {
     if (!selectedPost) {
@@ -171,20 +196,37 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         setMobileCommentOpen(true);
       }
 
-      if (shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
+      if (isAuthenticated && shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
         analysisRequestsRef.current.add(boardId);
-        setAnalysisStatuses((current) => ({
+        setAnalysisJobsByPostId((current) => ({
           ...current,
-          [boardId]: post.analysisStatus === 'processing' ? 'processing' : 'pending',
+          [boardId]: createPendingAnalysisJob(boardId),
         }));
-        setAnalysisErrors((current) => {
-          const next = { ...current };
-          delete next[boardId];
-          return next;
-        });
 
         analyzeBoardPost(boardId)
-          .then(applyAnalysisResult)
+          .then(async (job) => {
+            setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: job }));
+            const finishedJob = isActiveAnalysisJob(job)
+              ? await pollBoardAnalysisJob(job.jobId, (latestJob) => {
+                  setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: latestJob }));
+                })
+              : job;
+
+            if (finishedJob.status === 'completed' && finishedJob.summary) {
+              analysisRequestsRef.current.delete(boardId);
+              updatePostAnalysis({
+                boardId: finishedJob.boardId,
+                status: 'done',
+                summary: finishedJob.summary,
+                tags: finishedJob.tags ?? [],
+              });
+              return;
+            }
+
+            if (finishedJob.status === 'failed') {
+              throw new Error(finishedJob.error || finishedJob.message);
+            }
+          })
           .catch((error: any) => {
             analysisRequestsRef.current.delete(boardId);
             setAnalysisStatuses((current) => ({
@@ -196,10 +238,17 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               [boardId]: error.message || String(error),
             }));
             toast.warning(`요약 생성 실패: ${error.message || error}`);
+          })
+          .finally(() => {
+            setAnalysisJobsByPostId((current) => {
+              const next = { ...current };
+              delete next[boardId];
+              return next;
+            });
           });
       }
     },
-    [applyAnalysisResult, isMobile]
+    [isAuthenticated, isMobile, updatePostAnalysis]
   );
 
   const handleCommentOpen = useCallback(
@@ -224,13 +273,15 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       anchorEl={siteMenuAnchor}
       open={siteMenuOpen}
       onClose={() => setSiteMenuAnchor(null)}
-      PaperProps={{
-        sx: {
-          minWidth: 240,
-          bgcolor: '#fdfdf8',
-          border: 1,
-          borderColor: '#bfc1b7',
-          boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      slotProps={{
+        paper: {
+          sx: {
+            minWidth: 240,
+            bgcolor: '#fdfdf8',
+            border: 1,
+            borderColor: '#bfc1b7',
+            boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          },
         },
       }}
     >
@@ -238,7 +289,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         filterCollection.map((site) => (
           <MenuItem key={site} onClick={() => handleToggleSite(site)}>
             <Checkbox checked={selectedSites.includes(site)} size="small" />
-            <ListItemText primary={site} />
+            <ListItemText primary={siteLabels[site] ?? site} />
           </MenuItem>
         ))
       ) : (
@@ -268,35 +319,43 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         }}
       >
         <Stack spacing={1}>
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-            <Button
-              color="inherit"
-              variant="outlined"
-              endIcon={
-                <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
-                  <FilterListIcon />
-                </Badge>
-              }
-              onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
-              sx={{
-                bgcolor: '#fdfdf8',
-                borderColor: '#bfc1b7',
-                color: '#4d4f46',
-                '&:hover': {
-                  bgcolor: '#f4f4f4',
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <Tooltip title="사이트 필터">
+              <IconButton
+                className="filter-icon-button"
+                color="inherit"
+                onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
+                aria-label="사이트 필터"
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#fdfdf8',
+                  border: 1,
                   borderColor: '#bfc1b7',
-                  color: '#F54E00',
-                },
-              }}
-            >
-              사이트 필터
-            </Button>
+                  color: '#4d4f46',
+                  '&:hover': {
+                    bgcolor: '#f4f4f4',
+                    borderColor: '#bfc1b7',
+                    color: '#F54E00',
+                  },
+                }}
+              >
+                <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
+                  <FilterListIcon fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
 
             {selectedSites.map((site) => (
               <Chip
                 key={site}
                 size="small"
-                label={site}
+                label={siteLabels[site] ?? site}
                 onDelete={() => handleToggleSite(site)}
                 sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
               />
@@ -313,6 +372,30 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     </Card>
   );
 
+  const renderFeedHeader = (
+    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1}
+          sx={{ alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between' }}
+        >
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h5">실시간 게시판</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+              수집된 게시글을 빠르게 훑고 댓글 흐름을 확인하세요.
+            </Typography>
+          </Box>
+          <Chip
+            label={`${filteredPosts.length}개 게시글`}
+            size="small"
+            sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+          />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
   const renderToolPane = (
     <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
       <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
@@ -323,48 +406,43 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           실시간 게시판
         </Typography>
 
-        <Box sx={{ mb: 1.5 }}>
-          <SocialLoginButtons />
-        </Box>
-
-        <Divider sx={{ my: 1.5, borderColor: '#bfc1b7' }} />
-
         <Stack spacing={1}>
           <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
             Sites
           </Typography>
-          <Button
-            fullWidth
-            variant="outlined"
-            color="inherit"
-            endIcon={
-              <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
-                <FilterListIcon />
-              </Badge>
-            }
-            onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
-            sx={{
-              justifyContent: 'space-between',
-              bgcolor: '#fdfdf8',
-              borderColor: '#bfc1b7',
-              color: '#4d4f46',
-              '&:hover': {
-                color: '#F54E00',
+          <Tooltip title="사이트 필터">
+            <IconButton
+              className="filter-icon-button"
+              color="inherit"
+              onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
+              aria-label="사이트 필터"
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: '#fdfdf8',
+                border: 1,
                 borderColor: '#bfc1b7',
-                bgcolor: '#f4f4f4',
-              },
-            }}
-          >
-            사이트 필터
-          </Button>
+                color: '#4d4f46',
+                '&:hover': {
+                  color: '#F54E00',
+                  borderColor: '#bfc1b7',
+                  bgcolor: '#f4f4f4',
+                },
+              }}
+            >
+              <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
+                <FilterListIcon fontSize="small" />
+              </Badge>
+            </IconButton>
+          </Tooltip>
 
           {!!selectedSites.length && (
-            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
               {selectedSites.map((site) => (
                 <Chip
                   key={site}
                   size="small"
-                  label={site}
+                  label={siteLabels[site] ?? site}
                   onDelete={() => handleToggleSite(site)}
                   sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
                 />
@@ -412,8 +490,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               key={getPostId(post)}
               post={post}
               selected={selectedPost?.boardId === getPostId(post)}
-              analysisStatus={analysisStatuses[getPostId(post)] ?? post.analysisStatus}
-              analysisError={analysisErrors[getPostId(post)] ?? post.analysisError ?? undefined}
+              analysisJob={analysisJobsByPostId[getPostId(post)]}
               onPostSelect={handlePostSelect}
               onCommentOpen={handleCommentOpen}
             />
@@ -452,11 +529,18 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
   return (
     <Container maxWidth={false} disableGutters aria-label={title}>
-      <Stack spacing={1.25}>
+      <Stack className="BoardWorkbenchFrame" spacing={1.25} sx={{ alignItems: 'center', width: '100%' }}>
         {boardContentsQueryError && !postData.length && (
           <Alert
             severity="warning"
-            sx={{ bgcolor: '#eeefe9', border: 1, borderColor: '#bfc1b7', color: '#4d4f46' }}
+            sx={{
+              width: 'min(100%, 1536px)',
+              boxSizing: 'border-box',
+              bgcolor: '#eeefe9',
+              border: 1,
+              borderColor: '#bfc1b7',
+              color: '#4d4f46',
+            }}
           >
             게시글을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
           </Alert>
@@ -466,16 +550,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           className="BoardWorkbench"
           sx={{
             display: { xs: 'block', md: 'grid' },
-            gridTemplateColumns: {
-              md: '236px minmax(0, 1fr) 236px',
-              lg: '300px minmax(0, 1fr) 300px',
-              xl: '340px minmax(0, 1fr) 340px',
-            },
-            gap: { xs: 1.25, md: 2.5, lg: 3 },
+            gridTemplateColumns: `${workbenchSideColumnWidth}px minmax(0, 1fr) ${workbenchSideColumnWidth}px`,
+            gap: 1.5,
             alignItems: 'start',
-            alignSelf: 'center',
-            width: '100%',
-            maxWidth: { md: 1120, lg: 1280, xl: 1360 },
+            width: 'min(100%, 1536px)',
+            boxSizing: 'border-box',
             mx: 'auto',
           }}
         >
@@ -523,8 +602,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 type BoardPostCardProps = {
   post: BoardPost;
   selected: boolean;
-  analysisStatus?: AnalysisStatus | null;
-  analysisError?: string;
+  analysisJob?: BoardAnalysisJobStatus;
   onPostSelect: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
@@ -532,8 +610,7 @@ type BoardPostCardProps = {
 function BoardPostCard({
   post,
   selected,
-  analysisStatus,
-  analysisError,
+  analysisJob,
   onPostSelect,
   onCommentOpen,
 }: BoardPostCardProps) {
@@ -549,7 +626,8 @@ function BoardPostCard({
   const thumbnailSrc = post.thumbnail ? `${CONFIG.imageServerUrl}/${post.thumbnail}` : '';
   const summary = getPostSummary(post);
   const tags = getPostTags(post);
-  const visibleAnalysisStatus = summary ? 'done' : analysisStatus;
+  const analyzing = isActiveAnalysisJob(analysisJob);
+  const progressPercent = analysisJob?.progressPercent ?? 0;
 
   useEffect(() => {
     setCurrentLikeCount(post.likeCount ?? 0);
@@ -599,6 +677,66 @@ function BoardPostCard({
     markAsRead(boardId);
   };
 
+  const renderSideImageSlot = thumbnailSrc ? (
+    <Box
+      className="card-side-image-slot compact-site-marker"
+      component="button"
+      type="button"
+      aria-label="Open image"
+      onClick={(event) => {
+        event.stopPropagation();
+        setImageOpen(true);
+      }}
+      sx={{
+        p: 0,
+        width: { xs: 72, sm: 96 },
+        minHeight: { xs: 72, sm: 96 },
+        border: 1,
+        borderColor: '#bfc1b7',
+        borderRadius: 1,
+        overflow: 'hidden',
+        bgcolor: '#eeefe9',
+        cursor: 'zoom-in',
+        flexShrink: 0,
+        alignSelf: 'stretch',
+        opacity: 0.86,
+      }}
+    >
+      <Box
+        component="img"
+        src={thumbnailSrc}
+        alt=""
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          objectFit: 'cover',
+        }}
+      />
+    </Box>
+  ) : (
+    <Box
+      className="card-side-image-slot compact-site-marker"
+      sx={{
+        width: { xs: 72, sm: 96 },
+        minHeight: { xs: 72, sm: 96 },
+        border: 1,
+        borderColor: '#d5d7cd',
+        borderRadius: 1,
+        display: 'grid',
+        placeItems: 'center',
+        bgcolor: '#f1f2ec',
+        color: '#65675e',
+        fontSize: 18,
+        fontWeight: 750,
+        flexShrink: 0,
+        alignSelf: 'stretch',
+      }}
+    >
+      {post.siteLabel.slice(0, 1)}
+    </Box>
+  );
+
   return (
     <>
       <Box
@@ -637,60 +775,30 @@ function BoardPostCard({
             }}
           >
             <Stack spacing={0.875}>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: 'minmax(0, 1fr) 64px',
-                    sm: 'minmax(0, 1fr) 76px',
-                  },
-                  gap: 1,
-                  alignItems: 'stretch',
-                }}
-              >
-                <Stack spacing={0.625} sx={{ minWidth: 0 }}>
-                  <Stack
-                    direction="row"
-                    spacing={0.625}
-                    alignItems="center"
-                    flexWrap="wrap"
-                    useFlexGap
-                  >
-                    <Chip
-                      label={post.site}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        bgcolor: '#e5e7e0',
-                        borderColor: '#bfc1b7',
-                        color: '#4d4f46',
-                        height: 22,
-                        '& .MuiChip-label': {
-                          px: 0.75,
-                        },
-                      }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      {formatRelativeTime(post.createTime)}
-                    </Typography>
-                  </Stack>
-
-                  <Typography
-                    className="post-card-title"
-                    variant="subtitle1"
-                    sx={{
-                      color: readStatus ? '#4d4f46' : '#23251d',
-                      fontWeight: readStatus ? 650 : 750,
-                      lineHeight: 1.34,
-                      wordBreak: 'keep-all',
-                      overflowWrap: 'anywhere',
-                    }}
-                  >
-                    {post.title}
-                  </Typography>
-
-                  {!!tags.length && (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'stretch' }}>
+                <Stack spacing={0.875} sx={{ minWidth: 0, flex: 1 }}>
+                  <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+                    <Stack
+                      className="metadata-chip-row"
+                      direction="row"
+                      spacing={0.625}
+                      useFlexGap
+                      sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+                    >
+                      <Chip
+                        label={post.siteLabel}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          bgcolor: '#e5e7e0',
+                          borderColor: '#bfc1b7',
+                          color: '#4d4f46',
+                          height: 22,
+                          '& .MuiChip-label': {
+                            px: 0.75,
+                          },
+                        }}
+                      />
                       {tags.map((tag) => (
                         <Chip
                           key={tag}
@@ -708,15 +816,32 @@ function BoardPostCard({
                           }}
                         />
                       ))}
+                      <Typography variant="caption" color="text.secondary">
+                        {formatRelativeTime(post.createTime)}
+                      </Typography>
                     </Stack>
-                  )}
+
+                    <Typography
+                      className="post-card-title"
+                      variant="subtitle1"
+                      sx={{
+                        color: readStatus ? '#4d4f46' : '#23251d',
+                        fontWeight: readStatus ? 650 : 750,
+                        lineHeight: 1.34,
+                        wordBreak: 'keep-all',
+                        overflowWrap: 'anywhere',
+                      }}
+                    >
+                      {post.title}
+                    </Typography>
+
+                  </Stack>
 
                   <Stack
                     direction="row"
                     spacing={0.5}
-                    alignItems="center"
-                    flexWrap="wrap"
                     useFlexGap
+                    sx={{ alignItems: 'center', flexWrap: 'wrap' }}
                   >
                     <Chip
                       icon={<ChatBubbleOutlineIcon fontSize="small" />}
@@ -768,63 +893,8 @@ function BoardPostCard({
                   </Stack>
                 </Stack>
 
-                {thumbnailSrc ? (
-                  <Box
-                    className="compact-site-marker"
-                    component="button"
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setImageOpen(true);
-                    }}
-                    sx={{
-                      p: 0,
-                      width: '100%',
-                      minHeight: { xs: 72, sm: 84 },
-                      height: '100%',
-                      border: 1,
-                      borderColor: '#bfc1b7',
-                      borderRadius: 1,
-                      overflow: 'hidden',
-                      bgcolor: '#eeefe9',
-                      cursor: 'zoom-in',
-                      opacity: 0.78,
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      src={thumbnailSrc}
-                      alt=""
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'block',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </Box>
-                ) : (
-                  <Box
-                    className="compact-site-marker"
-                    sx={{
-                      width: '100%',
-                      minHeight: { xs: 72, sm: 84 },
-                      height: '100%',
-                      border: 1,
-                      borderColor: '#d5d7cd',
-                      borderRadius: 1,
-                      display: 'grid',
-                      placeItems: 'center',
-                      bgcolor: '#f1f2ec',
-                      color: '#65675e',
-                      fontSize: 15,
-                      fontWeight: 750,
-                    }}
-                  >
-                    {post.site.slice(0, 1)}
-                  </Box>
-                )}
-              </Box>
+                {renderSideImageSlot}
+              </Stack>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <Box
@@ -839,9 +909,7 @@ function BoardPostCard({
                   <Stack
                     direction="row"
                     spacing={1}
-                    alignItems="flex-start"
-                    justifyContent="space-between"
-                    sx={{ mb: 0.75 }}
+                    sx={{ mb: 0.75, alignItems: 'flex-start', justifyContent: 'space-between' }}
                   >
                     <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
                       요약
@@ -867,12 +935,17 @@ function BoardPostCard({
                     </Tooltip>
                   </Stack>
 
-                  {visibleAnalysisStatus && visibleAnalysisStatus !== 'done' ? (
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {visibleAnalysisStatus !== 'failed' && <CircularProgress size={16} />}
-                      <Typography variant="body2" color="text.secondary">
-                        {getAnalysisStatusText(visibleAnalysisStatus, analysisError)}
-                      </Typography>
+                  {analyzing ? (
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                      <CircularProgress size={18} variant="determinate" value={progressPercent} />
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          요약 생성 중 {progressPercent}%
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {getAnalysisRemainingText(analysisJob)}
+                        </Typography>
+                      </Box>
                     </Stack>
                   ) : (
                     <Typography
@@ -880,37 +953,18 @@ function BoardPostCard({
                       color={summary ? 'text.primary' : 'text.secondary'}
                       sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
                     >
-                      {summary || '요약 내용이 없습니다.'}
+                      {summary ||
+                        (isAuthenticated
+                          ? '요약 내용이 없습니다.'
+                          : '로그인하면 새 요약을 생성할 수 있습니다.')}
                     </Typography>
-                  )}
-
-                  {!!tags.length && (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-                      {tags.map((tag) => (
-                        <Chip
-                          key={tag}
-                          label={tag}
-                          size="small"
-                          sx={{
-                            height: 22,
-                            bgcolor: '#f8f3ec',
-                            borderColor: '#e2c6b0',
-                            color: '#6b4b36',
-                            '& .MuiChip-label': {
-                              px: 0.75,
-                            },
-                          }}
-                        />
-                      ))}
-                    </Stack>
                   )}
 
                   <Stack
                     className="expanded-card-actions"
                     direction={{ xs: 'column', sm: 'row' }}
                     spacing={0.75}
-                    justifyContent="flex-end"
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 1, justifyContent: 'flex-end' }}
                   >
                     <Button
                       component="a"
@@ -968,10 +1022,12 @@ function BoardPostCard({
         open={imageOpen}
         onClose={() => setImageOpen(false)}
         maxWidth="lg"
-        PaperProps={{
-          sx: {
-            boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            borderRadius: 1,
+        slotProps={{
+          paper: {
+            sx: {
+              boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              borderRadius: 1,
+            },
           },
         }}
       >
@@ -1048,17 +1104,50 @@ function shouldAnalyzePost(post: BoardPost) {
   return Boolean(post.Id) && !getPostSummary(post);
 }
 
-function getAnalysisStatusText(status: AnalysisStatus, error?: string) {
-  if (status === 'pending') {
-    return '요약 대기 중';
+function createPendingAnalysisJob(boardId: string): BoardAnalysisJobStatus {
+  return {
+    jobId: '',
+    boardId,
+    status: 'queued',
+    progressPercent: 5,
+    estimatedSecondsRemaining: 60,
+    message: 'Analysis job queued.',
+    tags: [],
+  };
+}
+
+function isActiveAnalysisJob(job?: BoardAnalysisJobStatus) {
+  return job?.status === 'queued' || job?.status === 'running';
+}
+
+function getAnalysisRemainingText(job?: BoardAnalysisJobStatus) {
+  const estimatedSecondsRemaining = job?.estimatedSecondsRemaining;
+  if (typeof estimatedSecondsRemaining === 'number' && estimatedSecondsRemaining > 0) {
+    return `약 ${estimatedSecondsRemaining}초 남음`;
   }
-  if (status === 'processing') {
-    return '요약 생성 중...';
+  return '남은 시간을 계산 중입니다.';
+}
+
+async function pollBoardAnalysisJob(
+  jobId: string,
+  onUpdate: (job: BoardAnalysisJobStatus) => void,
+  attempt = 0
+) {
+  const latestJob = await getBoardAnalysisJob(jobId);
+  onUpdate(latestJob);
+
+  if (!isActiveAnalysisJob(latestJob) || attempt >= analysisPollLimit) {
+    return latestJob;
   }
-  if (status === 'failed') {
-    return error ? `요약 생성 실패: ${error}` : '요약 생성 실패';
-  }
-  return '';
+
+  await delay(analysisPollIntervalMs);
+  return pollBoardAnalysisJob(jobId, onUpdate, attempt + 1);
+}
+
+function delay(milliseconds: number) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
 }
 
 function getPostTags(post: BoardPost) {

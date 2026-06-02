@@ -4,8 +4,9 @@ import type { Theme, SxProps } from '@mui/material/styles';
 import { useMemo } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
+import { drawerClasses } from '@mui/material/Drawer';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
-import { Box, Stack, Drawer, IconButton, Typography, drawerClasses } from '@mui/material';
+import { Box, Stack, Drawer, IconButton, Typography } from '@mui/material';
 
 import { useComments } from 'src/hooks/use-comments';
 
@@ -73,7 +74,7 @@ export function CommentDrawer({
           <DragHandleIcon sx={{ color: '#9ea096' }} />
         </Box>
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h6">
             {title} {totalCount > 0 ? totalCount : ''}
           </Typography>

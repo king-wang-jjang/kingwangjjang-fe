@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 
 import CssBaseline from '@mui/material/CssBaseline';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 
 type Props = {

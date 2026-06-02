@@ -1,31 +1,20 @@
-import { CONFIG } from 'src/config-global';
+import { resolveApiBaseUrl } from './api-base-url';
 
 type RequestOptions = RequestInit & {
   skipJsonParse?: boolean;
 };
 
-const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
+export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const headers = new Headers(options.headers);
 
-function isLocalBrowserHost() {
-  return typeof window !== 'undefined' && LOCAL_HOSTNAMES.has(window.location.hostname);
-}
-
-function resolveApiBaseUrl(path: string) {
-  if (isLocalBrowserHost()) {
-    return CONFIG.localServerUrl;
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
   }
 
-  return CONFIG.serverUrl;
-}
-
-export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const response = await fetch(`${resolveApiBaseUrl(path)}${path}`, {
+  const response = await fetch(`${resolveApiBaseUrl()}${path}`, {
     ...options,
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {

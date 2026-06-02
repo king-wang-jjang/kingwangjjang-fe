@@ -6,6 +6,7 @@ const read = (path) => fs.readFileSync(path, 'utf8');
 const packageJson = read('package.json');
 const globalCss = read('src/global.css');
 const rootLayout = read('src/app/layout.tsx');
+const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
@@ -17,10 +18,14 @@ const commentList = read('src/components/comment/comment-list.tsx');
 const commentItem = read('src/components/comment/comment-item.tsx');
 const commentForm = read('src/components/comment/comment-form.tsx');
 const commentSkeleton = read('src/components/comment/comment-item-skeleton.tsx');
+const boardButtonBlocks = [...boardView.matchAll(/<Button[\s\S]*?<\/Button>/g)].map(
+  ([block]) => block
+);
 
 const redesignedFiles = [
   globalCss,
   rootLayout,
+  appLoading,
   appShell,
   boardView,
   themeProvider,
@@ -62,6 +67,16 @@ assert.match(
   /@import '@fontsource-variable\/ibm-plex-sans'/,
   'global CSS should import IBM Plex Sans Variable'
 );
+assert.match(
+  globalCss,
+  /scrollbar-gutter:\s*stable both-edges/,
+  'global CSS should reserve equal outer gutters when a vertical scrollbar is present'
+);
+assert.match(
+  globalCss,
+  /body,[\s\S]*#root[\s\S]*box-sizing:\s*border-box/,
+  'body should use border-box sizing for balanced outer padding'
+);
 assert.match(themeProvider, /#fdfdf8/i, 'theme should use warm parchment as the app background');
 assert.match(themeProvider, /#4d4f46/i, 'theme should use olive ink body text');
 assert.match(themeProvider, /#23251d/i, 'theme should use deep olive headings');
@@ -75,14 +90,65 @@ assert.doesNotMatch(
 );
 
 assert.match(rootLayout, /themeColor:\s*'#fdfdf8'/i, 'viewport theme color should match parchment');
+assert.match(appLoading, /loading\.gif/, 'app initial loading should use the provided loading.gif asset');
+assert.match(
+  appLoading,
+  /width=\{360\}[\s\S]*height=\{120\}/,
+  'app initial loading gif should render at half of the 720x240 shape dimensions'
+);
+assert.match(
+  appLoading,
+  /app-loading-image[\s\S]*width:\s*'min\(360px, calc\(100vw - 48px\)\)'[\s\S]*height:\s*'auto'[\s\S]*objectFit:\s*'contain'/,
+  'app initial loading gif should render at half size while preserving aspect ratio'
+);
+assert.doesNotMatch(
+  appLoading,
+  /width:\s*44|height:\s*44/,
+  'app initial loading gif should not be forced into the old tiny square size'
+);
+assert.doesNotMatch(
+  appLoading,
+  /데이터를 불러오는 중입니다|CircularProgress/,
+  'app initial loading should not show the old loading text or spinner'
+);
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
 assert.match(appShell, /#F54E00/i, 'app shell hover states should flash orange');
 assert.match(appShell, /#bfc1b7/i, 'app shell should use sage borders');
 assert.match(appShell, /background\.default/, 'app shell should use themed app background');
+assert.match(
+  appShell,
+  /SocialLoginButtons/,
+  'app shell header should own the compact Kakao login control'
+);
+assert.match(
+  appShell,
+  /header-login-actions/,
+  'app shell should place login and mobile navigation in a right-aligned header action group'
+);
+assert.match(
+  appShell,
+  /component="main"[\s\S]*width:\s*'100%'[\s\S]*boxSizing:\s*'border-box'/,
+  'main content should fill the body with balanced left and right padding'
+);
 
 assert.match(boardView, /BoardWorkbench/, 'board view should expose a workbench container');
+assert.match(
+  boardView,
+  /className="BoardWorkbenchFrame"[\s\S]*alignItems:\s*'center'[\s\S]*width:\s*'100%'/,
+  'board frame should center fixed-width workbench content on wide screens'
+);
 assert.match(boardView, /renderToolPane/, 'board view should render a dedicated left tool pane');
 assert.match(boardView, /renderFeedHeader/, 'board view should render a feed header');
+assert.match(
+  boardView,
+  /PostCardSkeleton[\s\S]*Skeleton/,
+  'initial board feed loading should restore the post card skeleton'
+);
+assert.match(
+  boardView,
+  /initialLoading[\s\S]*Array\.from\(\{ length: 5 \}\)[\s\S]*<PostCardSkeleton/,
+  'initial board feed loading should render the restored skeleton list'
+);
 assert.match(
   boardView,
   /renderCommentEmptyState/,
@@ -92,6 +158,26 @@ assert.match(
   boardView,
   /gridTemplateColumns/,
   'desktop board should use explicit workbench columns'
+);
+assert.match(
+  boardView,
+  /const workbenchSideColumnWidth = 320;/,
+  'desktop board should define one shared side column width'
+);
+assert.match(
+  boardView,
+  /gridTemplateColumns:\s*`\$\{workbenchSideColumnWidth\}px minmax\(0, 1fr\) \$\{workbenchSideColumnWidth\}px`/,
+  'desktop board should keep the first and third columns equal so the feed stays centered'
+);
+assert.match(
+  boardView,
+  /width:\s*'min\(100%, 1536px\)'[\s\S]*boxSizing:\s*'border-box'[\s\S]*mx:\s*'auto'/,
+  'board workbench should use one centered width so both outer gutters stay equal'
+);
+assert.doesNotMatch(
+  boardView,
+  /gridTemplateColumns:\s*selectedPost/,
+  'desktop board columns should not change width when a post is selected'
 );
 assert.match(
   boardView,
@@ -120,8 +206,18 @@ assert.match(
 );
 assert.match(
   boardView,
-  /collapsed-expand-indicator/,
-  'collapsed cards should show expansion as a passive indicator, not a clickable button'
+  /card-side-image-slot/,
+  'collapsed cards should use the removed expansion control space to expand the post image'
+);
+assert.doesNotMatch(
+  boardView,
+  /collapsed-expand-indicator|ExpandMoreIcon|card-footer-image-slot/,
+  'collapsed cards should not render the old expansion indicator icon or a tiny footer image slot'
+);
+assert.match(
+  boardView,
+  /card-side-image-slot[\s\S]*width:\s*\{\s*xs:\s*72,\s*sm:\s*96\s*\}[\s\S]*alignSelf:\s*'stretch'/,
+  'post image slot should be a larger side panel that stretches with the card header'
 );
 assert.doesNotMatch(
   boardView,
@@ -150,6 +246,11 @@ assert.match(
 );
 assert.doesNotMatch(
   boardView,
+  /expanded-summary-panel[\s\S]*tags\.map/,
+  'expanded summary panel should not repeat post tag chips'
+);
+assert.doesNotMatch(
+  boardView,
   /width:\s*\{\s*xs:\s*72,\s*sm:\s*82\s*\}/,
   'collapsed cards should not use the old large 72/82px placeholder block'
 );
@@ -157,6 +258,26 @@ assert.match(
   boardView,
   /handleCardClick/,
   'post card clicks should have a dedicated click handler'
+);
+assert.match(
+  boardView,
+  /metadata-chip-row[\s\S]*post\.siteLabel[\s\S]*tags\.map/,
+  'post tag chips should sit on the same metadata row as the site chip'
+);
+assert.match(
+  boardView,
+  /filter-icon-button/,
+  'site filtering should be opened by an icon button'
+);
+assert.doesNotMatch(
+  boardView,
+  /SocialLoginButtons/,
+  'board tool pane should not render the Kakao login button after it moves to the header'
+);
+assert.equal(
+  boardButtonBlocks.some((block) => block.includes('setSiteMenuAnchor') || block.includes('사이트 필터')),
+  false,
+  'site filtering should not use a large text button as the click target'
 );
 assert.match(
   boardView,
@@ -179,8 +300,12 @@ assert.match(boardView, /게시글이 없습니다/, 'empty feed copy should be 
 assert.match(boardView, /#F54E00/i, 'post cards should use orange selected or hover accents');
 assert.match(boardView, /#eeefe9/i, 'post cards and filters should use sage cream surfaces');
 
-assert.match(oauthForm, /#1e1f23/i, 'login CTA should use the near-black primary button style');
-assert.match(oauthForm, /카카오 로그인/, 'Kakao login text should remain available');
+assert.match(oauthForm, /kakao-login-button/, 'Kakao login should expose a compact button class');
+assert.match(oauthForm, /kakao-login-image/, 'Kakao login should render the provided image asset');
+assert.match(oauthForm, /\/kakao_login_small\.png/, 'Kakao login should use the small public Kakao asset');
+assert.doesNotMatch(oauthForm, /ChatBubbleIcon/, 'Kakao login should not use the fallback icon');
+assert.doesNotMatch(oauthForm, /fullWidth/, 'header login button should not use full-width layout');
+assert.doesNotMatch(oauthForm, /size="large"/, 'header login button should not use the large CTA size');
 assert.match(commentSidebar, /#eeefe9/i, 'comment sidebar should use sage panel surface');
 assert.match(commentDrawer, /#eeefe9/i, 'comment drawer should use sage panel surface');
 assert.match(

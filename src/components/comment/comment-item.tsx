@@ -92,7 +92,7 @@ export const CommentItem = ({
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-          <Stack direction="row" alignItems="center" spacing={0}>
+          <Stack direction="row" spacing={0} sx={{ alignItems: 'center' }}>
             <IconButton
               className="comment-action"
               size="small"

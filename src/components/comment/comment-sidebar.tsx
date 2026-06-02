@@ -1,7 +1,9 @@
 import type { Theme, SxProps } from '@mui/material/styles';
 
+import { useTheme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Card, Stack, useTheme, Typography, IconButton, useMediaQuery } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { Box, Card, Stack, Typography, IconButton } from '@mui/material';
 
 import { useComments } from 'src/hooks/use-comments';
 
@@ -55,7 +57,7 @@ export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: 
           bgcolor: '#eeefe9',
         }}
       >
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h6">
             {title} {totalCount > 0 ? totalCount : ''}
           </Typography>

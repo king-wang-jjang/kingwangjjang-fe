@@ -18,7 +18,7 @@ export function CommentItemSkeleton() {
       }}
     >
       <Skeleton variant="circular" width={40} height={40} />
-      <Stack spacing={1} flexGrow={1}>
+      <Stack spacing={1} sx={{ flexGrow: 1 }}>
         <Skeleton variant="text" width="40%" />
         <Skeleton variant="text" width="80%" />
         <Skeleton variant="text" width="60%" />

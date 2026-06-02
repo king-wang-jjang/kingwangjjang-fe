@@ -18,18 +18,7 @@ export const useBoard = () => {
   } = useInfiniteScrollablePostList();
 
   useEffect(() => {
-    const modifiedData = (boardContentsData?.realtimePagination ?? EMPTY_POSTS).map((value) => {
-      switch (value?.site) {
-        case 'ygosu':
-          return { ...value, site: '와이고수' };
-        case 'dcinside':
-          return { ...value, site: '디시인사이드' };
-        case 'ppomppu':
-          return { ...value, site: '뽐뿌' };
-        default:
-          return value;
-      }
-    });
+    const modifiedData = boardContentsData?.realtimePagination ?? EMPTY_POSTS;
 
     setPostData(modifiedData);
 
