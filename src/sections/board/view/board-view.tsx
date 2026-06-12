@@ -628,6 +628,7 @@ function BoardPostCard({
   const tags = getPostTags(post);
   const analyzing = isActiveAnalysisJob(analysisJob);
   const progressPercent = analysisJob?.progressPercent ?? 0;
+  const crawledPreview = getCrawledContentPreview(post);
 
   useEffect(() => {
     setCurrentLikeCount(post.likeCount ?? 0);
@@ -961,6 +962,37 @@ function BoardPostCard({
                   )}
 
                   <Stack
+                    spacing={0.5}
+                    sx={{
+                      mt: 1,
+                      pt: 1,
+                      borderTop: 1,
+                      borderColor: '#e1e3d8',
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      useFlexGap
+                      sx={{ alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                    >
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+                        수집 데이터
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {crawledPreview.itemCount}개 / {crawledPreview.textLength}자
+                      </Typography>
+                    </Stack>
+                    <Typography
+                      variant="caption"
+                      color={crawledPreview.snippet ? 'text.secondary' : 'error.main'}
+                      sx={{ display: 'block', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}
+                    >
+                      {crawledPreview.snippet || '수집된 본문 데이터가 없습니다.'}
+                    </Typography>
+                  </Stack>
+
+                  <Stack
                     className="expanded-card-actions"
                     direction={{ xs: 'column', sm: 'row' }}
                     spacing={0.75}
@@ -1098,6 +1130,55 @@ const DEFAULT_GPT_ANSWER = 'GPT 생성 중입니다. 이미지가 많은 경우 
 function getPostSummary(post: BoardPost) {
   const summary = typeof post.gptAnswer === 'string' ? post.gptAnswer.trim() : '';
   return summary && summary !== DEFAULT_GPT_ANSWER ? summary : '';
+}
+
+function getCrawledContentPreview(post: BoardPost) {
+  const texts: string[] = [];
+  const { contents } = post;
+  let itemCount = 0;
+
+  const appendText = (value: unknown) => {
+    if (typeof value !== 'string') {
+      return;
+    }
+    const trimmed = value.trim();
+    if (trimmed) {
+      texts.push(trimmed);
+    }
+  };
+
+  if (typeof contents === 'string') {
+    itemCount = contents.trim() ? 1 : 0;
+    appendText(contents);
+  } else if (Array.isArray(contents)) {
+    itemCount = contents.length;
+    contents.forEach((item) => {
+      if (isRecord(item)) {
+        appendText(item.content);
+        appendText(item.text);
+        appendText(item.alt_text);
+        appendText(item.alt);
+      } else {
+        appendText(item);
+      }
+    });
+  } else if (isRecord(contents)) {
+    const values = Object.values(contents);
+    itemCount = values.length;
+    values.forEach(appendText);
+  }
+
+  const text = texts.join('\n').trim();
+
+  return {
+    itemCount,
+    textLength: text.length,
+    snippet: text.length > 240 ? `${text.slice(0, 240)}...` : text,
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function shouldAnalyzePost(post: BoardPost) {

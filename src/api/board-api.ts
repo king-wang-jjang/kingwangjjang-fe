@@ -2,6 +2,18 @@ import { apiFetch } from './http';
 
 export type AnalysisStatus = 'pending' | 'processing' | 'done' | 'failed';
 
+export type CrawledContentBlock = {
+  type: 'text' | 'image' | 'video' | string;
+  text?: string;
+  content?: string;
+  media_path?: string;
+  path?: string;
+  source_url?: string;
+  url?: string;
+  alt_text?: string;
+  alt?: string;
+};
+
 type BoardRestPost = {
   _id?: string | null;
   category: string;
@@ -9,7 +21,7 @@ type BoardRestPost = {
   site: string;
   title: string;
   url: string;
-  contents?: string | unknown[] | null;
+  contents?: string | CrawledContentBlock[] | Record<string, unknown> | null;
   gpt_answer?: string | null;
   tags?: string[] | null;
   analysis_status?: AnalysisStatus | null;
@@ -29,7 +41,7 @@ export type BoardPost = {
   siteLabel: string;
   title: string;
   url: string;
-  contents?: string | unknown[] | null;
+  contents?: string | CrawledContentBlock[] | Record<string, unknown> | null;
   gptAnswer?: string | null;
   tags?: string[];
   analysisStatus?: AnalysisStatus | null;
