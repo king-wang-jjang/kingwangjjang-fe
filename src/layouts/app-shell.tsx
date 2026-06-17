@@ -1,22 +1,32 @@
 'use client';
 
+import type { UserType } from 'src/auth/types';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import {
   Box,
+  Menu,
+  Avatar,
   Drawer,
   AppBar,
+  Divider,
   Toolbar,
+  MenuItem,
   IconButton,
   Typography,
   ListItemIcon,
   ListItemText,
   ListItemButton,
 } from '@mui/material';
+
+import { useAuthStore } from 'src/store/auth-store';
 
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
@@ -26,6 +36,8 @@ const headerHeight = 58;
 type Props = {
   children: React.ReactNode;
 };
+
+type AuthenticatedUser = NonNullable<UserType>;
 
 const navItems = [
   {
@@ -103,8 +115,108 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+function userDisplayName(user: AuthenticatedUser) {
+  return user.nickname || `카카오 사용자 ${user.userId}`;
+}
+
+function userInitial(user: AuthenticatedUser) {
+  return userDisplayName(user).trim().charAt(0).toUpperCase();
+}
+
+function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+  const displayName = userDisplayName(user);
+
+  const closeMenu = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        aria-label="사용자 메뉴 열기"
+        aria-controls={menuOpen ? 'user-profile-menu' : undefined}
+        aria-haspopup="menu"
+        aria-expanded={menuOpen ? 'true' : undefined}
+        sx={{
+          width: 38,
+          height: 38,
+          p: 0,
+          border: 1,
+          borderColor: '#bfc1b7',
+          bgcolor: '#eeefe9',
+          '&:hover': {
+            borderColor: '#F54E00',
+            bgcolor: '#f4f4f4',
+          },
+        }}
+      >
+        <Avatar
+          src={user?.profileImage || undefined}
+          alt={displayName}
+          sx={{
+            width: 32,
+            height: 32,
+            bgcolor: '#23251d',
+            color: '#fdfdf8',
+            fontSize: '0.8rem',
+            fontWeight: 800,
+          }}
+        >
+          {userInitial(user)}
+        </Avatar>
+      </IconButton>
+
+      <Menu
+        id="user-profile-menu"
+        anchorEl={anchorEl}
+        open={menuOpen}
+        onClose={closeMenu}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              minWidth: 260,
+              border: 1,
+              borderColor: '#bfc1b7',
+              boxShadow: '0 12px 30px rgba(35, 37, 29, 0.14)',
+            },
+          },
+        }}
+      >
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+            {displayName}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {user.authProvider} · {user.userId}
+          </Typography>
+        </Box>
+        <Divider />
+        <MenuItem component={Link} href="/account/settings" onClick={closeMenu}>
+          <ListItemIcon>
+            <AccountCircleOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="설정" secondary="프로필 정보 확인" />
+        </MenuItem>
+        <MenuItem component={Link} href="/account/history" onClick={closeMenu}>
+          <ListItemIcon>
+            <HistoryOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="기록" secondary="활동 기록 확인" />
+        </MenuItem>
+      </Menu>
+    </>
+  );
+}
+
 export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
 
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
@@ -168,7 +280,7 @@ export function AppShell({ children }: Props) {
               flexShrink: 0,
             }}
           >
-            <SocialLoginButtons />
+            {isAuthenticated && user ? <UserProfileMenu user={user} /> : <SocialLoginButtons />}
 
             <IconButton
               onClick={toggleMobileNav}

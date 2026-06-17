@@ -25,6 +25,7 @@ export const CommentForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isActive, setIsActive] = useState(autoFocus);
   const { isAuthenticated, user } = useAuthStore();
+  const userInitial = (user?.nickname || user?.userId || '?').charAt(0).toUpperCase();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +67,7 @@ export const CommentForm = ({
     >
       {isAuthenticated && (
         <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem', mt: 0.5 }}>
-          {user?.nickname.charAt(0).toUpperCase()}
+          {userInitial}
         </Avatar>
       )}
 
