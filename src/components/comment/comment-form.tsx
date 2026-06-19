@@ -25,7 +25,9 @@ export const CommentForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isActive, setIsActive] = useState(autoFocus);
   const { isAuthenticated, user } = useAuthStore();
-  const userInitial = (user?.nickname || user?.userId || '?').charAt(0).toUpperCase();
+  const userInitial = (user?.displayName || user?.nickname || user?.userId || '?')
+    .charAt(0)
+    .toUpperCase();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

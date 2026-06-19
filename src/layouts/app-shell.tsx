@@ -116,7 +116,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function userDisplayName(user: AuthenticatedUser) {
-  return user.nickname || `카카오 사용자 ${user.userId}`;
+  return user.displayName || user.nickname || `카카오 사용자 ${user.userId}`;
 }
 
 function userInitial(user: AuthenticatedUser) {

@@ -83,7 +83,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     Record<string, BoardAnalysisJobStatus>
   >({});
   const [analysisStatuses, setAnalysisStatuses] = useState<Record<string, AnalysisStatus>>({});
-  const [analysisErrors, setAnalysisErrors] = useState<Record<string, string>>({});
   const analysisRequestsRef = useRef(new Set<string>());
   const { isAuthenticated } = useAuthStore();
 
@@ -141,20 +140,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           delete next[analysis.boardId];
           return next;
         });
-        setAnalysisErrors((current) => {
-          const next = { ...current };
-          delete next[analysis.boardId];
-          return next;
-        });
         return;
       }
 
       if (analysis.status === 'failed') {
         analysisRequestsRef.current.delete(analysis.boardId);
-        setAnalysisErrors((current) => ({
-          ...current,
-          [analysis.boardId]: analysis.error || '요약 생성에 실패했습니다.',
-        }));
       }
 
       setAnalysisStatuses((current) => ({
@@ -232,10 +222,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             setAnalysisStatuses((current) => ({
               ...current,
               [boardId]: 'failed',
-            }));
-            setAnalysisErrors((current) => ({
-              ...current,
-              [boardId]: error.message || String(error),
             }));
             toast.warning(`요약 생성 실패: ${error.message || error}`);
           })
@@ -563,6 +549,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           </Box>
 
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
+            {renderFeedHeader}
             {isMobile && renderFilters}
             {renderPostList}
           </Stack>
@@ -623,7 +610,7 @@ function BoardPostCard({
 
   const boardId = getPostId(post);
   const readStatus = isRead(boardId);
-  const thumbnailSrc = post.thumbnail ? `${CONFIG.imageServerUrl}/${post.thumbnail}` : '';
+  const thumbnailSrc = resolveThumbnailSrc(post.thumbnail);
   const summary = getPostSummary(post);
   const tags = getPostTags(post);
   const analyzing = isActiveAnalysisJob(analysisJob);
@@ -1123,6 +1110,19 @@ function PostCardSkeleton() {
 
 function getPostId(post: BoardPost) {
   return post.Id || `${post.site}-${post.no}`;
+}
+
+function resolveThumbnailSrc(thumbnail?: string | null) {
+  const trimmedThumbnail = thumbnail?.trim();
+  if (!trimmedThumbnail) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(trimmedThumbnail)) {
+    return trimmedThumbnail;
+  }
+
+  return `${CONFIG.imageServerUrl}/${trimmedThumbnail}`;
 }
 
 const DEFAULT_GPT_ANSWER = 'GPT 생성 중입니다. 이미지가 많은 경우 오래 걸립니다.';

@@ -219,6 +219,26 @@ assert.match(
   /card-side-image-slot[\s\S]*width:\s*\{\s*xs:\s*72,\s*sm:\s*96\s*\}[\s\S]*alignSelf:\s*'stretch'/,
   'post image slot should be a larger side panel that stretches with the card header'
 );
+assert.match(
+  boardView,
+  /function resolveThumbnailSrc/,
+  'board view should define a shared thumbnail resolver'
+);
+assert.match(
+  boardView,
+  /\^https\?:\\\/\\\//,
+  'thumbnail resolver should detect absolute metadata URLs'
+);
+assert.match(
+  boardView,
+  /CONFIG\.imageServerUrl/,
+  'thumbnail resolver should prefix relative media paths'
+);
+assert.match(
+  boardView,
+  /const thumbnailSrc = resolveThumbnailSrc\(post\.thumbnail\)/,
+  'post cards should resolve thumbnails through the shared resolver'
+);
 assert.doesNotMatch(
   boardView,
   /onClick=\{handleExpand\}/,
