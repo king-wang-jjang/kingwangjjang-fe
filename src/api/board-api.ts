@@ -31,6 +31,14 @@ type BoardRestPost = {
   thumbnail?: string | null;
   comment_count?: number | null;
   likeCount?: number | null;
+  native_comment_count?: number | null;
+  native_like_count?: number | null;
+  native_view_count?: number | null;
+  source_rank?: number | null;
+  hot_score?: number | null;
+  daily_score?: number | null;
+  metrics_crawled_at?: string | null;
+  score_updated_at?: string | null;
 };
 
 export type BoardListFilters = {
@@ -59,6 +67,14 @@ export type BoardPost = {
   thumbnail?: string | null;
   commentCount?: number | null;
   likeCount?: number | null;
+  nativeCommentCount?: number | null;
+  nativeLikeCount?: number | null;
+  nativeViewCount?: number | null;
+  sourceRank?: number | null;
+  hotScore?: number | null;
+  dailyScore?: number | null;
+  metricsCrawledAt?: string | null;
+  scoreUpdatedAt?: string | null;
 };
 
 export type BoardAnalysis = {
@@ -117,6 +133,14 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     thumbnail: post.thumbnail,
     commentCount: post.comment_count,
     likeCount: post.likeCount,
+    nativeCommentCount: post.native_comment_count,
+    nativeLikeCount: post.native_like_count,
+    nativeViewCount: post.native_view_count,
+    sourceRank: post.source_rank,
+    hotScore: post.hot_score,
+    dailyScore: post.daily_score,
+    metricsCrawledAt: post.metrics_crawled_at,
+    scoreUpdatedAt: post.score_updated_at,
   };
 }
 
