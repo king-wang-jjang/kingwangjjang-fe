@@ -8,6 +8,8 @@ const globalCss = read('src/global.css');
 const rootLayout = read('src/app/layout.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
+const boardApi = read('src/api/board-api.ts');
+const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
 const oauthForm = read('src/auth/components/form-oauth.tsx');
@@ -236,8 +238,43 @@ assert.match(
 );
 assert.match(
   boardView,
+  /replace\(\s*\/\^\\\/\+\//,
+  'thumbnail resolver should strip leading slashes from relative media paths before prefixing'
+);
+assert.match(
+  boardView,
   /const thumbnailSrc = resolveThumbnailSrc\(post\.thumbnail\)/,
   'post cards should resolve thumbnails through the shared resolver'
+);
+assert.doesNotMatch(
+  boardView,
+  /<Typography variant="h6"[\s\S]*실시간 게시판[\s\S]*<\/Typography>[\s\S]*<Stack spacing=\{1\}>/,
+  'board tool pane should not repeat the realtime board title under the workspace label'
+);
+assert.match(
+  boardApi,
+  /export type BoardListFilters/,
+  'board API should expose reusable list filters'
+);
+assert.match(
+  boardApi,
+  /URLSearchParams/,
+  'board API should build filtered list URLs through URLSearchParams'
+);
+assert.match(
+  boardApi,
+  /filters\.sites\?\.forEach/,
+  'board API should support repeated site filters'
+);
+assert.match(
+  boardApi,
+  /hasThumbnail/,
+  'board API should support thumbnail-presence filtering'
+);
+assert.match(
+  infiniteBoardHook,
+  /filters:\s*BoardListFilters/,
+  'infinite board hook should accept board list filters'
 );
 assert.doesNotMatch(
   boardView,

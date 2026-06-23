@@ -388,11 +388,8 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
           Workspace
         </Typography>
-        <Typography variant="h6" sx={{ mt: 0.5, mb: 1.5 }}>
-          실시간 게시판
-        </Typography>
 
-        <Stack spacing={1}>
+        <Stack spacing={1} sx={{ mt: 1.25 }}>
           <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
             Sites
           </Typography>
@@ -1122,7 +1119,10 @@ function resolveThumbnailSrc(thumbnail?: string | null) {
     return trimmedThumbnail;
   }
 
-  return `${CONFIG.imageServerUrl}/${trimmedThumbnail}`;
+  const imageServerUrl = CONFIG.imageServerUrl.replace(/\/+$/, '');
+  const normalizedThumbnailPath = trimmedThumbnail.replace(/\\/g, '/').replace(/^\/+/, '');
+
+  return `${imageServerUrl}/${normalizedThumbnailPath}`;
 }
 
 const DEFAULT_GPT_ANSWER = 'GPT 생성 중입니다. 이미지가 많은 경우 오래 걸립니다.';

@@ -33,6 +33,14 @@ type BoardRestPost = {
   likeCount?: number | null;
 };
 
+export type BoardListFilters = {
+  category?: string;
+  hasThumbnail?: boolean;
+  query?: string;
+  sites?: string[];
+  tag?: string;
+};
+
 export type BoardPost = {
   Id?: string | null;
   category: string;
@@ -112,18 +120,53 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
   };
 }
 
-export async function getRealtimeBoards(index: number, limit = 30) {
+export async function getRealtimeBoards(
+  index: number,
+  limit = 30,
+  filters: BoardListFilters = {}
+) {
   const posts = await apiFetch<BoardRestPost[]>(
-    `/boardservice/api/boards/realtime?index=${index}&limit=${limit}`
+    `/boardservice/api/boards/realtime?${toBoardListSearchParams(index, limit, filters)}`
   );
   return posts.map(normalizeBoardPost);
 }
 
-export async function getDailyBoards(index: number, limit = 30) {
+export async function getDailyBoards(index: number, limit = 30, filters: BoardListFilters = {}) {
   const posts = await apiFetch<BoardRestPost[]>(
-    `/boardservice/api/boards/daily?index=${index}&limit=${limit}`
+    `/boardservice/api/boards/daily?${toBoardListSearchParams(index, limit, filters)}`
   );
   return posts.map(normalizeBoardPost);
+}
+
+function toBoardListSearchParams(index: number, limit: number, filters: BoardListFilters) {
+  const params = new URLSearchParams({
+    index: String(index),
+    limit: String(limit),
+  });
+
+  filters.sites?.forEach((site) => {
+    const trimmedSite = site.trim();
+    if (trimmedSite) {
+      params.append('sites', trimmedSite);
+    }
+  });
+
+  appendSearchParam(params, 'category', filters.category);
+  appendSearchParam(params, 'tag', filters.tag);
+  appendSearchParam(params, 'q', filters.query);
+
+  if (typeof filters.hasThumbnail === 'boolean') {
+    params.set('has_thumbnail', String(filters.hasThumbnail));
+  }
+
+  return params.toString();
+}
+
+function appendSearchParam(params: URLSearchParams, key: string, value?: string) {
+  const trimmedValue = value?.trim();
+  if (trimmedValue) {
+    params.set(key, trimmedValue);
+  }
 }
 
 export function addBoardLike(boardId: string) {

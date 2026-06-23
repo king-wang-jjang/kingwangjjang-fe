@@ -1,4 +1,4 @@
-import type { BoardPost } from 'src/api/board-api';
+import type { BoardPost, BoardListFilters } from 'src/api/board-api';
 
 import { useRef, useMemo, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -6,8 +6,9 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { getRealtimeBoards } from 'src/api/board-api';
 
 const BOARD_PAGE_SIZE = 30;
+const EMPTY_FILTERS: BoardListFilters = {};
 
-const useInfiniteScrollablePostList = () => {
+const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS) => {
   const loadingRef = useRef<HTMLDivElement | null>(null);
 
   const {
@@ -18,8 +19,8 @@ const useInfiniteScrollablePostList = () => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['boards', 'realtime'],
-    queryFn: ({ pageParam }) => getRealtimeBoards(pageParam, BOARD_PAGE_SIZE),
+    queryKey: ['boards', 'realtime', filters],
+    queryFn: ({ pageParam }) => getRealtimeBoards(pageParam, BOARD_PAGE_SIZE, filters),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length < BOARD_PAGE_SIZE ? undefined : allPages.length,
