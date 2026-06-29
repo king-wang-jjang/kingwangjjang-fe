@@ -4,6 +4,7 @@ import type {
   BoardPost,
   BoardAnalysis,
   AnalysisStatus,
+  BoardListFilters,
   BoardAnalysisJobStatus,
 } from 'src/api/board-api';
 
@@ -85,6 +86,12 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const [analysisStatuses, setAnalysisStatuses] = useState<Record<string, AnalysisStatus>>({});
   const analysisRequestsRef = useRef(new Set<string>());
   const { isAuthenticated } = useAuthStore();
+  const boardFilters = useMemo<BoardListFilters>(
+    () => ({
+      sites: selectedSites,
+    }),
+    [selectedSites]
+  );
 
   const {
     postData,
@@ -93,15 +100,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     filterCollection,
     boardContentsQueryError,
     boardContentsQueryLoading,
-  } = useBoard();
-
-  const filteredPosts = useMemo(() => {
-    if (!selectedSites.length) {
-      return postData;
-    }
-
-    return postData.filter((post) => selectedSites.includes(post.site));
-  }, [postData, selectedSites]);
+  } = useBoard(boardFilters);
 
   const siteLabels = useMemo(
     () =>
@@ -117,11 +116,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       return;
     }
 
-    const isVisible = filteredPosts.some((post) => getPostId(post) === selectedPost.boardId);
+    const isVisible = postData.some((post) => getPostId(post) === selectedPost.boardId);
     if (!isVisible) {
       setSelectedPost(null);
     }
-  }, [filteredPosts, selectedPost]);
+  }, [postData, selectedPost]);
 
   const handleToggleSite = useCallback((site: string) => {
     setSelectedSites((current) =>
@@ -373,7 +372,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             </Typography>
           </Box>
           <Chip
-            label={`${filteredPosts.length}개 게시글`}
+            label={`${postData.length}개 게시글`}
             size="small"
             sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
           />
@@ -468,7 +467,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     <Stack spacing={1}>
       {initialLoading
         ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
-        : filteredPosts.map((post) => (
+        : postData.map((post) => (
             <BoardPostCard
               key={getPostId(post)}
               post={post}
@@ -479,7 +478,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             />
           ))}
 
-      {!initialLoading && !filteredPosts.length && (
+      {!initialLoading && !postData.length && (
         <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
           <CardContent sx={{ py: 5, textAlign: 'center' }}>
             <Typography variant="h6">게시글이 없습니다</Typography>
@@ -512,7 +511,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
   return (
     <Container maxWidth={false} disableGutters aria-label={title}>
-      <Stack className="BoardWorkbenchFrame" spacing={1.25} sx={{ alignItems: 'center', width: '100%' }}>
+      <Stack
+        className="BoardWorkbenchFrame"
+        spacing={1.25}
+        sx={{ alignItems: 'center', width: '100%' }}
+      >
         {boardContentsQueryError && !postData.length && (
           <Alert
             severity="warning"
@@ -819,7 +822,6 @@ function BoardPostCard({
                     >
                       {post.title}
                     </Typography>
-
                   </Stack>
 
                   <Stack
@@ -958,7 +960,11 @@ function BoardPostCard({
                       direction="row"
                       spacing={1}
                       useFlexGap
-                      sx={{ alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                      sx={{
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                      }}
                     >
                       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
                         수집 데이터

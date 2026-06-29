@@ -33,7 +33,7 @@ export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
     );
 
     if (uniqueSite.length > 0) {
-      setFilterCollection(uniqueSite);
+      setFilterCollection((current) => Array.from(new Set([...current, ...uniqueSite])));
     }
   }, [boardContentsData]);
 
