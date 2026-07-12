@@ -92,7 +92,11 @@ assert.doesNotMatch(
 );
 
 assert.match(rootLayout, /themeColor:\s*'#fdfdf8'/i, 'viewport theme color should match parchment');
-assert.match(appLoading, /loading\.gif/, 'app initial loading should use the provided loading.gif asset');
+assert.match(
+  appLoading,
+  /loading\.gif/,
+  'app initial loading should use the provided loading.gif asset'
+);
 assert.match(
   appLoading,
   /width=\{360\}[\s\S]*height=\{120\}/,
@@ -170,6 +174,31 @@ assert.match(
   boardView,
   /gridTemplateColumns:\s*`\$\{workbenchSideColumnWidth\}px minmax\(0, 1fr\) \$\{workbenchSideColumnWidth\}px`/,
   'desktop board should keep the first and third columns equal so the feed stays centered'
+);
+assert.match(
+  boardView,
+  /const isTabletContentViewport = useMediaQuery\(\s*'\(any-pointer: coarse\) and \(min-width: 900px\) and \(max-width: 1400px\)'\s*\);[\s\S]*const isContentFirstLayout = isMobile \|\| isTabletContentViewport;/,
+  'iPad Pro-sized touch-capable screens should use the content-first board layout'
+);
+assert.match(
+  boardView,
+  /display:\s*isContentFirstLayout \? 'block' : 'grid'/,
+  'content-first devices should collapse the board workbench to a single content column'
+);
+assert.match(
+  boardView,
+  /display:\s*isContentFirstLayout \? 'none' : 'block'/,
+  'content-first devices should hide desktop side panes'
+);
+assert.match(
+  boardView,
+  /\{isContentFirstLayout && renderFilters\}/,
+  'content-first devices should keep board filters available above the feed'
+);
+assert.match(
+  boardView,
+  /open=\{isContentFirstLayout && mobileCommentOpen\}/,
+  'content-first devices should use the comment drawer instead of the desktop sidebar'
 );
 assert.match(
   boardView,
@@ -266,11 +295,7 @@ assert.match(
   /filters\.sites\?\.forEach/,
   'board API should support repeated site filters'
 );
-assert.match(
-  boardApi,
-  /hasThumbnail/,
-  'board API should support thumbnail-presence filtering'
-);
+assert.match(boardApi, /hasThumbnail/, 'board API should support thumbnail-presence filtering');
 assert.match(
   infiniteBoardHook,
   /filters:\s*BoardListFilters/,
@@ -321,18 +346,16 @@ assert.match(
   /metadata-chip-row[\s\S]*post\.siteLabel[\s\S]*tags\.map/,
   'post tag chips should sit on the same metadata row as the site chip'
 );
-assert.match(
-  boardView,
-  /filter-icon-button/,
-  'site filtering should be opened by an icon button'
-);
+assert.match(boardView, /filter-icon-button/, 'site filtering should be opened by an icon button');
 assert.doesNotMatch(
   boardView,
   /SocialLoginButtons/,
   'board tool pane should not render the Kakao login button after it moves to the header'
 );
 assert.equal(
-  boardButtonBlocks.some((block) => block.includes('setSiteMenuAnchor') || block.includes('사이트 필터')),
+  boardButtonBlocks.some(
+    (block) => block.includes('setSiteMenuAnchor') || block.includes('사이트 필터')
+  ),
   false,
   'site filtering should not use a large text button as the click target'
 );
@@ -359,10 +382,18 @@ assert.match(boardView, /#eeefe9/i, 'post cards and filters should use sage crea
 
 assert.match(oauthForm, /kakao-login-button/, 'Kakao login should expose a compact button class');
 assert.match(oauthForm, /kakao-login-image/, 'Kakao login should render the provided image asset');
-assert.match(oauthForm, /\/kakao_login_small\.png/, 'Kakao login should use the small public Kakao asset');
+assert.match(
+  oauthForm,
+  /\/kakao_login_small\.png/,
+  'Kakao login should use the small public Kakao asset'
+);
 assert.doesNotMatch(oauthForm, /ChatBubbleIcon/, 'Kakao login should not use the fallback icon');
 assert.doesNotMatch(oauthForm, /fullWidth/, 'header login button should not use full-width layout');
-assert.doesNotMatch(oauthForm, /size="large"/, 'header login button should not use the large CTA size');
+assert.doesNotMatch(
+  oauthForm,
+  /size="large"/,
+  'header login button should not use the large CTA size'
+);
 assert.match(commentSidebar, /#eeefe9/i, 'comment sidebar should use sage panel surface');
 assert.match(commentDrawer, /#eeefe9/i, 'comment drawer should use sage panel surface');
 assert.match(

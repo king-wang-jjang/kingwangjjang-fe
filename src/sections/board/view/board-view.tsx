@@ -75,6 +75,10 @@ const analysisPollLimit = 80;
 export function BoardView({ title = '실시간 게시판' }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
+  const isTabletContentViewport = useMediaQuery(
+    '(any-pointer: coarse) and (min-width: 900px) and (max-width: 1400px)'
+  );
+  const isContentFirstLayout = isMobile || isTabletContentViewport;
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
@@ -181,7 +185,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       const boardId = getPostId(post);
 
       setSelectedPost({ boardId, site: post.site });
-      if (isMobile) {
+      if (isContentFirstLayout) {
         setMobileCommentOpen(true);
       }
 
@@ -233,7 +237,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           });
       }
     },
-    [isAuthenticated, isMobile, updatePostAnalysis]
+    [isAuthenticated, isContentFirstLayout, updatePostAnalysis]
   );
 
   const handleCommentOpen = useCallback(
@@ -245,7 +249,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
   const handleCommentClose = () => {
     setSelectedPost(null);
-    if (isMobile) {
+    if (isContentFirstLayout) {
       setMobileCommentOpen(false);
     }
   };
@@ -535,7 +539,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         <Box
           className="BoardWorkbench"
           sx={{
-            display: { xs: 'block', md: 'grid' },
+            display: isContentFirstLayout ? 'block' : 'grid',
             gridTemplateColumns: `${workbenchSideColumnWidth}px minmax(0, 1fr) ${workbenchSideColumnWidth}px`,
             gap: 1.5,
             alignItems: 'start',
@@ -544,17 +548,21 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             mx: 'auto',
           }}
         >
-          <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 78 }}>
+          <Box
+            sx={{ display: isContentFirstLayout ? 'none' : 'block', position: 'sticky', top: 78 }}
+          >
             {renderToolPane}
           </Box>
 
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
             {renderFeedHeader}
-            {isMobile && renderFilters}
+            {isContentFirstLayout && renderFilters}
             {renderPostList}
           </Stack>
 
-          <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 78 }}>
+          <Box
+            sx={{ display: isContentFirstLayout ? 'none' : 'block', position: 'sticky', top: 78 }}
+          >
             {selectedPost ? (
               <CommentSidebar
                 postId={selectedPost.boardId}
@@ -572,7 +580,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
         {selectedPost && (
           <CommentDrawer
-            open={mobileCommentOpen}
+            open={isContentFirstLayout && mobileCommentOpen}
             onClose={handleCommentClose}
             postId={selectedPost.boardId}
             site={selectedPost.site}
