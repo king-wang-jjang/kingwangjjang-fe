@@ -611,6 +611,7 @@ function BoardPostCard({
 }: BoardPostCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const [currentLikeCount, setCurrentLikeCount] = useState(post.likeCount ?? 0);
 
   const { isAuthenticated } = useAuthStore();
@@ -618,7 +619,8 @@ function BoardPostCard({
 
   const boardId = getPostId(post);
   const readStatus = isRead(boardId);
-  const thumbnailSrc = resolveThumbnailSrc(post.thumbnail);
+  const resolvedThumbnailSrc = resolveThumbnailSrc(post.thumbnail);
+  const thumbnailSrc = thumbnailFailed ? '' : resolvedThumbnailSrc;
   const summary = getPostSummary(post);
   const tags = getPostTags(post);
   const analyzing = isActiveAnalysisJob(analysisJob);
@@ -628,6 +630,15 @@ function BoardPostCard({
   useEffect(() => {
     setCurrentLikeCount(post.likeCount ?? 0);
   }, [post.likeCount]);
+
+  useEffect(() => {
+    setThumbnailFailed(false);
+  }, [resolvedThumbnailSrc]);
+
+  const handleThumbnailError = () => {
+    setThumbnailFailed(true);
+    setImageOpen(false);
+  };
 
   const handleCardClick = () => {
     const selection = window.getSelection();
@@ -702,6 +713,7 @@ function BoardPostCard({
         component="img"
         src={thumbnailSrc}
         alt=""
+        onError={handleThumbnailError}
         sx={{
           width: '100%',
           height: '100%',
@@ -1085,6 +1097,7 @@ function BoardPostCard({
               component="img"
               src={thumbnailSrc}
               alt=""
+              onError={handleThumbnailError}
               sx={{
                 width: '100%',
                 maxHeight: '86vh',
@@ -1126,6 +1139,16 @@ function getPostId(post: BoardPost) {
 function resolveThumbnailSrc(thumbnail?: string | null) {
   const trimmedThumbnail = thumbnail?.trim();
   if (!trimmedThumbnail) {
+    return '';
+  }
+
+  const thumbnailPath = trimmedThumbnail.split(/[?#]/, 1)[0].replace(/\\/g, '/').toLowerCase();
+  const fileName = thumbnailPath.split('/').pop();
+  if (
+    fileName === 'icon_app_20160427.png' ||
+    fileName === 'cdn_img_404.jpg' ||
+    /\.(?:m3u8|m4v|mov|mp4|webm)$/.test(thumbnailPath)
+  ) {
     return '';
   }
 

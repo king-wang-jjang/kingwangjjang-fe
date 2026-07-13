@@ -272,8 +272,18 @@ assert.match(
 );
 assert.match(
   boardView,
-  /const thumbnailSrc = resolveThumbnailSrc\(post\.thumbnail\)/,
+  /const resolvedThumbnailSrc = resolveThumbnailSrc\(post\.thumbnail\)/,
   'post cards should resolve thumbnails through the shared resolver'
+);
+assert.match(
+  boardView,
+  /icon_app_20160427\.png[\s\S]*cdn_img_404\.jpg[\s\S]*m3u8\|m4v\|mov\|mp4\|webm/,
+  'thumbnail resolver should reject placeholder images and video metadata'
+);
+assert.match(
+  boardView,
+  /const \[thumbnailFailed, setThumbnailFailed\] = useState\(false\)[\s\S]*onError=\{handleThumbnailError\}/,
+  'failed image requests should fall back to the non-image site marker'
 );
 assert.doesNotMatch(
   boardView,
