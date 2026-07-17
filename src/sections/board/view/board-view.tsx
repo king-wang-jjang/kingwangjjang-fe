@@ -212,6 +212,8 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
                 status: 'done',
                 summary: finishedJob.summary,
                 tags: finishedJob.tags ?? [],
+                llmEngagementScore: finishedJob.llmEngagementScore,
+                llmEngagementReason: finishedJob.llmEngagementReason,
               });
               return;
             }

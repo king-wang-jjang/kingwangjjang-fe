@@ -1,5 +1,6 @@
 import type { BoardPost, BoardAnalysis, BoardListFilters } from 'src/api/board-api';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useCallback } from 'react';
 
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
@@ -8,6 +9,7 @@ const EMPTY_POSTS: BoardPost[] = [];
 const EMPTY_FILTERS: BoardListFilters = {};
 
 export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
+  const queryClient = useQueryClient();
   const [postData, setPostData] = useState<BoardPost[]>(EMPTY_POSTS);
   const [filterCollection, setFilterCollection] = useState<string[]>([]);
 
@@ -37,22 +39,36 @@ export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
     }
   }, [boardContentsData]);
 
-  const updatePostAnalysis = useCallback((analysis: BoardAnalysis) => {
-    setPostData((current) =>
-      current.map((post) =>
-        post.Id === analysis.boardId
-          ? {
-              ...post,
-              gptAnswer: analysis.summary ?? post.gptAnswer,
-              tags: analysis.status === 'done' || analysis.tags.length ? analysis.tags : post.tags,
-              analysisStatus: analysis.status,
-              analysisRetryCount: analysis.retryCount,
-              analysisError: analysis.error,
-            }
-          : post
-      )
-    );
-  }, []);
+  const updatePostAnalysis = useCallback(
+    (analysis: BoardAnalysis) => {
+      setPostData((current) =>
+        current.map((post) =>
+          post.Id === analysis.boardId
+            ? {
+                ...post,
+                gptAnswer: analysis.summary ?? post.gptAnswer,
+                tags:
+                  analysis.status === 'done' || analysis.tags.length
+                    ? analysis.tags
+                    : post.tags,
+                llmEngagementScore: analysis.llmEngagementScore ?? post.llmEngagementScore,
+                llmEngagementReason: analysis.llmEngagementReason ?? post.llmEngagementReason,
+                analysisStatus: analysis.status,
+                analysisRetryCount: analysis.retryCount,
+                analysisError: analysis.error,
+              }
+            : post
+        )
+      );
+
+      if (analysis.status === 'done') {
+        queryClient
+          .invalidateQueries({ queryKey: ['boards', 'realtime'] })
+          .catch(() => undefined);
+      }
+    },
+    [queryClient]
+  );
 
   return {
     postData,

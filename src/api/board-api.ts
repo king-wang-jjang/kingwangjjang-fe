@@ -24,6 +24,8 @@ type BoardRestPost = {
   contents?: string | CrawledContentBlock[] | Record<string, unknown> | null;
   gpt_answer?: string | null;
   tags?: string[] | null;
+  llm_engagement_score?: number | null;
+  llm_engagement_reason?: string | null;
   analysis_status?: AnalysisStatus | null;
   analysis_retry_count?: number | null;
   analysis_error?: string | null;
@@ -60,6 +62,8 @@ export type BoardPost = {
   contents?: string | CrawledContentBlock[] | Record<string, unknown> | null;
   gptAnswer?: string | null;
   tags?: string[];
+  llmEngagementScore?: number | null;
+  llmEngagementReason?: string | null;
   analysisStatus?: AnalysisStatus | null;
   analysisRetryCount?: number | null;
   analysisError?: string | null;
@@ -82,6 +86,8 @@ export type BoardAnalysis = {
   status: AnalysisStatus;
   summary?: string | null;
   tags: string[];
+  llmEngagementScore?: number | null;
+  llmEngagementReason?: string | null;
   retryCount?: number | null;
   error?: string | null;
   requestedAt?: string | null;
@@ -98,6 +104,8 @@ export type BoardAnalysisJobStatus = {
   message: string;
   summary?: string | null;
   tags?: string[];
+  llmEngagementScore?: number | null;
+  llmEngagementReason?: string | null;
   error?: string | null;
 };
 
@@ -126,6 +134,8 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     contents: post.contents,
     gptAnswer: post.gpt_answer,
     tags: Array.isArray(post.tags) ? post.tags : [],
+    llmEngagementScore: post.llm_engagement_score,
+    llmEngagementReason: post.llm_engagement_reason,
     analysisStatus: post.analysis_status,
     analysisRetryCount: post.analysis_retry_count,
     analysisError: post.analysis_error,
