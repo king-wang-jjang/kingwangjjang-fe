@@ -190,10 +190,28 @@ assert.match(
   /display:\s*isContentFirstLayout \? 'none' : 'block'/,
   'content-first devices should hide desktop side panes'
 );
+const feedHeaderStart = boardView.indexOf('const renderFeedHeader');
+const toolPaneStart = boardView.indexOf('const renderToolPane');
+
+assert.notEqual(feedHeaderStart, -1, 'board view should define the feed header');
+assert.notEqual(toolPaneStart, -1, 'board view should define the desktop tool pane');
+
+const feedHeaderSource = boardView.slice(feedHeaderStart, toolPaneStart);
+
 assert.match(
+  feedHeaderSource,
+  /className="filter-icon-button"[\s\S]*selectedSites\.map[\s\S]*필터 초기화/,
+  'content-first devices should keep board filters available in the always-rendered feed header'
+);
+assert.doesNotMatch(
+  boardView,
+  /const renderFilters/,
+  'board filters should not use a standalone responsive card'
+);
+assert.doesNotMatch(
   boardView,
   /\{isContentFirstLayout && renderFilters\}/,
-  'content-first devices should keep board filters available above the feed'
+  'content-first feed should not render a standalone filter card'
 );
 assert.match(
   boardView,
