@@ -642,7 +642,7 @@ function BoardPostCard({
       sx={{
         p: 0,
         width: { xs: 72, sm: 96 },
-        minHeight: { xs: 72, sm: 96 },
+        height: { xs: 72, sm: 96 },
         border: 1,
         borderColor: '#bfc1b7',
         borderRadius: 1,
@@ -650,7 +650,7 @@ function BoardPostCard({
         bgcolor: '#eeefe9',
         cursor: 'zoom-in',
         flexShrink: 0,
-        alignSelf: 'stretch',
+        alignSelf: 'flex-start',
         opacity: 0.86,
       }}
     >
@@ -672,7 +672,7 @@ function BoardPostCard({
       className="card-side-image-slot compact-site-marker"
       sx={{
         width: { xs: 72, sm: 96 },
-        minHeight: { xs: 72, sm: 96 },
+        height: { xs: 72, sm: 96 },
         border: 1,
         borderColor: '#d5d7cd',
         borderRadius: 1,
@@ -683,7 +683,7 @@ function BoardPostCard({
         fontSize: 18,
         fontWeight: 750,
         flexShrink: 0,
-        alignSelf: 'stretch',
+        alignSelf: 'flex-start',
       }}
     >
       {post.siteLabel.slice(0, 1)}

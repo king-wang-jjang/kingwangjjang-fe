@@ -213,6 +213,43 @@ assert.doesNotMatch(
   /\{isContentFirstLayout && renderFilters\}/,
   'content-first feed should not render a standalone filter card'
 );
+const sideImageSlotStart = boardView.indexOf('const renderSideImageSlot');
+const postCardReturnStart = boardView.indexOf('  return (', sideImageSlotStart);
+
+assert.notEqual(sideImageSlotStart, -1, 'board post card should define the side image slot');
+assert.notEqual(
+  postCardReturnStart,
+  -1,
+  'board post card should render after defining the side image slot'
+);
+
+const sideImageSlotSource = boardView.slice(sideImageSlotStart, postCardReturnStart);
+
+assert.equal(
+  (sideImageSlotSource.match(/height: \{ xs: 72, sm: 96 \}/g) ?? []).length,
+  2,
+  'image and fallback slots should use fixed responsive square heights'
+);
+assert.equal(
+  (sideImageSlotSource.match(/alignSelf: 'flex-start'/g) ?? []).length,
+  2,
+  'image and fallback slots should not stretch with card content'
+);
+assert.doesNotMatch(
+  sideImageSlotSource,
+  /minHeight: \{ xs: 72, sm: 96 \}|alignSelf: 'stretch'/,
+  'side image slots should not use stretchable minimum heights'
+);
+assert.match(
+  sideImageSlotSource,
+  /objectFit: 'cover'/,
+  'list thumbnail should crop inside its fixed slot'
+);
+assert.match(
+  boardView,
+  /open=\{imageOpen\}[\s\S]*maxHeight: '86vh'[\s\S]*objectFit: 'contain'/,
+  'full-image dialog should continue to show the complete image'
+);
 assert.match(
   boardView,
   /open=\{isContentFirstLayout && mobileCommentOpen\}/,
@@ -262,11 +299,6 @@ assert.doesNotMatch(
   boardView,
   /collapsed-expand-indicator|ExpandMoreIcon|card-footer-image-slot/,
   'collapsed cards should not render the old expansion indicator icon or a tiny footer image slot'
-);
-assert.match(
-  boardView,
-  /card-side-image-slot[\s\S]*width:\s*\{\s*xs:\s*72,\s*sm:\s*96\s*\}[\s\S]*alignSelf:\s*'stretch'/,
-  'post image slot should be a larger side panel that stretches with the card header'
 );
 assert.match(
   boardView,
