@@ -154,11 +154,7 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
   };
 }
 
-export async function getRealtimeBoards(
-  index: number,
-  limit = 30,
-  filters: BoardListFilters = {}
-) {
+export async function getRealtimeBoards(index: number, limit = 30, filters: BoardListFilters = {}) {
   const posts = await apiFetch<BoardRestPost[]>(
     `/boardservice/api/boards/realtime?${toBoardListSearchParams(index, limit, filters)}`
   );
@@ -169,6 +165,22 @@ export async function getDailyBoards(index: number, limit = 30, filters: BoardLi
   const posts = await apiFetch<BoardRestPost[]>(
     `/boardservice/api/boards/daily?${toBoardListSearchParams(index, limit, filters)}`
   );
+  return posts.map(normalizeBoardPost);
+}
+
+export async function getDailyBoardHistoryDates(limit = 30) {
+  const params = new URLSearchParams({ limit: String(limit) });
+
+  return apiFetch<string[]>(`/boardservice/api/boards/daily/history/dates?${params}`);
+}
+
+export async function getDailyBoardHistory(date: string, limit = 10) {
+  const params = new URLSearchParams({
+    date,
+    limit: String(limit),
+  });
+  const posts = await apiFetch<BoardRestPost[]>(`/boardservice/api/boards/daily/history?${params}`);
+
   return posts.map(normalizeBoardPost);
 }
 

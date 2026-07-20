@@ -9,6 +9,7 @@ const rootLayout = read('src/app/layout.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
 const boardApi = read('src/api/board-api.ts');
+const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
@@ -30,6 +31,7 @@ const redesignedFiles = [
   appLoading,
   appShell,
   boardView,
+  boardPostUtils,
   themeProvider,
   oauthForm,
   commentSidebar,
@@ -301,24 +303,29 @@ assert.doesNotMatch(
   'collapsed cards should not render the old expansion indicator icon or a tiny footer image slot'
 );
 assert.match(
-  boardView,
-  /function resolveThumbnailSrc/,
-  'board view should define a shared thumbnail resolver'
+  boardPostUtils,
+  /export function resolveThumbnailSrc/,
+  'board cards should use a shared thumbnail resolver'
 );
 assert.match(
-  boardView,
+  boardPostUtils,
   /\^https\?:\\\/\\\//,
   'thumbnail resolver should detect absolute metadata URLs'
 );
 assert.match(
-  boardView,
+  boardPostUtils,
   /CONFIG\.imageServerUrl/,
   'thumbnail resolver should prefix relative media paths'
 );
 assert.match(
-  boardView,
+  boardPostUtils,
   /replace\(\s*\/\^\\\/\+\//,
   'thumbnail resolver should strip leading slashes from relative media paths before prefixing'
+);
+assert.match(
+  boardView,
+  /import \{ getPostSummary, resolveThumbnailSrc \} from 'src\/components\/board-post\/board-post-utils'/,
+  'board view should consume the shared summary and thumbnail rules'
 );
 assert.match(
   boardView,
@@ -326,7 +333,7 @@ assert.match(
   'post cards should resolve thumbnails through the shared resolver'
 );
 assert.match(
-  boardView,
+  boardPostUtils,
   /icon_app_20160427\.png[\s\S]*cdn_img_404\.jpg[\s\S]*m3u8\|m4v\|mov\|mp4\|webm/,
   'thumbnail resolver should reject placeholder images and video metadata'
 );

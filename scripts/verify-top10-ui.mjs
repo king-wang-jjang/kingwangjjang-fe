@@ -8,7 +8,31 @@ function readRequired(path) {
 
 console.log('Verifying Top 10 UI contract...');
 
+const boardApi = readRequired('src/api/board-api.ts');
+const boardPostUtils = readRequired('src/components/board-post/board-post-utils.ts');
 const topBoardsHook = readRequired('src/hooks/use-top-boards.ts');
+const topBoardAnalysisHook = readRequired('src/hooks/use-top-board-analysis.ts');
+
+assert.match(
+  boardApi,
+  /getDailyBoardHistoryDates[\s\S]*\/boardservice\/api\/boards\/daily\/history\/dates\?\$\{params\}/,
+  'board API should expose the stored Top 10 dates endpoint'
+);
+assert.match(
+  boardApi,
+  /getDailyBoardHistory\(date:[\s\S]*\/boardservice\/api\/boards\/daily\/history\?\$\{params\}[\s\S]*posts\.map\(normalizeBoardPost\)/,
+  'board API should normalize a selected historical Top 10 response'
+);
+assert.match(
+  boardApi,
+  /gptAnswer:\s*post\.gpt_answer[\s\S]*thumbnail:\s*post\.thumbnail/,
+  'Top 10 normalization should retain summaries and thumbnails'
+);
+assert.match(
+  boardPostUtils,
+  /export function resolveThumbnailSrc[\s\S]*export function getPostSummary/,
+  'board and Top 10 cards should share thumbnail and summary rules'
+);
 
 assert.match(
   topBoardsHook,
@@ -17,8 +41,8 @@ assert.match(
 );
 assert.match(
   topBoardsHook,
-  /queryKey:\s*TOP_BOARDS_QUERY_KEY/,
-  'Top 10 hook should use a stable query key'
+  /queryKey:\s*\[\.\.\.TOP_BOARDS_QUERY_KEY,\s*selectedDate\]/,
+  'Top 10 hook should isolate cached rankings by selected date'
 );
 assert.match(
   topBoardsHook,
@@ -27,8 +51,33 @@ assert.match(
 );
 assert.match(
   topBoardsHook,
-  /placeholderData:\s*\(previousData\)\s*=>\s*previousData/,
-  'Top 10 hook should preserve successful data while refreshing'
+  /getDailyBoardHistory\(selectedDate,\s*TOP_BOARDS_LIMIT\)/,
+  'Top 10 hook should request the selected historical ranking'
+);
+assert.match(
+  topBoardsHook,
+  /staleTime:\s*isToday\s*\?\s*60_000\s*:\s*Infinity/,
+  'historical rankings should stay fresh in the client cache'
+);
+assert.match(
+  topBoardsHook,
+  /gcTime:\s*isToday\s*\?[^:]+:\s*Infinity/,
+  'historical rankings should remain available when switching dates'
+);
+assert.match(
+  topBoardsHook,
+  /useTopBoardHistoryDates[\s\S]*getDailyBoardHistoryDates\(TOP_BOARD_HISTORY_DATES_LIMIT\)/,
+  'Top 10 history date options should load through a dedicated query'
+);
+assert.match(
+  topBoardAnalysisHook,
+  /selectedDate !== TOP_BOARDS_TODAY[\s\S]*analyzeBoardPost\(boardId\)[\s\S]*pollBoardAnalysisJob/,
+  'missing summaries should only be generated for today and should poll the analysis job'
+);
+assert.match(
+  topBoardAnalysisHook,
+  /setQueryData<BoardPost\[\]>[\s\S]*gptAnswer:\s*job\.summary/,
+  'completed Top 10 summaries should update the selected ranking cache'
 );
 
 const top10List = readRequired('src/components/top10/top10-list.tsx');
@@ -36,8 +85,13 @@ const top10Index = readRequired('src/components/top10/index.ts');
 
 assert.match(
   top10List,
-  /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'/,
-  'shared Top 10 list should expose sidebar and page variants'
+  /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'[\s\S]*selectedDate\?: string/,
+  'shared Top 10 list should expose sidebar, page, and selected-date inputs'
+);
+assert.match(
+  top10List,
+  /useTopBoards\(selectedDate\)/,
+  'shared Top 10 list should query the requested date'
 );
 assert.match(top10List, /component="ol"/, 'ranking content should use ordered-list semantics');
 assert.match(
@@ -48,11 +102,54 @@ assert.match(
 assert.match(top10List, /isPending/, 'ranking UI should render a loading state');
 assert.match(top10List, /isError/, 'ranking UI should render an error state');
 assert.match(top10List, /refetch/, 'ranking error state should expose retry');
-assert.match(top10List, /target="_blank"/, 'ranking links should open original posts');
+
+const sidebarRowStart = top10List.indexOf('function Top10SidebarRow');
+const pageRowStart = top10List.indexOf('type Top10PageRowProps');
+const top10ListStart = top10List.indexOf('export function Top10List');
+
+assert.notEqual(sidebarRowStart, -1, 'Top 10 should define a compact sidebar row');
+assert.notEqual(pageRowStart, -1, 'Top 10 should define an expandable page row');
+assert.notEqual(top10ListStart, -1, 'Top 10 should define its shared list');
+
+const sidebarRowSource = top10List.slice(sidebarRowStart, pageRowStart);
+const pageRowSource = top10List.slice(pageRowStart, top10ListStart);
+const pageCollapseStart = pageRowSource.indexOf('<Collapse');
+
+assert.match(
+  sidebarRowSource,
+  /href=\{post\.url\}[\s\S]*target="_blank"[\s\S]*rel="noopener noreferrer"/,
+  'compact sidebar rows should keep their direct safe source links'
+);
+assert.doesNotMatch(
+  sidebarRowSource,
+  /Collapse|component="img"|getPostSummary/,
+  'compact sidebar rows should not render expanded summary or image content'
+);
+assert.match(
+  pageRowSource,
+  /<ButtonBase[\s\S]*aria-expanded=\{expanded\}[\s\S]*aria-controls=\{detailsId\}/,
+  'page rows should expose an accessible expansion trigger'
+);
+assert.notEqual(pageCollapseStart, -1, 'page rows should contain a collapsible details panel');
+assert.doesNotMatch(
+  pageRowSource.slice(0, pageCollapseStart),
+  /href=\{post\.url\}|component="img"/,
+  'collapsed page rows should not expose the image or source link'
+);
+assert.match(
+  pageRowSource.slice(pageCollapseStart),
+  /top10-expanded-panel[\s\S]*요약[\s\S]*component="img"[\s\S]*href=\{post\.url\}[\s\S]*원문 바로가기/,
+  'expanded page rows should contain the summary, image, and source action'
+);
+assert.match(
+  pageRowSource.slice(pageCollapseStart),
+  /target="_blank"[\s\S]*rel="noopener noreferrer"/,
+  'expanded source actions should open safely in a new tab'
+);
 assert.match(
   top10List,
-  /rel="noopener noreferrer"/,
-  'external ranking links should isolate the opener'
+  /key=\{`\$\{selectedDate\}:\$\{key\}`\}/,
+  'date changes should remount page rows and reset row-local image state'
 );
 assert.match(
   top10Index,
@@ -132,8 +229,33 @@ assert.match(
 );
 assert.match(
   top10View,
-  /<Top10List variant="page" \/>/,
-  'dedicated route should reuse the shared page variant'
+  /useTopBoardHistoryDates\(\)/,
+  'dedicated route should load saved ranking dates'
+);
+assert.match(
+  top10View,
+  /<MenuItem value=\{TOP_BOARDS_TODAY\}>오늘<\/MenuItem>/,
+  'date selector should always include the live ranking'
+);
+assert.match(
+  top10View,
+  /ISO_DATE_PATTERN\.test\(date\) && date < today/,
+  'date selector should only offer valid dates before today'
+);
+assert.match(
+  top10View,
+  /<Top10List variant="page" selectedDate=\{selectedDate\} \/>/,
+  'dedicated route should pass the selected date to the shared list'
+);
+assert.match(
+  top10View,
+  /과거 기록은 이 기능 배포 이후부터 날짜별로 쌓입니다/,
+  'dedicated route should explain when historical records begin'
+);
+assert.match(
+  top10View,
+  /isDatesPending[\s\S]*isDatesError[\s\S]*!historyDates\.length/,
+  'historical date controls should expose loading, error, and empty states'
 );
 assert.match(
   top10View,
