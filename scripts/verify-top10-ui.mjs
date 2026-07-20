@@ -82,4 +82,27 @@ assert.match(
   'content-first layouts should link to the dedicated Top 10 page'
 );
 
+const appShell = readRequired('src/layouts/app-shell.tsx');
+const top10View = readRequired('src/sections/top10/view/top10-view.tsx');
+const top10Layout = readRequired('src/app/top10/layout.tsx');
+const top10Page = readRequired('src/app/top10/page.tsx');
+
+assert.match(
+  appShell,
+  /label: 'TOP 10'[\s\S]*href: '\/top10'[\s\S]*EmojiEventsOutlinedIcon/,
+  'mobile drawer should expose the Top 10 route'
+);
+assert.match(
+  top10View,
+  /<Top10List variant="page" \/>/,
+  'dedicated route should reuse the shared page variant'
+);
+assert.match(
+  top10View,
+  /href="\/board"[\s\S]*실시간 게시판/,
+  'dedicated route should provide a clear return to the board'
+);
+assert.match(top10Layout, /<AppShell>/, 'Top 10 route should reuse the app shell');
+assert.match(top10Page, /<Top10View \/>/, 'Top 10 page should render its focused view');
+
 console.log('Top 10 UI contract passed.');

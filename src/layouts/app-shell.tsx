@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import {
   Box,
@@ -44,6 +45,11 @@ const navItems = [
     label: '실시간 게시판',
     href: '/board',
     icon: <ArticleOutlinedIcon fontSize="small" />,
+  },
+  {
+    label: 'TOP 10',
+    href: '/top10',
+    icon: <EmojiEventsOutlinedIcon fontSize="small" />,
   },
 ];
 
