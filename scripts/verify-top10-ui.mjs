@@ -39,11 +39,7 @@ assert.match(
   /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'/,
   'shared Top 10 list should expose sidebar and page variants'
 );
-assert.match(
-  top10List,
-  /component="ol"/,
-  'ranking content should use ordered-list semantics'
-);
+assert.match(top10List, /component="ol"/, 'ranking content should use ordered-list semantics');
 assert.match(
   top10List,
   /posts\.slice\(0,\s*TOP_BOARDS_LIMIT\)/,
@@ -104,5 +100,13 @@ assert.match(
 );
 assert.match(top10Layout, /<AppShell>/, 'Top 10 route should reuse the app shell');
 assert.match(top10Page, /<Top10View \/>/, 'Top 10 page should render its focused view');
+
+const packageJson = readRequired('package.json');
+
+assert.match(
+  packageJson,
+  /verify-auth-profile-ui\.mjs && node scripts\/verify-top10-ui\.mjs/,
+  'repository check should run the Top 10 UI contract'
+);
 
 console.log('Top 10 UI contract passed.');

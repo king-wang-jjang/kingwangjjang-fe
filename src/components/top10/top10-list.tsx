@@ -212,12 +212,7 @@ export function Top10List({ variant = 'sidebar' }: Top10ListProps) {
         {!isPending && !isError && !!posts.length && (
           <Box component="ol" sx={{ m: 0, p: 0, listStyle: 'none' }}>
             {posts.slice(0, TOP_BOARDS_LIMIT).map((post, index) => (
-              <Top10Row
-                key={postKey(post)}
-                post={post}
-                rank={index + 1}
-                variant={variant}
-              />
+              <Top10Row key={postKey(post)} post={post} rank={index + 1} variant={variant} />
             ))}
           </Box>
         )}
