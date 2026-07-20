@@ -78,6 +78,43 @@ assert.match(
   'content-first layouts should link to the dedicated Top 10 page'
 );
 
+const feedHeaderStart = boardView.indexOf('const renderFeedHeader');
+const toolPaneStart = boardView.indexOf('const renderToolPane');
+const commentEmptyStateStart = boardView.indexOf('const renderCommentEmptyState');
+
+assert.notEqual(feedHeaderStart, -1, 'BoardView should define renderFeedHeader');
+assert.notEqual(toolPaneStart, -1, 'BoardView should define renderToolPane');
+assert.notEqual(commentEmptyStateStart, -1, 'BoardView should define renderCommentEmptyState');
+
+const feedHeaderSource = boardView.slice(feedHeaderStart, toolPaneStart);
+const toolPaneSource = boardView.slice(toolPaneStart, commentEmptyStateStart);
+
+assert.doesNotMatch(
+  boardView,
+  /const renderFilters/,
+  'standalone responsive filter card should be removed'
+);
+assert.match(
+  feedHeaderSource,
+  /className="filter-icon-button"[\s\S]*selectedSites\.map[\s\S]*필터 초기화/,
+  'feed header should retain the site filter controls'
+);
+assert.doesNotMatch(
+  toolPaneSource,
+  /Workspace|Sites|FilterListIcon|selectedSites/,
+  'desktop tool pane should only contain Top 10 content'
+);
+assert.match(
+  toolPaneSource,
+  /<Top10List variant="sidebar" \/>/,
+  'desktop tool pane should retain the shared Top 10 sidebar'
+);
+assert.doesNotMatch(
+  boardView,
+  /isContentFirstLayout && renderFilters/,
+  'content-first feed should not render a standalone filter card'
+);
+
 const appShell = readRequired('src/layouts/app-shell.tsx');
 const top10View = readRequired('src/sections/top10/view/top10-view.tsx');
 const top10Layout = readRequired('src/app/top10/layout.tsx');
