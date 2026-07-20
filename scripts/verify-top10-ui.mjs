@@ -99,6 +99,11 @@ assert.match(
   /className="filter-icon-button"[\s\S]*selectedSites\.map[\s\S]*필터 초기화/,
   'feed header should retain the site filter controls'
 );
+assert.equal(
+  boardView.match(/필터 초기화/g)?.length,
+  1,
+  'feed header should be the only board filter reset location'
+);
 assert.doesNotMatch(
   toolPaneSource,
   /Workspace|Sites|FilterListIcon|selectedSites/,

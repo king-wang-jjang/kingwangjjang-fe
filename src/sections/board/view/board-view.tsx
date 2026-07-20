@@ -437,16 +437,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
               필터를 초기화하거나 새 게시글이 수집될 때까지 기다려 주세요.
             </Typography>
-            {!!selectedSites.length && (
-              <Button
-                color="inherit"
-                size="small"
-                onClick={() => setSelectedSites([])}
-                sx={{ mt: 1.5 }}
-              >
-                필터 초기화
-              </Button>
-            )}
           </CardContent>
         </Card>
       )}
