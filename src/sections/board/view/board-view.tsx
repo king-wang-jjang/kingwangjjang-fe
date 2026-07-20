@@ -8,6 +8,7 @@ import type {
   BoardAnalysisJobStatus,
 } from 'src/api/board-api';
 
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
@@ -18,6 +19,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import {
   Box,
   Card,
@@ -55,6 +57,7 @@ import {
   getBoardAnalysisJob,
 } from 'src/api/board-api';
 
+import { Top10List } from 'src/components/top10';
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
 
 // ----------------------------------------------------------------------
@@ -377,75 +380,94 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               수집된 게시글을 빠르게 훑고 댓글 흐름을 확인하세요.
             </Typography>
           </Box>
-          <Chip
-            label={`${postData.length}개 게시글`}
-            size="small"
-            sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
-          />
+          <Stack direction="row" spacing={0.75} useFlexGap sx={{ alignItems: 'center' }}>
+            {isContentFirstLayout && (
+              <Button
+                component={Link}
+                href="/top10"
+                color="inherit"
+                variant="outlined"
+                size="small"
+                startIcon={<EmojiEventsOutlinedIcon />}
+                sx={{ bgcolor: '#fdfdf8', whiteSpace: 'nowrap' }}
+              >
+                TOP 10
+              </Button>
+            )}
+            <Chip
+              label={`${postData.length}개 게시글`}
+              size="small"
+              sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+            />
+          </Stack>
         </Stack>
       </CardContent>
     </Card>
   );
 
   const renderToolPane = (
-    <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
-      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
-          Workspace
-        </Typography>
+    <Stack spacing={1.25}>
+      <Top10List variant="sidebar" />
 
-        <Stack spacing={1} sx={{ mt: 1.25 }}>
+      <Card sx={{ bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
+        <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
           <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
-            Sites
+            Workspace
           </Typography>
-          <Tooltip title="사이트 필터">
-            <IconButton
-              className="filter-icon-button"
-              color="inherit"
-              onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
-              aria-label="사이트 필터"
-              sx={{
-                width: 36,
-                height: 36,
-                bgcolor: '#fdfdf8',
-                border: 1,
-                borderColor: '#bfc1b7',
-                color: '#4d4f46',
-                '&:hover': {
-                  color: '#F54E00',
+
+          <Stack spacing={1} sx={{ mt: 1.25 }}>
+            <Typography variant="overline" sx={{ color: '#65675e', fontWeight: 800 }}>
+              Sites
+            </Typography>
+            <Tooltip title="사이트 필터">
+              <IconButton
+                className="filter-icon-button"
+                color="inherit"
+                onClick={(event) => setSiteMenuAnchor(event.currentTarget)}
+                aria-label="사이트 필터"
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#fdfdf8',
+                  border: 1,
                   borderColor: '#bfc1b7',
-                  bgcolor: '#f4f4f4',
-                },
-              }}
-            >
-              <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
-                <FilterListIcon fontSize="small" />
-              </Badge>
-            </IconButton>
-          </Tooltip>
+                  color: '#4d4f46',
+                  '&:hover': {
+                    color: '#F54E00',
+                    borderColor: '#bfc1b7',
+                    bgcolor: '#f4f4f4',
+                  },
+                }}
+              >
+                <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
+                  <FilterListIcon fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
 
-          {!!selectedSites.length && (
-            <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
-              {selectedSites.map((site) => (
-                <Chip
-                  key={site}
-                  size="small"
-                  label={siteLabels[site] ?? site}
-                  onDelete={() => handleToggleSite(site)}
-                  sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
-                />
-              ))}
-            </Stack>
-          )}
+            {!!selectedSites.length && (
+              <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
+                {selectedSites.map((site) => (
+                  <Chip
+                    key={site}
+                    size="small"
+                    label={siteLabels[site] ?? site}
+                    onDelete={() => handleToggleSite(site)}
+                    sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+                  />
+                ))}
+              </Stack>
+            )}
 
-          {!!selectedSites.length && (
-            <Button color="inherit" size="small" onClick={() => setSelectedSites([])}>
-              필터 초기화
-            </Button>
-          )}
-        </Stack>
-      </CardContent>
-    </Card>
+            {!!selectedSites.length && (
+              <Button color="inherit" size="small" onClick={() => setSelectedSites([])}>
+                필터 초기화
+              </Button>
+            )}
+          </Stack>
+        </CardContent>
+      </Card>
+    </Stack>
   );
 
   const renderCommentEmptyState = (
@@ -551,7 +573,15 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           }}
         >
           <Box
-            sx={{ display: isContentFirstLayout ? 'none' : 'block', position: 'sticky', top: 78 }}
+            sx={{
+              display: isContentFirstLayout ? 'none' : 'block',
+              position: 'sticky',
+              top: 78,
+              maxHeight: 'calc(100vh - 94px)',
+              overflowY: 'auto',
+              pr: 0.25,
+              scrollbarWidth: 'thin',
+            }}
           >
             {renderToolPane}
           </Box>

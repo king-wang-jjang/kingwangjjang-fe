@@ -64,4 +64,22 @@ assert.match(
   'Top 10 component should have a focused public export'
 );
 
+const boardView = readRequired('src/sections/board/view/board-view.tsx');
+
+assert.match(
+  boardView,
+  /<Top10List variant="sidebar" \/>/,
+  'desktop workbench should render the shared Top 10 sidebar'
+);
+assert.match(
+  boardView,
+  /position: 'sticky'[\s\S]*maxHeight: 'calc\(100vh - 94px\)'[\s\S]*overflowY: 'auto'/,
+  'desktop left column should float and remain usable on short viewports'
+);
+assert.match(
+  boardView,
+  /isContentFirstLayout &&[\s\S]*href="\/top10"[\s\S]*TOP 10/,
+  'content-first layouts should link to the dedicated Top 10 page'
+);
+
 console.log('Top 10 UI contract passed.');
