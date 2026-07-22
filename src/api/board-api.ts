@@ -109,6 +109,137 @@ export type BoardAnalysisJobStatus = {
   error?: string | null;
 };
 
+export type ShortsSource = {
+  rank: number;
+  boardId: string;
+  site: string;
+  title: string;
+  summary?: string | null;
+  hasSummary: boolean;
+  isValid: boolean;
+  url: string;
+  thumbnailUrl?: string | null;
+  referenceUsage: 'metadata_only_unverified';
+  rightsVerified: boolean;
+  publishedAt?: string | null;
+  dailyScore?: number | null;
+};
+
+export type NanoBananaInputBlock =
+  | { type: 'text'; text: string }
+  | { type: 'image'; mime_type: string; data: string };
+
+export type NanoBananaImageRequest = {
+  sceneId: string;
+  referenceSceneId?: string | null;
+  requiresApprovedMasterReference: boolean;
+  runnerRequired: boolean;
+  request: {
+    model: string;
+    input: NanoBananaInputBlock[];
+    response_format: {
+      type: 'image';
+      mime_type: string;
+      aspect_ratio: '9:16';
+      image_size: string;
+    };
+  };
+};
+
+export type ShortsScene = {
+  id: string;
+  type: 'intro' | 'ranking' | 'outro';
+  order: number;
+  startSecond: number;
+  durationSeconds: number;
+  estimatedNarrationSeconds: number;
+  overlayText: string;
+  narration: string;
+  nanoBananaPrompt: string;
+  sourceRank?: number | null;
+};
+
+export type Top10ShortsPackage = {
+  schemaVersion: string;
+  rankingDate: string;
+  rankingMode: 'live' | 'historical_ranking_current_content';
+  rankingMetadata: {
+    rankingSnapshot: 'live' | 'historical';
+    rankingSnapshotDate: string;
+    contentSnapshot: 'current';
+    contentSnapshotAt: string | null;
+  };
+  generatedAt: string;
+  readiness: {
+    dataReady: boolean;
+    publishReady: boolean;
+    sourceCount: number;
+    summaryCount: number;
+    missingSummaryRanks: number[];
+    invalidSourceRanks: number[];
+    duplicateSourceRanks: number[];
+    rightsReviewRequired: boolean;
+    aiDisclosureReviewRequired: boolean;
+    warnings: string[];
+  };
+  production: {
+    platform: 'youtube_shorts';
+    language: string;
+    storyOrder: 'countdown';
+    aspectRatio: '9:16';
+    targetDurationSeconds: number;
+    recommendedImageModel: string;
+    draftImageModel: string;
+    draftImageSize: string;
+    finalImageSize: string;
+    draftOutputPixels: string;
+    finalOutputPixels: string;
+    visualDirection: string;
+    timingMode: 'estimate';
+    timingNote: string;
+    houseSafeAreaGuideline: string;
+    continuityGuide: {
+      masterReferenceSceneId: string;
+      useApprovedMasterFrameAsReference: boolean;
+      instruction: string;
+      queueUsage: string;
+    };
+    generationWorkflow: {
+      step: 'draft' | 'final' | 'edit';
+      requestField:
+        | 'nanoBananaDraftRequests'
+        | 'nanoBananaFinalRequestTemplates'
+        | null;
+      execution: 'parallel' | 'parallel_after_master_approval' | 'external_video_editor';
+      review: string;
+    }[];
+    nanoBananaRequestTemplate: {
+      api: 'interactions';
+      model: string;
+      input: NanoBananaInputBlock[];
+      response_format: {
+        type: 'image';
+        mime_type: string;
+        aspect_ratio: '9:16';
+        image_size: string;
+      };
+    };
+  };
+  nanoBananaDraftRequests: NanoBananaImageRequest[];
+  nanoBananaFinalRequestTemplates: NanoBananaImageRequest[];
+  video: {
+    title: string;
+    hook: string;
+    outro: string;
+    narrationScript: string;
+    description: string;
+    hashtags: string[];
+  };
+  scenes: ShortsScene[];
+  sources: ShortsSource[];
+  notices: string[];
+};
+
 function getSiteLabel(site: string) {
   switch (site) {
     case 'ygosu':
@@ -182,6 +313,13 @@ export async function getDailyBoardHistory(date: string, limit = 10) {
   const posts = await apiFetch<BoardRestPost[]>(`/boardservice/api/boards/daily/history?${params}`);
 
   return posts.map(normalizeBoardPost);
+}
+
+export function getDailyShortsPackage(date?: string) {
+  const query = date ? `?${new URLSearchParams({ date })}` : '';
+  return apiFetch<Top10ShortsPackage>(`/boardservice/api/boards/daily/shorts-package${query}`, {
+    cache: 'no-store',
+  });
 }
 
 function toBoardListSearchParams(index: number, limit: number, filters: BoardListFilters) {

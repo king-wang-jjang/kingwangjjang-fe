@@ -20,7 +20,7 @@
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",
     "start:out": "npx serve@latest out -p 8083",
-    "check": "yarn ts && yarn lint && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs"
+    "check": "yarn ts && yarn lint && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs && node scripts/verify-admin-shorts-ui.mjs"
   },
   "engines": {
     "node": "24.x"

@@ -10,6 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import {
   Box,
@@ -25,10 +26,12 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  CircularProgress,
 } from '@mui/material';
 
 import { useAuthStore } from 'src/store/auth-store';
 
+import { isAdmin } from 'src/auth/permissions';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 const drawerWidth = 236;
@@ -51,10 +54,23 @@ const navItems = [
     href: '/top10',
     icon: <EmojiEventsOutlinedIcon fontSize="small" />,
   },
+  {
+    label: 'Shorts Studio',
+    href: '/admin/shorts',
+    icon: <VideoLibraryOutlinedIcon fontSize="small" />,
+    adminOnly: true,
+  },
 ];
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({
+  isAdminUser,
+  onNavigate,
+}: {
+  isAdminUser: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+  const availableNavItems = navItems.filter((item) => !item.adminOnly || isAdminUser);
 
   return (
     <Box sx={{ px: 1.5, py: 2 }}>
@@ -64,8 +80,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Typography>
       </Box>
 
-      {navItems.map((item) => {
-        const selected = pathname === item.href;
+      {availableNavItems.map((item) => {
+        const selected = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <ListItemButton
@@ -215,6 +231,14 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
           </ListItemIcon>
           <ListItemText primary="기록" secondary="활동 기록 확인" />
         </MenuItem>
+        {isAdmin(user) && (
+          <MenuItem component={Link} href="/admin/shorts" onClick={closeMenu}>
+            <ListItemIcon>
+              <VideoLibraryOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Shorts Studio" secondary="Top 10 제작 데이터" />
+          </MenuItem>
+        )}
       </Menu>
     </>
   );
@@ -222,7 +246,8 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
 
 export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, authStatus } = useAuthStore();
+  const isAdminUser = isAdmin(user);
 
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
@@ -286,7 +311,13 @@ export function AppShell({ children }: Props) {
               flexShrink: 0,
             }}
           >
-            {isAuthenticated && user ? <UserProfileMenu user={user} /> : <SocialLoginButtons />}
+            {authStatus === 'checking' ? (
+              <CircularProgress size={24} aria-label="로그인 상태 확인 중" />
+            ) : isAuthenticated && user ? (
+              <UserProfileMenu user={user} />
+            ) : (
+              <SocialLoginButtons />
+            )}
 
             <IconButton
               onClick={toggleMobileNav}
@@ -315,7 +346,7 @@ export function AppShell({ children }: Props) {
         }}
       >
         <Toolbar sx={{ minHeight: headerHeight }} />
-        <SidebarContent onNavigate={toggleMobileNav} />
+        <SidebarContent isAdminUser={isAdminUser} onNavigate={toggleMobileNav} />
       </Drawer>
 
       <Box

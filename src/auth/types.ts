@@ -1,3 +1,5 @@
+export type UserRole = 'user' | 'admin';
+
 export type UserType = {
   Id: string;
   userId: string;
@@ -6,6 +8,7 @@ export type UserType = {
   authProvider: string;
   profileImage?: string | null;
   createTime: string;
+  role: UserRole;
 } | null;
 
 export type UserTypeWithoutNull = NonNullable<UserType>;
