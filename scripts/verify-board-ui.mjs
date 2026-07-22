@@ -24,6 +24,9 @@ const commentSkeleton = read('src/components/comment/comment-item-skeleton.tsx')
 const boardButtonBlocks = [...boardView.matchAll(/<Button[\s\S]*?<\/Button>/g)].map(
   ([block]) => block
 );
+const handlePostSelectStart = boardView.indexOf('const handlePostSelect');
+const handleCommentOpenStart = boardView.indexOf('const handleCommentOpen');
+const handleCommentCloseStart = boardView.indexOf('const handleCommentClose');
 
 const redesignedFiles = [
   globalCss,
@@ -60,6 +63,20 @@ const mojibakePattern = new RegExp(
 );
 
 console.log('Verifying Board workbench redesign contract...');
+
+assert.notEqual(handlePostSelectStart, -1, 'board view should define post selection behavior');
+assert.notEqual(handleCommentOpenStart, -1, 'board view should define explicit comment opening');
+assert.notEqual(handleCommentCloseStart, -1, 'board view should define comment closing');
+assert.doesNotMatch(
+  boardView.slice(handlePostSelectStart, handleCommentOpenStart),
+  /setMobileCommentOpen\(true\)/,
+  'selecting a post should not automatically open comments on mobile'
+);
+assert.match(
+  boardView.slice(handleCommentOpenStart, handleCommentCloseStart),
+  /handlePostSelect\(post\)[\s\S]*isContentFirstLayout[\s\S]*setMobileCommentOpen\(true\)/,
+  'the explicit comment action should open comments on mobile'
+);
 
 assert.match(
   packageJson,

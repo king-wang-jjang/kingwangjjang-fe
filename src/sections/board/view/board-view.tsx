@@ -188,9 +188,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       const boardId = getPostId(post);
 
       setSelectedPost({ boardId, site: post.site });
-      if (isContentFirstLayout) {
-        setMobileCommentOpen(true);
-      }
 
       if (isAuthenticated && shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
         analysisRequestsRef.current.add(boardId);
@@ -242,14 +239,17 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           });
       }
     },
-    [isAuthenticated, isContentFirstLayout, updatePostAnalysis]
+    [isAuthenticated, updatePostAnalysis]
   );
 
   const handleCommentOpen = useCallback(
     (post: BoardPost) => {
       handlePostSelect(post);
+      if (isContentFirstLayout) {
+        setMobileCommentOpen(true);
+      }
     },
-    [handlePostSelect]
+    [handlePostSelect, isContentFirstLayout]
   );
 
   const handleCommentClose = () => {
