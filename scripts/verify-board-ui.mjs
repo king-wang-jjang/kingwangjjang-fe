@@ -368,6 +368,11 @@ assert.match(
   /filters:\s*BoardListFilters/,
   'infinite board hook should accept board list filters'
 );
+assert.match(
+  infiniteBoardHook,
+  /analysisStatus === 'pending'[\s\S]*analysisStatus === 'processing'[\s\S]*refetchInterval/,
+  'realtime boards should refresh automatically while background summaries are active'
+);
 assert.doesNotMatch(
   boardView,
   /onClick=\{handleExpand\}/,

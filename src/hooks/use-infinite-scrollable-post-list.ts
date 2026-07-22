@@ -7,6 +7,13 @@ import { getRealtimeBoards } from 'src/api/board-api';
 
 const BOARD_PAGE_SIZE = 30;
 const EMPTY_FILTERS: BoardListFilters = {};
+const ANALYSIS_REFRESH_INTERVAL_MS = 3_000;
+
+function hasActiveAnalysis(posts: BoardPost[]): boolean {
+  return posts.some(
+    (post) => post.analysisStatus === 'pending' || post.analysisStatus === 'processing'
+  );
+}
 
 const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS) => {
   const loadingRef = useRef<HTMLDivElement | null>(null);
@@ -24,6 +31,9 @@ const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length < BOARD_PAGE_SIZE ? undefined : allPages.length,
+    refetchInterval: (query) =>
+      query.state.data?.pages.some(hasActiveAnalysis) ? ANALYSIS_REFRESH_INTERVAL_MS : false,
+    refetchIntervalInBackground: false,
   });
 
   const data = useMemo(

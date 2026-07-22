@@ -55,7 +55,7 @@ assert.match(
 assert.match(adminPage, /<ShortsView \/>/, 'admin Shorts page should render its focused view');
 assert.match(
   serverProxy,
-  /userservice\/api\/users\/me[\s\S]*headers: \{ accept: 'application\/json', cookie \}[\s\S]*user\?\.role === 'admin'[\s\S]*NextResponse\.redirect/,
+  /userservice\/api\/users\/me[\s\S]*userservice\/api\/auth\/refresh[\s\S]*user\?\.role === 'admin'[\s\S]*NextResponse\.redirect/,
   'server proxy should fail closed before non-admin requests reach admin routes'
 );
 assert.match(

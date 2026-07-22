@@ -51,7 +51,7 @@ const navItems = [
   },
   {
     label: 'TOP 10',
-    href: '/top10',
+    href: '/top10/',
     icon: <EmojiEventsOutlinedIcon fontSize="small" />,
   },
   {

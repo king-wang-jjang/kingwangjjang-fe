@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 import { getMe } from 'src/api/user-api';
+import { refreshAuthSession } from 'src/api/http';
 import { useAuthStore } from 'src/store/auth-store';
 
 type Props = {
@@ -17,6 +18,7 @@ export function AuthInitializer({ children }: Props) {
 
     async function checkUserSession() {
       try {
+        await refreshAuthSession();
         const user = await getMe();
         if (!mounted) return;
 

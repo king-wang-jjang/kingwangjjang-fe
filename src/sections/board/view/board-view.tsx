@@ -321,7 +321,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               {isContentFirstLayout && (
                 <Button
                   component={Link}
-                  href="/top10"
+                  href="/top10/"
                   color="inherit"
                   variant="outlined"
                   size="small"

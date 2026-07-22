@@ -5,6 +5,8 @@ const appShell = fs.readFileSync('src/layouts/app-shell.tsx', 'utf8');
 const userApi = fs.readFileSync('src/api/user-api.ts', 'utf8');
 const authTypes = fs.readFileSync('src/auth/types.ts', 'utf8');
 const authStore = fs.readFileSync('src/store/auth-store.ts', 'utf8');
+const authInitializer = fs.readFileSync('src/auth/auth-initializer.tsx', 'utf8');
+const httpApi = fs.readFileSync('src/api/http.ts', 'utf8');
 const readStore = fs.readFileSync('src/store/read-store.ts', 'utf8');
 const settingsPage = fs.readFileSync('src/app/account/settings/page.tsx', 'utf8');
 const historyPage = fs.readFileSync('src/app/account/history/page.tsx', 'utf8');
@@ -19,6 +21,16 @@ assert.match(
   appShell,
   /useAuthStore/,
   'app shell should read authenticated user state'
+);
+assert.match(
+  authInitializer,
+  /refreshAuthSession\(\)[\s\S]*getMe\(\)/,
+  'app startup should renew a long-lived session before loading the user'
+);
+assert.match(
+  httpApi,
+  /response\.status === 401[\s\S]*refreshAuthSession\(\)[\s\S]*request\(path, options\)/,
+  'API requests should renew and retry once when the access token expires'
 );
 assert.match(
   appShell,

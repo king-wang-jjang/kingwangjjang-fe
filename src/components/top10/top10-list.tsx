@@ -2,12 +2,13 @@
 
 import type { BoardPost, BoardAnalysisJobStatus } from 'src/api/board-api';
 
-import { useId, useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useId, useRef, useState, useEffect } from 'react';
 
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import LaunchRoundedIcon from '@mui/icons-material/LaunchRounded';
-import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import {
   Box,
   Card,
@@ -33,6 +34,7 @@ import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/b
 type Top10ListProps = {
   variant?: 'sidebar' | 'page';
   selectedDate?: string;
+  initialExpandedRank?: number;
 };
 
 const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat('ko-KR', {
@@ -109,12 +111,10 @@ function Top10SidebarRow({ post, rank }: { post: BoardPost; rank: number }) {
   return (
     <Box component="li">
       <Box
-        component="a"
-        href={post.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        component={Link}
+        href={`/top10/?rank=${rank}`}
         title={post.title}
-        aria-label={[`${rank}위`, post.title, '원문 새 탭에서 열기'].join(' ')}
+        aria-label={[`${rank}위`, post.title, 'Top 10 상세 보기'].join(' ')}
         sx={{
           minHeight: 56,
           px: 1.25,
@@ -168,7 +168,7 @@ function Top10SidebarRow({ post, rank }: { post: BoardPost; rank: number }) {
           </Typography>
         </Box>
 
-        <OpenInNewRoundedIcon
+        <ChevronRightRoundedIcon
           aria-hidden="true"
           sx={{ flexShrink: 0, color: '#9ea096', fontSize: 17 }}
         />
@@ -427,9 +427,11 @@ function Top10PageRow({
 export function Top10List({
   variant = 'sidebar',
   selectedDate = TOP_BOARDS_TODAY,
+  initialExpandedRank,
 }: Top10ListProps) {
   const isToday = selectedDate === TOP_BOARDS_TODAY;
   const [expandedItem, setExpandedItem] = useState<{ date: string; postKey: string } | null>(null);
+  const appliedInitialRankRef = useRef<number | null>(null);
   const { data: posts = [], isError, isPending, isFetching, refetch } = useTopBoards(selectedDate);
   const { analysisJobs, analysisErrors, isAuthenticated, requestAnalysis } =
     useTopBoardAnalysis(selectedDate);
@@ -440,6 +442,24 @@ export function Top10List({
       : isToday
         ? '오늘의 인기 순위'
         : `${formatHistoryDate(selectedDate)} 인기 순위`;
+
+  useEffect(() => {
+    if (
+      variant !== 'page' ||
+      !isToday ||
+      !initialExpandedRank ||
+      appliedInitialRankRef.current === initialExpandedRank
+    ) {
+      return;
+    }
+
+    const post = posts[initialExpandedRank - 1];
+    if (!post) return;
+
+    appliedInitialRankRef.current = initialExpandedRank;
+    setExpandedItem({ date: selectedDate, postKey: postKey(post) });
+    requestAnalysis(post).catch(() => undefined);
+  }, [initialExpandedRank, isToday, posts, requestAnalysis, selectedDate, variant]);
 
   return (
     <Card
@@ -457,13 +477,21 @@ export function Top10List({
             justifyContent: 'space-between',
           }}
         >
-          <Typography
-            id={`top10-${variant}-title`}
-            variant={variant === 'page' ? 'h6' : 'subtitle1'}
-            sx={{ color: '#23251d', fontWeight: 800 }}
-          >
-            {heading}
-          </Typography>
+          {variant === 'sidebar' ? (
+            <Typography
+              id="top10-sidebar-title"
+              component={Link}
+              href="/top10/"
+              variant="subtitle1"
+              sx={{ color: '#23251d', fontWeight: 800, '&:hover': { color: '#F54E00' } }}
+            >
+              {heading}
+            </Typography>
+          ) : (
+            <Typography id="top10-page-title" variant="h6" sx={{ color: '#23251d', fontWeight: 800 }}>
+              {heading}
+            </Typography>
+          )}
           {isFetching && !isPending && (
             <CircularProgress size={16} aria-label="Top 10 새로고침 중" />
           )}

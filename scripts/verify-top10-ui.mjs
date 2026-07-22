@@ -12,6 +12,8 @@ const boardApi = readRequired('src/api/board-api.ts');
 const boardPostUtils = readRequired('src/components/board-post/board-post-utils.ts');
 const topBoardsHook = readRequired('src/hooks/use-top-boards.ts');
 const topBoardAnalysisHook = readRequired('src/hooks/use-top-board-analysis.ts');
+const top10Page = readRequired('src/app/top10/page.tsx');
+const top10View = readRequired('src/sections/top10/view/top10-view.tsx');
 
 assert.match(
   boardApi,
@@ -34,6 +36,11 @@ assert.match(
   'board and Top 10 cards should share thumbnail and summary rules'
 );
 
+assert.match(
+  topBoardsHook,
+  /analysisStatus === 'pending'[\s\S]*analysisStatus === 'processing'[\s\S]*refetchInterval/,
+  'today ranking should refresh automatically while background summaries are active'
+);
 assert.match(
   topBoardsHook,
   /TOP_BOARDS_LIMIT\s*=\s*10/,
@@ -85,7 +92,7 @@ const top10Index = readRequired('src/components/top10/index.ts');
 
 assert.match(
   top10List,
-  /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'[\s\S]*selectedDate\?: string/,
+  /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'[\s\S]*selectedDate\?: string[\s\S]*initialExpandedRank\?: number/,
   'shared Top 10 list should expose sidebar, page, and selected-date inputs'
 );
 assert.match(
@@ -117,8 +124,8 @@ const pageCollapseStart = pageRowSource.indexOf('<Collapse');
 
 assert.match(
   sidebarRowSource,
-  /href=\{post\.url\}[\s\S]*target="_blank"[\s\S]*rel="noopener noreferrer"/,
-  'compact sidebar rows should keep their direct safe source links'
+  /component=\{Link\}[\s\S]*href=\{`\/top10\/\?rank=\$\{rank\}`\}/,
+  'compact sidebar rows should navigate to their expanded Top 10 page row'
 );
 assert.doesNotMatch(
   sidebarRowSource,
@@ -152,6 +159,26 @@ assert.match(
   'date changes should remount page rows and reset row-local image state'
 );
 assert.match(
+  top10List,
+  /component=\{Link\}[\s\S]*href="\/top10\/"/,
+  'the sidebar heading should open the dedicated Top 10 page'
+);
+assert.match(
+  top10List,
+  /initialExpandedRank - 1[\s\S]*setExpandedItem[\s\S]*requestAnalysis\(post\)/,
+  'a rank query should expand that row and preserve the summary fallback'
+);
+assert.match(
+  top10Page,
+  /searchParams: Promise[\s\S]*parseRank[\s\S]*initialExpandedRank=\{parseRank\(rank\)\}/,
+  'the Top 10 route should validate and forward rank query parameters'
+);
+assert.match(
+  top10View,
+  /initialExpandedRank\?: number[\s\S]*<Top10List[\s\S]*initialExpandedRank=\{initialExpandedRank\}/,
+  'the Top 10 view should pass the requested expanded rank to the list'
+);
+assert.match(
   top10Index,
   /export \{ Top10List \} from '\.\/top10-list'/,
   'Top 10 component should have a focused public export'
@@ -171,7 +198,7 @@ assert.match(
 );
 assert.match(
   boardView,
-  /isContentFirstLayout &&[\s\S]*href="\/top10"[\s\S]*TOP 10/,
+  /isContentFirstLayout &&[\s\S]*href="\/top10\/"[\s\S]*TOP 10/,
   'content-first layouts should link to the dedicated Top 10 page'
 );
 
@@ -218,13 +245,11 @@ assert.doesNotMatch(
 );
 
 const appShell = readRequired('src/layouts/app-shell.tsx');
-const top10View = readRequired('src/sections/top10/view/top10-view.tsx');
 const top10Layout = readRequired('src/app/top10/layout.tsx');
-const top10Page = readRequired('src/app/top10/page.tsx');
 
 assert.match(
   appShell,
-  /label: 'TOP 10'[\s\S]*href: '\/top10'[\s\S]*EmojiEventsOutlinedIcon/,
+  /label: 'TOP 10'[\s\S]*href: '\/top10\/'[\s\S]*EmojiEventsOutlinedIcon/,
   'mobile drawer should expose the Top 10 route'
 );
 assert.match(
@@ -244,8 +269,8 @@ assert.match(
 );
 assert.match(
   top10View,
-  /<Top10List variant="page" selectedDate=\{selectedDate\} \/>/,
-  'dedicated route should pass the selected date to the shared list'
+  /<Top10List[\s\S]*variant="page"[\s\S]*selectedDate=\{selectedDate\}[\s\S]*initialExpandedRank=\{initialExpandedRank\}/,
+  'dedicated route should pass the selected date and requested rank to the shared list'
 );
 assert.match(
   top10View,
@@ -263,7 +288,11 @@ assert.match(
   'dedicated route should provide a clear return to the board'
 );
 assert.match(top10Layout, /<AppShell>/, 'Top 10 route should reuse the app shell');
-assert.match(top10Page, /<Top10View \/>/, 'Top 10 page should render its focused view');
+assert.match(
+  top10Page,
+  /<Top10View initialExpandedRank=\{parseRank\(rank\)\} \/>/,
+  'Top 10 page should render its focused view with a validated rank'
+);
 
 const packageJson = readRequired('package.json');
 

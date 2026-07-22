@@ -48,7 +48,11 @@ function formatHistoryDateLabel(date: string) {
   return HISTORY_DATE_LABEL_FORMATTER.format(new Date(`${date}T00:00:00+09:00`));
 }
 
-export function Top10View() {
+type Top10ViewProps = {
+  initialExpandedRank?: number;
+};
+
+export function Top10View({ initialExpandedRank }: Top10ViewProps) {
   const [selectedDate, setSelectedDate] = useState(TOP_BOARDS_TODAY);
   const {
     data: storedDates = [],
@@ -165,7 +169,11 @@ export function Top10View() {
           )}
         </Box>
 
-        <Top10List variant="page" selectedDate={selectedDate} />
+        <Top10List
+          variant="page"
+          selectedDate={selectedDate}
+          initialExpandedRank={initialExpandedRank}
+        />
       </Stack>
     </Box>
   );
