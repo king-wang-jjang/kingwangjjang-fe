@@ -119,7 +119,7 @@ export function ShortsView() {
         >
           <Box>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <MovieOutlinedIcon sx={{ color: '#F54E00' }} />
+              <MovieOutlinedIcon sx={{ color: 'secondary.main' }} />
               <Typography variant="overline" color="text.secondary">
                 Admin only
               </Typography>
@@ -674,7 +674,7 @@ function CopyBlock({
           mt: 0.5,
           p: 1.5,
           borderRadius: 1,
-          bgcolor: '#f4f4f1',
+          bgcolor: 'background.hover',
           whiteSpace: 'pre-wrap',
           overflowWrap: 'anywhere',
         }}

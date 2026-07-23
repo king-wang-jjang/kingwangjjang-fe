@@ -271,9 +271,9 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         paper: {
           sx: {
             minWidth: 240,
-            bgcolor: '#fdfdf8',
+            bgcolor: 'background.paper',
             border: 1,
-            borderColor: '#bfc1b7',
+            borderColor: 'divider',
             boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
           },
         },
@@ -289,7 +289,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
       ) : (
         <MenuItem disabled>사이트 정보 없음</MenuItem>
       )}
-      <Divider sx={{ borderColor: '#bfc1b7' }} />
+      <Divider sx={{ borderColor: 'divider' }} />
       <MenuItem
         disabled={!selectedSites.length}
         onClick={() => {
@@ -303,7 +303,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   );
 
   const renderFeedHeader = (
-    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+    <Card sx={{ bgcolor: 'background.paper', borderColor: 'divider', borderRadius: 1 }}>
       <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
         <Stack spacing={1.25}>
           <Stack
@@ -326,7 +326,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
                   variant="outlined"
                   size="small"
                   startIcon={<EmojiEventsOutlinedIcon />}
-                  sx={{ bgcolor: '#fdfdf8', whiteSpace: 'nowrap' }}
+                  sx={{ bgcolor: 'background.paper', whiteSpace: 'nowrap' }}
                 >
                   TOP 10
                 </Button>
@@ -334,7 +334,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               <Chip
                 label={`${postData.length}개 게시글`}
                 size="small"
-                sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+                sx={{ bgcolor: 'background.muted', borderColor: 'divider' }}
               />
             </Stack>
           </Stack>
@@ -354,14 +354,14 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
                 sx={{
                   width: 36,
                   height: 36,
-                  bgcolor: '#fdfdf8',
+                  bgcolor: 'background.paper',
                   border: 1,
-                  borderColor: '#bfc1b7',
-                  color: '#4d4f46',
+                  borderColor: 'divider',
+                  color: 'text.primary',
                   '&:hover': {
-                    bgcolor: '#f4f4f4',
-                    borderColor: '#bfc1b7',
-                    color: '#F54E00',
+                    bgcolor: 'background.hover',
+                    borderColor: 'divider',
+                    color: 'secondary.main',
                   },
                 }}
               >
@@ -377,7 +377,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
                 size="small"
                 label={siteLabels[site] ?? site}
                 onDelete={() => handleToggleSite(site)}
-                sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+                sx={{ bgcolor: 'background.muted', borderColor: 'divider' }}
               />
             ))}
 
@@ -395,7 +395,9 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const renderToolPane = <Top10List variant="sidebar" />;
 
   const renderCommentEmptyState = (
-    <Card sx={{ minHeight: 240, bgcolor: '#eeefe9', borderColor: '#bfc1b7', borderRadius: 1 }}>
+    <Card
+      sx={{ minHeight: 240, bgcolor: 'background.subtle', borderColor: 'divider', borderRadius: 1 }}
+    >
       <CardContent
         sx={{
           minHeight: 240,
@@ -431,7 +433,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           ))}
 
       {!initialLoading && !postData.length && (
-        <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+        <Card sx={{ bgcolor: 'background.paper', borderColor: 'divider', borderRadius: 1 }}>
           <CardContent sx={{ py: 5, textAlign: 'center' }}>
             <Typography variant="h6">게시글이 없습니다</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
@@ -464,10 +466,10 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             sx={{
               width: 'min(100%, 1536px)',
               boxSizing: 'border-box',
-              bgcolor: '#eeefe9',
+              bgcolor: 'background.subtle',
               border: 1,
-              borderColor: '#bfc1b7',
-              color: '#4d4f46',
+              borderColor: 'divider',
+              color: 'text.primary',
             }}
           >
             게시글을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
@@ -644,10 +646,10 @@ function BoardPostCard({
         width: { xs: 72, sm: 96 },
         height: { xs: 72, sm: 96 },
         border: 1,
-        borderColor: '#bfc1b7',
+        borderColor: 'divider',
         borderRadius: 1,
         overflow: 'hidden',
-        bgcolor: '#eeefe9',
+        bgcolor: 'background.subtle',
         cursor: 'zoom-in',
         flexShrink: 0,
         alignSelf: 'flex-start',
@@ -674,12 +676,12 @@ function BoardPostCard({
         width: { xs: 72, sm: 96 },
         height: { xs: 72, sm: 96 },
         border: 1,
-        borderColor: '#d5d7cd',
+        borderColor: 'divider',
         borderRadius: 1,
         display: 'grid',
         placeItems: 'center',
-        bgcolor: '#f1f2ec',
-        color: '#65675e',
+        bgcolor: 'background.soft',
+        color: 'text.secondary',
         fontSize: 18,
         fontWeight: 750,
         flexShrink: 0,
@@ -705,15 +707,17 @@ function BoardPostCard({
             width: '100%',
             zIndex: 1,
             position: 'relative',
-            borderColor: selected ? '#d9b59f' : '#bfc1b7',
-            bgcolor: readStatus ? '#f3f4ee' : '#fdfdf8',
+            borderColor: selected ? 'secondary.main' : 'divider',
+            bgcolor: readStatus ? 'background.read' : 'background.paper',
             borderRadius: 1,
-            boxShadow: selected ? 'inset 3px 0 0 #F54E00' : 'inset 3px 0 0 transparent',
+            boxShadow: selected
+              ? 'inset 3px 0 0 var(--mui-palette-secondary-main)'
+              : 'inset 3px 0 0 transparent',
             transition:
               'border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease',
             '&:hover': {
-              borderColor: selected ? '#d9b59f' : '#aeb1a6',
-              bgcolor: '#fbfbf5',
+              borderColor: selected ? 'secondary.main' : 'divider',
+              bgcolor: 'background.raised',
             },
           }}
         >
@@ -743,9 +747,9 @@ function BoardPostCard({
                         size="small"
                         variant="outlined"
                         sx={{
-                          bgcolor: '#e5e7e0',
-                          borderColor: '#bfc1b7',
-                          color: '#4d4f46',
+                          bgcolor: 'background.muted',
+                          borderColor: 'divider',
+                          color: 'text.primary',
                           height: 22,
                           '& .MuiChip-label': {
                             px: 0.75,
@@ -760,9 +764,9 @@ function BoardPostCard({
                           variant="outlined"
                           sx={{
                             height: 22,
-                            bgcolor: '#f8f3ec',
-                            borderColor: '#e2c6b0',
-                            color: '#6b4b36',
+                            bgcolor: 'background.warm',
+                            borderColor: 'secondary.dark',
+                            color: 'secondary.dark',
                             '& .MuiChip-label': {
                               px: 0.75,
                             },
@@ -778,7 +782,7 @@ function BoardPostCard({
                       className="post-card-title"
                       variant="subtitle1"
                       sx={{
-                        color: readStatus ? '#4d4f46' : '#23251d',
+                        color: 'text.primary',
                         fontWeight: readStatus ? 650 : 750,
                         lineHeight: 1.34,
                         wordBreak: 'keep-all',
@@ -804,7 +808,7 @@ function BoardPostCard({
                         height: 24,
                         bgcolor: 'transparent',
                         borderColor: 'transparent',
-                        color: '#65675e',
+                        color: 'text.secondary',
                         '& .MuiChip-label': {
                           px: 0.5,
                         },
@@ -827,7 +831,7 @@ function BoardPostCard({
                           minWidth: 0,
                           px: 0.5,
                           py: 0,
-                          color: '#65675e',
+                          color: 'text.secondary',
                           '&:hover': {
                             bgcolor: 'transparent',
                           },
@@ -855,7 +859,7 @@ function BoardPostCard({
                     mt: 0.25,
                     pt: 1,
                     borderTop: 1,
-                    borderColor: '#d7d9cf',
+                    borderColor: 'divider',
                   }}
                 >
                   <Stack
@@ -875,10 +879,10 @@ function BoardPostCard({
                         sx={{
                           width: 26,
                           height: 26,
-                          color: '#65675e',
+                          color: 'text.secondary',
                           '&:hover': {
-                            bgcolor: '#eeefe9',
-                            color: '#F54E00',
+                            bgcolor: 'background.subtle',
+                            color: 'secondary.main',
                           },
                         }}
                       >
@@ -918,7 +922,7 @@ function BoardPostCard({
                       mt: 1,
                       pt: 1,
                       borderTop: 1,
-                      borderColor: '#e1e3d8',
+                      borderColor: 'divider',
                     }}
                   >
                     <Stack
@@ -965,13 +969,13 @@ function BoardPostCard({
                       onClick={handleOpenSource}
                       sx={{
                         width: { xs: '100%', sm: 'auto' },
-                        bgcolor: '#fdfdf8',
-                        borderColor: '#bfc1b7',
-                        color: '#4d4f46',
+                        bgcolor: 'background.paper',
+                        borderColor: 'divider',
+                        color: 'text.primary',
                         '&:hover': {
-                          bgcolor: '#eeefe9',
-                          borderColor: '#bfc1b7',
-                          color: '#F54E00',
+                          bgcolor: 'background.subtle',
+                          borderColor: 'divider',
+                          color: 'secondary.main',
                         },
                       }}
                     >
@@ -985,13 +989,13 @@ function BoardPostCard({
                       onClick={handleOpenComments}
                       sx={{
                         width: { xs: '100%', sm: 'auto' },
-                        bgcolor: '#fdfdf8',
-                        borderColor: '#bfc1b7',
-                        color: '#4d4f46',
+                        bgcolor: 'background.paper',
+                        borderColor: 'divider',
+                        color: 'text.primary',
                         '&:hover': {
-                          bgcolor: '#eeefe9',
-                          borderColor: '#bfc1b7',
-                          color: '#F54E00',
+                          bgcolor: 'background.subtle',
+                          borderColor: 'divider',
+                          color: 'secondary.main',
                         },
                       }}
                     >
@@ -1062,7 +1066,7 @@ function BoardPostCard({
 
 function PostCardSkeleton() {
   return (
-    <Card sx={{ bgcolor: '#fdfdf8', borderColor: '#bfc1b7', borderRadius: 1 }}>
+    <Card sx={{ bgcolor: 'background.paper', borderColor: 'divider', borderRadius: 1 }}>
       <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
         <Stack direction="row" spacing={1.25}>
           <Stack spacing={1} sx={{ flex: 1 }}>

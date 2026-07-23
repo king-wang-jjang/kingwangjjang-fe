@@ -101,9 +101,9 @@ export function Top10View({ initialExpandedRank }: Top10ViewProps) {
           sx={{
             p: 1.5,
             border: 1,
-            borderColor: '#bfc1b7',
+            borderColor: 'divider',
             borderRadius: 1,
-            bgcolor: '#fdfdf8',
+            bgcolor: 'background.paper',
           }}
         >
           <Stack

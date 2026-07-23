@@ -5,16 +5,7 @@ import type { UserType } from 'src/auth/types';
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 
-import {
-  Box,
-  Alert,
-  Stack,
-  Avatar,
-  Button,
-  Divider,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Alert, Stack, Avatar, Button, Divider, TextField, Typography } from '@mui/material';
 
 import { updateMeProfile } from 'src/api/user-api';
 import { useReadStore } from 'src/store/read-store';
@@ -105,8 +96,8 @@ export default function AccountSettingsPage() {
         <Box
           sx={{
             border: 1,
-            borderColor: '#bfc1b7',
-            bgcolor: '#eeefe9',
+            borderColor: 'divider',
+            bgcolor: 'background.subtle',
             borderRadius: 1,
             p: 2,
           }}
@@ -116,7 +107,13 @@ export default function AccountSettingsPage() {
               <Avatar
                 src={user.profileImage || undefined}
                 alt={name}
-                sx={{ width: 64, height: 64, bgcolor: '#23251d', fontWeight: 800 }}
+                sx={{
+                  width: 64,
+                  height: 64,
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
+                  fontWeight: 800,
+                }}
               >
                 {name.charAt(0).toUpperCase()}
               </Avatar>

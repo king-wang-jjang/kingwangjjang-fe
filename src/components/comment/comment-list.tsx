@@ -43,8 +43,8 @@ export const CommentList = ({
           textAlign: 'center',
           color: 'text.secondary',
           border: 1,
-          borderColor: '#bfc1b7',
-          bgcolor: '#fdfdf8',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
           borderRadius: 1,
           mt: 1,
         }}

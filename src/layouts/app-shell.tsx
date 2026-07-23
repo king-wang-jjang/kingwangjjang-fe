@@ -30,6 +30,7 @@ import {
 } from '@mui/material';
 
 import { useAuthStore } from 'src/store/auth-store';
+import { ColorModeToggle } from 'src/theme/color-mode-toggle';
 
 import { isAdmin } from 'src/auth/permissions';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
@@ -94,26 +95,26 @@ function SidebarContent({
               mb: 0.5,
               borderRadius: 1,
               minHeight: 40,
-              color: selected ? '#23251d' : 'text.primary',
+              color: 'text.primary',
               border: 1,
-              borderColor: selected ? '#bfc1b7' : 'transparent',
-              bgcolor: selected ? '#e5e7e0' : 'transparent',
+              borderColor: selected ? 'divider' : 'transparent',
+              bgcolor: selected ? 'background.muted' : 'transparent',
               '&:hover': {
-                bgcolor: '#f4f4f4',
-                color: '#F54E00',
+                bgcolor: 'background.hover',
+                color: 'secondary.main',
                 '& .MuiListItemIcon-root': {
-                  color: '#F54E00',
+                  color: 'secondary.main',
                 },
               },
               '&.Mui-selected': {
-                bgcolor: '#e5e7e0',
-                color: '#23251d',
+                bgcolor: 'background.muted',
+                color: 'text.primary',
                 '& .MuiListItemIcon-root': {
-                  color: '#23251d',
+                  color: 'text.primary',
                 },
                 '&:hover': {
-                  bgcolor: '#f4f4f4',
-                  color: '#F54E00',
+                  bgcolor: 'background.hover',
+                  color: 'secondary.main',
                 },
               },
             }}
@@ -121,7 +122,7 @@ function SidebarContent({
             <ListItemIcon
               sx={{
                 minWidth: 34,
-                color: selected ? '#23251d' : 'text.secondary',
+                color: selected ? 'text.primary' : 'text.secondary',
               }}
             >
               {item.icon}
@@ -167,11 +168,11 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
           height: 38,
           p: 0,
           border: 1,
-          borderColor: '#bfc1b7',
-          bgcolor: '#eeefe9',
+          borderColor: 'divider',
+          bgcolor: 'background.subtle',
           '&:hover': {
-            borderColor: '#F54E00',
-            bgcolor: '#f4f4f4',
+            borderColor: 'secondary.main',
+            bgcolor: 'background.hover',
           },
         }}
       >
@@ -181,8 +182,8 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
           sx={{
             width: 32,
             height: 32,
-            bgcolor: '#23251d',
-            color: '#fdfdf8',
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
             fontSize: '0.8rem',
             fontWeight: 800,
           }}
@@ -204,7 +205,7 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
               mt: 1,
               minWidth: 260,
               border: 1,
-              borderColor: '#bfc1b7',
+              borderColor: 'divider',
               boxShadow: '0 12px 30px rgba(35, 37, 29, 0.14)',
             },
           },
@@ -270,7 +271,7 @@ export function AppShell({ children }: Props) {
           color: 'text.primary',
           bgcolor: 'background.default',
           borderBottom: 1,
-          borderColor: '#bfc1b7',
+          borderColor: 'divider',
           boxShadow: 'none',
         }}
       >
@@ -311,6 +312,8 @@ export function AppShell({ children }: Props) {
               flexShrink: 0,
             }}
           >
+            <ColorModeToggle />
+
             {authStatus === 'checking' ? (
               <CircularProgress size={24} aria-label="로그인 상태 확인 중" />
             ) : isAuthenticated && user ? (
@@ -341,7 +344,7 @@ export function AppShell({ children }: Props) {
             width: drawerWidth,
             boxSizing: 'border-box',
             bgcolor: 'background.default',
-            borderColor: '#bfc1b7',
+            borderColor: 'divider',
           },
         }}
       >

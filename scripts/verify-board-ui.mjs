@@ -110,7 +110,11 @@ assert.doesNotMatch(
   'legacy green should no longer be the primary visual accent'
 );
 
-assert.match(rootLayout, /themeColor:\s*'#fdfdf8'/i, 'viewport theme color should match parchment');
+assert.match(
+  rootLayout,
+  /prefers-color-scheme: light[\s\S]*#fdfdf8[\s\S]*prefers-color-scheme: dark[\s\S]*#12140f/i,
+  'viewport theme color should match both application color schemes'
+);
 assert.match(
   appLoading,
   /loading\.gif/,
@@ -137,8 +141,8 @@ assert.doesNotMatch(
   'app initial loading should not show the old loading text or spinner'
 );
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
-assert.match(appShell, /#F54E00/i, 'app shell hover states should flash orange');
-assert.match(appShell, /#bfc1b7/i, 'app shell should use sage borders');
+assert.match(appShell, /secondary\.main/i, 'app shell hover states should use the orange accent');
+assert.match(appShell, /borderColor:\s*'divider'/i, 'app shell should use themed borders');
 assert.match(appShell, /background\.default/, 'app shell should use themed app background');
 assert.match(
   appShell,
@@ -466,8 +470,16 @@ assert.match(
 assert.match(boardView, /실시간 게시판/, 'board title copy should be valid Korean');
 assert.match(boardView, /필터 초기화/, 'filter reset copy should be valid Korean');
 assert.match(boardView, /게시글이 없습니다/, 'empty feed copy should be valid Korean');
-assert.match(boardView, /#F54E00/i, 'post cards should use orange selected or hover accents');
-assert.match(boardView, /#eeefe9/i, 'post cards and filters should use sage cream surfaces');
+assert.match(
+  boardView,
+  /secondary\.main|--mui-palette-secondary-main/i,
+  'post cards should use themed orange selected or hover accents'
+);
+assert.match(
+  boardView,
+  /background\.subtle/i,
+  'post cards and filters should use themed subtle surfaces'
+);
 
 assert.match(oauthForm, /kakao-login-button/, 'Kakao login should expose a compact button class');
 assert.match(oauthForm, /kakao-login-image/, 'Kakao login should render the provided image asset');
@@ -483,11 +495,11 @@ assert.doesNotMatch(
   /size="large"/,
   'header login button should not use the large CTA size'
 );
-assert.match(commentSidebar, /#eeefe9/i, 'comment sidebar should use sage panel surface');
-assert.match(commentDrawer, /#eeefe9/i, 'comment drawer should use sage panel surface');
+assert.match(commentSidebar, /background\.subtle/i, 'comment sidebar should use themed panel surface');
+assert.match(commentDrawer, /background\.subtle/i, 'comment drawer should use themed panel surface');
 assert.match(
   commentSection,
-  /#eeefe9|background\.default|background\.paper/i,
+  /background\.subtle|background\.default|background\.paper/i,
   'comment section should use themed surfaces'
 );
 assert.match(
@@ -495,11 +507,11 @@ assert.match(
   /첫 댓글을 남겨보세요/,
   'comment empty state should keep valid Korean copy'
 );
-assert.match(commentItem, /#F54E00/i, 'comment actions should use orange hover accents');
-assert.match(commentForm, /#1e1f23/i, 'comment submit buttons should use the dark primary style');
+assert.match(commentItem, /secondary\.main/i, 'comment actions should use themed hover accents');
+assert.match(commentForm, /primary\.main/i, 'comment submit buttons should use themed primary style');
 assert.match(
   commentSkeleton,
-  /#eeefe9|background\.default|background\.paper/i,
+  /background\.subtle|background\.default|background\.paper/i,
   'comment skeleton should use sage-themed surfaces'
 );
 

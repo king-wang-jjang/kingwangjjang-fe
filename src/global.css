@@ -15,8 +15,8 @@ body,
   margin: 0;
   min-height: 100%;
   flex-direction: column;
-  background: #fdfdf8;
-  color: #4d4f46;
+  background: var(--mui-palette-background-default, #fdfdf8);
+  color: var(--mui-palette-text-primary, #4d4f46);
   font-family:
     'IBM Plex Sans Variable',
     'IBM Plex Sans',
@@ -67,9 +67,9 @@ input[type='number']::-webkit-inner-spin-button {
 .plain-state-panel {
   width: min(100%, 440px);
   padding: 32px;
-  border: 1px solid #bfc1b7;
+  border: 1px solid var(--mui-palette-divider, #bfc1b7);
   border-radius: 4px;
-  background: #fdfdf8;
+  background: var(--mui-palette-background-paper, #fdfdf8);
   text-align: center;
 }
 
@@ -82,14 +82,14 @@ input[type='number']::-webkit-inner-spin-button {
 
 .plain-state-panel h1 {
   margin: 0 0 10px;
-  color: #23251d;
+  color: var(--mui-palette-text-primary, #23251d);
   font-size: 1.5rem;
   line-height: 1.25;
 }
 
 .plain-state-panel p {
   margin: 0 0 20px;
-  color: #65675e;
+  color: var(--mui-palette-text-secondary, #65675e);
   line-height: 1.7;
 }
 
@@ -100,8 +100,8 @@ input[type='number']::-webkit-inner-spin-button {
   min-height: 40px;
   padding: 0 16px;
   border-radius: 6px;
-  background: #1e1f23;
-  color: #ffffff;
+  background: var(--mui-palette-primary-main, #1e1f23);
+  color: var(--mui-palette-primary-contrastText, #ffffff);
   font-size: 0.92rem;
   font-weight: 700;
 }

@@ -87,8 +87,8 @@ export default function AccountHistoryPage() {
         <Box
           sx={{
             border: 1,
-            borderColor: '#bfc1b7',
-            bgcolor: '#eeefe9',
+            borderColor: 'divider',
+            bgcolor: 'background.subtle',
             borderRadius: 1,
             p: 2,
           }}
@@ -121,8 +121,8 @@ export default function AccountHistoryPage() {
                   key={entry.boardId}
                   sx={{
                     border: 1,
-                    borderColor: '#d5d7cd',
-                    bgcolor: '#fdfdf8',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
                     borderRadius: 1,
                     p: 1.25,
                   }}
@@ -137,7 +137,7 @@ export default function AccountHistoryPage() {
                       <Chip
                         size="small"
                         label={entry.post?.siteLabel || entry.boardId}
-                        sx={{ bgcolor: '#e5e7e0', borderColor: '#bfc1b7' }}
+                        sx={{ bgcolor: 'background.muted', borderColor: 'divider' }}
                       />
                       <Typography variant="caption" color="text.secondary">
                         {formatDateTime(entry.readAt)}
@@ -151,11 +151,11 @@ export default function AccountHistoryPage() {
                         rel="noopener noreferrer"
                         variant="body2"
                         sx={{
-                          color: '#23251d',
+                          color: 'text.primary',
                           fontWeight: 750,
                           textDecoration: 'none',
                           overflowWrap: 'anywhere',
-                          '&:hover': { color: '#F54E00' },
+                          '&:hover': { color: 'secondary.main' },
                         }}
                       >
                         {entry.post.title}

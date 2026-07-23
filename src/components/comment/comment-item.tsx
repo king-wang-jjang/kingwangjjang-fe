@@ -61,19 +61,27 @@ export const CommentItem = ({
         py: 1,
         px: 1,
         border: 1,
-        borderColor: '#bfc1b7',
+        borderColor: 'divider',
         borderRadius: 1,
-        bgcolor: '#fdfdf8',
+        bgcolor: 'background.paper',
         '&:hover': {
-          bgcolor: '#f4f4f4',
+          bgcolor: 'background.hover',
           '& .comment-action': {
-            color: '#F54E00',
+            color: 'secondary.main',
           },
         },
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem' }}>
+      <Avatar
+        sx={{
+          width: 28,
+          height: 28,
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
+          fontSize: '0.75rem',
+        }}
+      >
         {comment.userNickname.charAt(0).toUpperCase()}
       </Avatar>
 
@@ -97,7 +105,7 @@ export const CommentItem = ({
               className="comment-action"
               size="small"
               onClick={handleLike}
-              sx={{ color: isLiked ? '#F54E00' : 'text.secondary', p: 0.5 }}
+              sx={{ color: isLiked ? 'secondary.main' : 'text.secondary', p: 0.5 }}
             >
               {isLiked ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
             </IconButton>
@@ -155,7 +163,7 @@ export const CommentItem = ({
                 pl: 1.5,
                 ml: 0.5,
                 borderLeft: 1,
-                borderColor: '#bfc1b7',
+                borderColor: 'divider',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.75,

@@ -69,7 +69,7 @@ function Top10Skeleton() {
             py: 1,
             alignItems: 'center',
             borderBottom: index === TOP_BOARDS_LIMIT - 1 ? 0 : 1,
-            borderColor: '#d7d8d1',
+            borderColor: 'divider',
           }}
         >
           <Skeleton variant="rounded" width={28} height={28} />
@@ -96,8 +96,8 @@ function Top10Rank({ rank }: { rank: number }) {
         placeItems: 'center',
         flexShrink: 0,
         borderRadius: 1,
-        bgcolor: emphasized ? '#23251d' : '#e5e7e0',
-        color: emphasized ? '#fdfdf8' : '#4d4f46',
+        bgcolor: emphasized ? 'primary.main' : 'background.muted',
+        color: emphasized ? 'primary.contrastText' : 'text.primary',
         fontSize: '0.82rem',
         fontWeight: 800,
       }}
@@ -123,12 +123,12 @@ function Top10SidebarRow({ post, rank }: { post: BoardPost; rank: number }) {
           alignItems: 'center',
           gap: 1.25,
           borderBottom: 1,
-          borderColor: '#d7d8d1',
-          color: '#4d4f46',
+          borderColor: 'divider',
+          color: 'text.primary',
           transition: 'background-color 120ms ease, color 120ms ease',
           '&:hover': {
-            bgcolor: '#f4f4f4',
-            color: '#F54E00',
+            bgcolor: 'background.hover',
+            color: 'secondary.main',
           },
           '&:focus-visible': {
             outline: '3px solid rgba(59, 130, 246, 0.45)',
@@ -144,7 +144,7 @@ function Top10SidebarRow({ post, rank }: { post: BoardPost; rank: number }) {
             variant="caption"
             sx={{
               display: 'block',
-              color: '#65675e',
+              color: 'text.secondary',
               fontWeight: 700,
               lineHeight: 1.2,
             }}
@@ -170,7 +170,7 @@ function Top10SidebarRow({ post, rank }: { post: BoardPost; rank: number }) {
 
         <ChevronRightRoundedIcon
           aria-hidden="true"
-          sx={{ flexShrink: 0, color: '#9ea096', fontSize: 17 }}
+          sx={{ flexShrink: 0, color: 'text.disabled', fontSize: 17 }}
         />
       </Box>
     </Box>
@@ -213,7 +213,7 @@ function Top10PageRow({
   }, [resolvedThumbnailSrc]);
 
   return (
-    <Box component="li" sx={{ borderBottom: 1, borderColor: '#d7d8d1' }}>
+    <Box component="li" sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <ButtonBase
         component="button"
         type="button"
@@ -233,12 +233,12 @@ function Top10PageRow({
           display: 'flex',
           alignItems: 'center',
           gap: 1.25,
-          color: '#4d4f46',
+          color: 'text.primary',
           textAlign: 'left',
           transition: 'background-color 120ms ease, color 120ms ease',
           '&:hover': {
-            bgcolor: '#f4f4f4',
-            color: '#F54E00',
+            bgcolor: 'background.hover',
+            color: 'secondary.main',
           },
           '&.Mui-focusVisible': {
             outline: '3px solid rgba(59, 130, 246, 0.45)',
@@ -252,7 +252,7 @@ function Top10PageRow({
           <Typography
             component="span"
             variant="caption"
-            sx={{ display: 'block', color: '#65675e', fontWeight: 700, lineHeight: 1.2 }}
+            sx={{ display: 'block', color: 'text.secondary', fontWeight: 700, lineHeight: 1.2 }}
           >
             {post.siteLabel}
           </Typography>
@@ -278,7 +278,7 @@ function Top10PageRow({
           aria-hidden="true"
           sx={{
             flexShrink: 0,
-            color: '#9ea096',
+            color: 'text.disabled',
             fontSize: 22,
             transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 160ms ease',
@@ -292,9 +292,9 @@ function Top10PageRow({
           sx={{
             px: 1.75,
             pb: 1.5,
-            bgcolor: '#f7f7f1',
+            bgcolor: 'background.raised',
             borderTop: 1,
-            borderColor: '#e1e3d8',
+            borderColor: 'divider',
           }}
         >
           <Stack
@@ -313,8 +313,8 @@ function Top10PageRow({
                 sx={{
                   width: 28,
                   height: 28,
-                  color: '#65675e',
-                  '&:hover': { bgcolor: '#eeefe9', color: '#F54E00' },
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: 'background.subtle', color: 'secondary.main' },
                 }}
               >
                 <CloseRoundedIcon fontSize="small" />
@@ -384,9 +384,9 @@ function Top10PageRow({
                   objectFit: 'contain',
                   flexShrink: 0,
                   border: 1,
-                  borderColor: '#d7d8d1',
+                  borderColor: 'divider',
                   borderRadius: 1,
-                  bgcolor: '#eeefe9',
+                  bgcolor: 'background.subtle',
                 }}
               />
             )}
@@ -405,13 +405,13 @@ function Top10PageRow({
               aria-label={`${post.title} 원문 새 탭에서 열기`}
               sx={{
                 width: { xs: '100%', sm: 'auto' },
-                bgcolor: '#fdfdf8',
-                borderColor: '#bfc1b7',
-                color: '#4d4f46',
+                bgcolor: 'background.paper',
+                borderColor: 'divider',
+                color: 'text.primary',
                 '&:hover': {
-                  bgcolor: '#eeefe9',
-                  borderColor: '#bfc1b7',
-                  color: '#F54E00',
+                  bgcolor: 'background.subtle',
+                  borderColor: 'divider',
+                  color: 'secondary.main',
                 },
               }}
             >
@@ -465,7 +465,7 @@ export function Top10List({
     <Card
       component="section"
       aria-labelledby={`top10-${variant}-title`}
-      sx={{ overflow: 'hidden', bgcolor: '#fdfdf8', borderColor: '#bfc1b7' }}
+      sx={{ overflow: 'hidden', bgcolor: 'background.paper', borderColor: 'divider' }}
     >
       <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
         <Stack
@@ -483,12 +483,20 @@ export function Top10List({
               component={Link}
               href="/top10/"
               variant="subtitle1"
-              sx={{ color: '#23251d', fontWeight: 800, '&:hover': { color: '#F54E00' } }}
+              sx={{
+                color: 'text.primary',
+                fontWeight: 800,
+                '&:hover': { color: 'secondary.main' },
+              }}
             >
               {heading}
             </Typography>
           ) : (
-            <Typography id="top10-page-title" variant="h6" sx={{ color: '#23251d', fontWeight: 800 }}>
+            <Typography
+              id="top10-page-title"
+              variant="h6"
+              sx={{ color: 'text.primary', fontWeight: 800 }}
+            >
               {heading}
             </Typography>
           )}
