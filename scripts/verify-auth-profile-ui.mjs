@@ -24,8 +24,13 @@ assert.match(
 );
 assert.match(
   authInitializer,
-  /refreshAuthSession\(\)[\s\S]*getMe\(\)/,
-  'app startup should renew a long-lived session before loading the user'
+  /let user = await getMe\(\);[\s\S]*if \(!user && \(await refreshAuthSession\(\)\)\)[\s\S]*user = await getMe\(\);/,
+  'app startup should load a valid session before conditionally refreshing it'
+);
+assert.doesNotMatch(
+  authInitializer,
+  /await refreshAuthSession\(\);\s*const user = await getMe\(\);/,
+  'app startup should not rotate a freshly issued refresh token unconditionally'
 );
 assert.match(
   httpApi,
