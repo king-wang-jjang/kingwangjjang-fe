@@ -1,7 +1,9 @@
 import type { BoardPost, BoardAnalysis, BoardListFilters } from 'src/api/board-api';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { getBoardFilterOptions } from 'src/api/board-api';
 
 import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
@@ -11,7 +13,11 @@ const EMPTY_FILTERS: BoardListFilters = {};
 export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
   const queryClient = useQueryClient();
   const [postData, setPostData] = useState<BoardPost[]>(EMPTY_POSTS);
-  const [filterCollection, setFilterCollection] = useState<string[]>([]);
+  const boardFilterOptionsQuery = useQuery({
+    queryKey: ['boards', 'filters'],
+    queryFn: getBoardFilterOptions,
+    staleTime: 5 * 60_000,
+  });
 
   const {
     loadingRef,
@@ -24,19 +30,6 @@ export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
     const modifiedData = boardContentsData?.realtimePagination ?? EMPTY_POSTS;
 
     setPostData(modifiedData);
-
-    const uniqueSite = Array.from(
-      new Set(
-        modifiedData
-          .map((item) => item?.site)
-          .filter((site) => typeof site === 'string')
-          .map(String)
-      )
-    );
-
-    if (uniqueSite.length > 0) {
-      setFilterCollection((current) => Array.from(new Set([...current, ...uniqueSite])));
-    }
   }, [boardContentsData]);
 
   const updatePostAnalysis = useCallback(
@@ -72,7 +65,7 @@ export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
 
   return {
     postData,
-    filterCollection,
+    boardFilterOptions: boardFilterOptionsQuery.data,
     updatePostAnalysis,
     loadingRef,
     boardContentsQueryLoading,

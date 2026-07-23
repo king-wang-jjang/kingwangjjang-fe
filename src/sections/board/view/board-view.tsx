@@ -104,18 +104,18 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     postData,
     updatePostAnalysis,
     loadingRef,
-    filterCollection,
+    boardFilterOptions,
     boardContentsQueryError,
     boardContentsQueryLoading,
   } = useBoard(boardFilters);
 
   const siteLabels = useMemo(
     () =>
-      postData.reduce<Record<string, string>>((labels, post) => {
-        labels[post.site] = post.siteLabel;
+      (boardFilterOptions?.sites ?? []).reduce<Record<string, string>>((labels, site) => {
+        labels[site.value] = site.label;
         return labels;
       }, {}),
-    [postData]
+    [boardFilterOptions]
   );
 
   useEffect(() => {
@@ -279,11 +279,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
         },
       }}
     >
-      {filterCollection.length ? (
-        filterCollection.map((site) => (
-          <MenuItem key={site} onClick={() => handleToggleSite(site)}>
-            <Checkbox checked={selectedSites.includes(site)} size="small" />
-            <ListItemText primary={siteLabels[site] ?? site} />
+      {boardFilterOptions?.sites.length ? (
+        boardFilterOptions.sites.map((site) => (
+          <MenuItem key={site.value} onClick={() => handleToggleSite(site.value)}>
+            <Checkbox checked={selectedSites.includes(site.value)} size="small" />
+            <ListItemText primary={site.label} />
           </MenuItem>
         ))
       ) : (
