@@ -18,8 +18,10 @@ export function AuthInitializer({ children }: Props) {
 
     async function checkUserSession() {
       try {
-        await refreshAuthSession();
-        const user = await getMe();
+        let user = await getMe();
+        if (!user && (await refreshAuthSession())) {
+          user = await getMe();
+        }
         if (!mounted) return;
 
         if (user) {
