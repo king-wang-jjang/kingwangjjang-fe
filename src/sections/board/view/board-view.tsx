@@ -119,6 +119,18 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   );
 
   useEffect(() => {
+    if (!boardFilterOptions) {
+      return;
+    }
+
+    const activeSiteValues = new Set(boardFilterOptions.sites.map((site) => site.value));
+    setSelectedSites((current) => {
+      const activeSelections = current.filter((site) => activeSiteValues.has(site));
+      return activeSelections.length === current.length ? current : activeSelections;
+    });
+  }, [boardFilterOptions]);
+
+  useEffect(() => {
     if (!selectedPost) {
       return;
     }

@@ -9,6 +9,7 @@ import useInfiniteScrollablePostList from './use-infinite-scrollable-post-list';
 
 const EMPTY_POSTS: BoardPost[] = [];
 const EMPTY_FILTERS: BoardListFilters = {};
+const FILTER_REFRESH_INTERVAL_MS = 5 * 60_000;
 
 export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
   const queryClient = useQueryClient();
@@ -16,7 +17,9 @@ export const useBoard = (filters: BoardListFilters = EMPTY_FILTERS) => {
   const boardFilterOptionsQuery = useQuery({
     queryKey: ['boards', 'filters'],
     queryFn: getBoardFilterOptions,
-    staleTime: 5 * 60_000,
+    staleTime: FILTER_REFRESH_INTERVAL_MS,
+    refetchInterval: FILTER_REFRESH_INTERVAL_MS,
+    refetchIntervalInBackground: false,
   });
 
   const {
