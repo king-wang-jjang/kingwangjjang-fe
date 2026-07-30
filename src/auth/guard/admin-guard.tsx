@@ -15,10 +15,10 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import { getMe } from 'src/api/user-api';
 import { useAuthStore } from 'src/store/auth-store';
 
 import { isAdmin } from 'src/auth/permissions';
+import { recoverAuthSession } from 'src/auth/session-recovery';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
 type Props = {
@@ -33,16 +33,13 @@ export function AdminGuard({ children }: Props) {
 
     let active = true;
     const refreshSession = async () => {
-      try {
-        const currentUser = await getMe();
-        if (!active) return;
-        if (currentUser) {
-          login(currentUser);
-        } else {
-          logout();
-        }
-      } catch {
-        // The protected API remains authoritative during temporary refresh failures.
+      const session = await recoverAuthSession();
+      if (!active) return;
+
+      if (session.status === 'authenticated') {
+        login(session.user);
+      } else if (session.status === 'unauthenticated') {
+        logout();
       }
     };
     const interval = window.setInterval(refreshSession, 60_000);

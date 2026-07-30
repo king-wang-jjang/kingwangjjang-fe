@@ -6,6 +6,7 @@ const userApi = fs.readFileSync('src/api/user-api.ts', 'utf8');
 const authTypes = fs.readFileSync('src/auth/types.ts', 'utf8');
 const authStore = fs.readFileSync('src/store/auth-store.ts', 'utf8');
 const authInitializer = fs.readFileSync('src/auth/auth-initializer.tsx', 'utf8');
+const sessionRecovery = fs.readFileSync('src/auth/session-recovery.ts', 'utf8');
 const httpApi = fs.readFileSync('src/api/http.ts', 'utf8');
 const readStore = fs.readFileSync('src/store/read-store.ts', 'utf8');
 const settingsPage = fs.readFileSync('src/app/account/settings/page.tsx', 'utf8');
@@ -24,13 +25,23 @@ assert.match(
 );
 assert.match(
   authInitializer,
-  /let user = await getMe\(\);[\s\S]*if \(!user && \(await refreshAuthSession\(\)\)\)[\s\S]*user = await getMe\(\);/,
-  'app startup should load a valid session before conditionally refreshing it'
+  /recoverAuthSession\(\)[\s\S]*session\.status === 'authenticated'[\s\S]*session\.status === 'unauthenticated'[\s\S]*Math\.min\([\s\S]*SESSION_RETRY_MAX_DELAY_MS[\s\S]*setTimeout\(checkUserSession, retryDelay\)/,
+  'app startup should distinguish session states and back off during temporary outages'
 );
-assert.doesNotMatch(
-  authInitializer,
-  /await refreshAuthSession\(\);\s*const user = await getMe\(\);/,
-  'app startup should not rotate a freshly issued refresh token unconditionally'
+assert.match(
+  sessionRecovery,
+  /const currentUser = await getMeWithRetry\(\)[\s\S]*if \(currentUser\)[\s\S]*refreshWithRetry\(\)[\s\S]*Another tab can win refresh-token rotation[\s\S]*const recoveredUser = await getMeAfterRefresh\(\)/,
+  'session recovery should refresh after a null user and re-probe after a losing tab gets 401'
+);
+assert.match(
+  sessionRecovery,
+  /TRANSIENT_RETRY_DELAYS_MS[\s\S]*error\.status >= 500[\s\S]*getMeAfterRefresh[\s\S]*await wait\(TRANSIENT_RETRY_DELAYS_MS\[retryIndex\]\)[\s\S]*result !== 'unavailable'[\s\S]*retryIndex \+ 1/,
+  'session recovery should retry network and server-side authentication outages'
+);
+assert.match(
+  httpApi,
+  /AuthRefreshResult = 'refreshed' \| 'unauthenticated' \| 'unavailable'[\s\S]*response\.status === 401[\s\S]*return 'unavailable'/,
+  'refresh requests should distinguish invalid sessions from temporary failures'
 );
 assert.match(
   httpApi,

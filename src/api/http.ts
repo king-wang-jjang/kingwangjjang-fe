@@ -5,7 +5,19 @@ type RequestOptions = RequestInit & {
   skipAuthRefresh?: boolean;
 };
 
-let refreshPromise: Promise<boolean> | null = null;
+export type AuthRefreshResult = 'refreshed' | 'unauthenticated' | 'unavailable';
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+let refreshPromise: Promise<AuthRefreshResult> | null = null;
 
 async function request(path: string, options: RequestOptions): Promise<Response> {
   const headers = new Headers(options.headers);
@@ -21,20 +33,30 @@ async function request(path: string, options: RequestOptions): Promise<Response>
   });
 }
 
-export async function refreshAuthSession(): Promise<boolean> {
-  if (!refreshPromise) {
-    refreshPromise = request('/userservice/api/auth/refresh', {
-      method: 'POST',
-      skipAuthRefresh: true,
-    })
-      .then((response) => response.ok)
-      .catch(() => false)
-      .finally(() => {
-        refreshPromise = null;
-      });
-  }
+export async function getAuthRefreshResult(): Promise<AuthRefreshResult> {
+  if (refreshPromise) return refreshPromise;
 
-  return refreshPromise;
+  const pendingRefresh = request('/userservice/api/auth/refresh', {
+    method: 'POST',
+    skipAuthRefresh: true,
+  })
+    .then<AuthRefreshResult>((response) => {
+      if (response.ok) return 'refreshed';
+      if (response.status === 401 || response.status === 403) return 'unauthenticated';
+
+      return 'unavailable';
+    })
+    .catch<AuthRefreshResult>(() => 'unavailable')
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  refreshPromise = pendingRefresh;
+  return pendingRefresh;
+}
+
+export async function refreshAuthSession(): Promise<boolean> {
+  return (await getAuthRefreshResult()) === 'refreshed';
 }
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -46,7 +68,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(body || `Request failed with status ${response.status}`);
+    throw new ApiError(response.status, body || `Request failed with status ${response.status}`);
   }
 
   if (options.skipJsonParse) {
