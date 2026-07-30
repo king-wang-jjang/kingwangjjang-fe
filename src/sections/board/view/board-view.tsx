@@ -770,17 +770,19 @@ function BoardPostCard({
                       />
                       {tags.map((tag) => (
                         <Chip
+                          className="post-tag-chip"
                           key={tag}
                           label={tag}
                           size="small"
-                          variant="outlined"
+                          variant="filled"
                           sx={{
-                            height: 22,
-                            bgcolor: 'background.warm',
-                            borderColor: 'secondary.dark',
-                            color: 'secondary.dark',
+                            height: 18,
+                            bgcolor: '#34372f',
+                            borderColor: '#34372f',
+                            color: 'common.white',
+                            fontSize: '0.6875rem',
                             '& .MuiChip-label': {
-                              px: 0.75,
+                              px: 0.625,
                             },
                           }}
                         />
@@ -830,34 +832,6 @@ function BoardPostCard({
                         },
                       }}
                     />
-
-                    <Tooltip title="좋아요">
-                      <Button
-                        className="post-card-action"
-                        size="small"
-                        color="inherit"
-                        disableRipple
-                        startIcon={<FavoriteBorderIcon fontSize="small" />}
-                        onClick={handleLike}
-                        sx={{
-                          minWidth: 0,
-                          px: 0.5,
-                          py: 0,
-                          color: 'text.secondary',
-                          '&:hover': {
-                            bgcolor: 'transparent',
-                          },
-                          '&:active': {
-                            bgcolor: 'transparent',
-                          },
-                          '& .MuiButton-startIcon': {
-                            mr: 0.5,
-                          },
-                        }}
-                      >
-                        {currentLikeCount}
-                      </Button>
-                    </Tooltip>
                   </Stack>
                 </Stack>
 
@@ -969,6 +943,28 @@ function BoardPostCard({
                     spacing={0.75}
                     sx={{ mt: 1, justifyContent: 'flex-end' }}
                   >
+                    <Button
+                      className="expanded-like-action post-card-action"
+                      size="small"
+                      variant="outlined"
+                      color="inherit"
+                      startIcon={<FavoriteBorderIcon fontSize="small" />}
+                      onClick={handleLike}
+                      aria-label={`좋아요 ${currentLikeCount}개`}
+                      sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        bgcolor: 'background.paper',
+                        borderColor: 'divider',
+                        color: 'text.primary',
+                        '&:hover': {
+                          bgcolor: 'background.subtle',
+                          borderColor: 'divider',
+                          color: 'secondary.main',
+                        },
+                      }}
+                    >
+                      좋아요 {currentLikeCount}
+                    </Button>
                     <Button
                       component="a"
                       href={post.url}

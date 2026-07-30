@@ -27,6 +27,13 @@ const boardButtonBlocks = [...boardView.matchAll(/<Button[\s\S]*?<\/Button>/g)].
 const handlePostSelectStart = boardView.indexOf('const handlePostSelect');
 const handleCommentOpenStart = boardView.indexOf('const handleCommentOpen');
 const handleCommentCloseStart = boardView.indexOf('const handleCommentClose');
+const collapsedCardStart = boardView.indexOf('className="metadata-chip-row"');
+const expandedPanelStart = boardView.indexOf('<Collapse in={expanded}');
+const expandedActionsStart = boardView.indexOf('className="expanded-card-actions"');
+const expandedActionsEnd = boardView.indexOf('</Stack>', expandedActionsStart);
+const collapsedCardSource = boardView.slice(collapsedCardStart, expandedPanelStart);
+const expandedActionsSource = boardView.slice(expandedActionsStart, expandedActionsEnd);
+const postTagChipSource = boardView.match(/className="post-tag-chip"[\s\S]*?\/>/)?.[0] ?? '';
 
 const redesignedFiles = [
   globalCss,
@@ -76,6 +83,11 @@ assert.match(
   boardView.slice(handleCommentOpenStart, handleCommentCloseStart),
   /handlePostSelect\(post\)[\s\S]*isContentFirstLayout[\s\S]*setMobileCommentOpen\(true\)/,
   'the explicit comment action should open comments on mobile'
+);
+assert.match(
+  packageJson,
+  /node scripts\/verify-board-ui\.mjs/,
+  'repository check should run the Board UI contract'
 );
 
 assert.match(
@@ -439,6 +451,32 @@ assert.match(
   /metadata-chip-row[\s\S]*post\.siteLabel[\s\S]*tags\.map/,
   'post tag chips should sit on the same metadata row as the site chip'
 );
+assert.match(postTagChipSource, /variant="filled"/, 'post tag chips should use a filled surface');
+assert.match(
+  postTagChipSource,
+  /height:\s*18[\s\S]*bgcolor:\s*'#34372f'[\s\S]*color:\s*'common\.white'/,
+  'post tag chips should use a compact dark surface with white text'
+);
+assert.match(
+  postTagChipSource,
+  /fontSize:\s*'0\.6875rem'[\s\S]*px:\s*0\.625/,
+  'post tag chips should use compact text and horizontal padding'
+);
+assert.doesNotMatch(
+  postTagChipSource,
+  /background\.warm|secondary\.dark/,
+  'post tag chips should not use the attention-grabbing orange treatment'
+);
+assert.doesNotMatch(
+  collapsedCardSource,
+  /onClick=\{handleLike\}/,
+  'collapsed post cards should not expose an interactive like action'
+);
+assert.match(
+  expandedActionsSource,
+  /expanded-like-action[\s\S]*FavoriteBorderIcon[\s\S]*onClick=\{handleLike\}[\s\S]*currentLikeCount/,
+  'like actions should be available only after the post is expanded'
+);
 assert.match(boardView, /filter-icon-button/, 'site filtering should be opened by an icon button');
 assert.doesNotMatch(
   boardView,
@@ -495,8 +533,16 @@ assert.doesNotMatch(
   /size="large"/,
   'header login button should not use the large CTA size'
 );
-assert.match(commentSidebar, /background\.subtle/i, 'comment sidebar should use themed panel surface');
-assert.match(commentDrawer, /background\.subtle/i, 'comment drawer should use themed panel surface');
+assert.match(
+  commentSidebar,
+  /background\.subtle/i,
+  'comment sidebar should use themed panel surface'
+);
+assert.match(
+  commentDrawer,
+  /background\.subtle/i,
+  'comment drawer should use themed panel surface'
+);
 assert.match(
   commentSection,
   /background\.subtle|background\.default|background\.paper/i,
@@ -508,7 +554,11 @@ assert.match(
   'comment empty state should keep valid Korean copy'
 );
 assert.match(commentItem, /secondary\.main/i, 'comment actions should use themed hover accents');
-assert.match(commentForm, /primary\.main/i, 'comment submit buttons should use themed primary style');
+assert.match(
+  commentForm,
+  /primary\.main/i,
+  'comment submit buttons should use themed primary style'
+);
 assert.match(
   commentSkeleton,
   /background\.subtle|background\.default|background\.paper/i,
