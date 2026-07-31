@@ -280,7 +280,10 @@ export function AppShell({ children }: Props) {
           borderColor: 'divider',
           boxShadow: 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
-          transition: 'transform 200ms ease-in-out',
+          transition: (theme) =>
+            theme.transitions.create('transform', {
+              duration: theme.transitions.duration.shorter,
+            }),
           '@media (prefers-reduced-motion: reduce)': {
             transition: 'none',
           },

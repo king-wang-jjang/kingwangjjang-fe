@@ -216,8 +216,8 @@ assert.match(
 );
 assert.match(
   appShell,
-  /transition:\s*'transform [^']+'/,
-  'app bar should animate its transform'
+  /transition:\s*\(theme\)\s*=>\s*theme\.transitions\.create\(\s*'transform',\s*\{\s*duration:\s*theme\.transitions\.duration\.shorter,?\s*\}\s*\)/,
+  'app bar should animate its transform with the theme shorter transition'
 );
 assert.match(
   appShell,
