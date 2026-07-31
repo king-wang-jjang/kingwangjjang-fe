@@ -29,6 +29,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { useHideHeaderOnScroll } from 'src/hooks/use-hide-header-on-scroll';
+
 import { useAuthStore } from 'src/store/auth-store';
 import { ColorModeToggle } from 'src/theme/color-mode-toggle';
 
@@ -246,9 +248,12 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
 }
 
 export function AppShell({ children }: Props) {
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, user, authStatus } = useAuthStore();
   const isAdminUser = isAdmin(user);
+  const isBoardRoute = pathname === '/board' || pathname.startsWith('/board/');
+  const headerHidden = useHideHeaderOnScroll(isBoardRoute);
 
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
@@ -264,6 +269,7 @@ export function AppShell({ children }: Props) {
       }}
     >
       <AppBar
+        className="app-header"
         position="fixed"
         elevation={0}
         sx={{
@@ -273,6 +279,11 @@ export function AppShell({ children }: Props) {
           borderBottom: 1,
           borderColor: 'divider',
           boxShadow: 'none',
+          transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
+          transition: 'transform 200ms ease-in-out',
+          '@media (prefers-reduced-motion: reduce)': {
+            transition: 'none',
+          },
         }}
       >
         <Toolbar

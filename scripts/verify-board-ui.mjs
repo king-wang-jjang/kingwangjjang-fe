@@ -8,6 +8,9 @@ const globalCss = read('src/global.css');
 const rootLayout = read('src/app/layout.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
+const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
+  ? read('src/hooks/use-hide-header-on-scroll.ts')
+  : '';
 const boardApi = read('src/api/board-api.ts');
 const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
@@ -170,6 +173,56 @@ assert.match(
   appShell,
   /component="main"[\s\S]*width:\s*'100%'[\s\S]*boxSizing:\s*'border-box'/,
   'main content should fill the body with balanced left and right padding'
+);
+assert.match(
+  hideHeaderHook,
+  /export function useHideHeaderOnScroll\(enabled: boolean, threshold = 64\)/,
+  'header scroll hook should expose the approved route-aware API and default threshold'
+);
+assert.match(
+  hideHeaderHook,
+  /window\.addEventListener\('scroll', handleScroll, \{ passive: true \}\)/,
+  'header scroll hook should use a passive window scroll listener'
+);
+assert.match(
+  hideHeaderHook,
+  /if \(currentScrollY <= threshold\) \{\s*setHidden\(false\);/,
+  'header should remain visible near the top of the page'
+);
+assert.match(
+  hideHeaderHook,
+  /if \(delta > 0\) \{\s*setHidden\(true\);[\s\S]*?else if \(delta < 0\) \{\s*setHidden\(false\);/,
+  'header should hide while scrolling down and show immediately while scrolling up'
+);
+assert.match(
+  hideHeaderHook,
+  /return \(\) => window\.removeEventListener\('scroll', handleScroll\)/,
+  'header scroll hook should clean up its window scroll listener'
+);
+assert.match(
+  appShell,
+  /const isBoardRoute = pathname === '\/board' \|\| pathname\.startsWith\('\/board\/'\);[\s\S]*useHideHeaderOnScroll\(isBoardRoute\)/,
+  'app shell should enable direction-aware hiding only for board routes'
+);
+assert.match(
+  appShell,
+  /<AppBar[\s\S]*className="app-header"/,
+  'app bar should expose the app-header class'
+);
+assert.match(
+  appShell,
+  /transform:\s*headerHidden \? 'translateY\(-100%\)' : 'translateY\(0\)'/,
+  'app bar should move off-canvas without changing document flow'
+);
+assert.match(
+  appShell,
+  /transition:\s*'transform [^']+'/,
+  'app bar should animate its transform'
+);
+assert.match(
+  appShell,
+  /'@media \(prefers-reduced-motion: reduce\)':\s*\{[\s\S]*?transition:\s*'none'/,
+  'app bar should disable its transform animation when reduced motion is preferred'
 );
 
 assert.match(boardView, /BoardWorkbench/, 'board view should expose a workbench container');
