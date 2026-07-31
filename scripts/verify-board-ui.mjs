@@ -176,8 +176,8 @@ assert.match(
 );
 assert.match(
   hideHeaderHook,
-  /export function useHideHeaderOnScroll\(enabled: boolean, threshold = 64\)/,
-  'header scroll hook should expose the approved route-aware API and default threshold'
+  /export function useHideHeaderOnScroll\(\s*enabled: boolean,\s*threshold = 64,\s*resetKey\?: string\s*\)/,
+  'header scroll hook should expose the approved route-aware reset API and default threshold'
 );
 assert.match(
   hideHeaderHook,
@@ -200,9 +200,14 @@ assert.match(
   'header scroll hook should clean up its window scroll listener'
 );
 assert.match(
+  hideHeaderHook,
+  /\}, \[enabled, resetKey, threshold\]\);/,
+  'header scroll hook should reset and recapture scroll position when its route key changes'
+);
+assert.match(
   appShell,
-  /const isBoardRoute = pathname === '\/board' \|\| pathname\.startsWith\('\/board\/'\);[\s\S]*useHideHeaderOnScroll\(isBoardRoute\)/,
-  'app shell should enable direction-aware hiding only for board routes'
+  /const isBoardRoute = pathname === '\/board' \|\| pathname\.startsWith\('\/board\/'\);[\s\S]*useHideHeaderOnScroll\(isBoardRoute, 64, pathname\)/,
+  'app shell should enable direction-aware hiding only for board routes and reset on navigation'
 );
 assert.match(
   appShell,
@@ -213,6 +218,11 @@ assert.match(
   appShell,
   /transform:\s*headerHidden \? 'translateY\(-100%\)' : 'translateY\(0\)'/,
   'app bar should move off-canvas without changing document flow'
+);
+assert.match(
+  appShell,
+  /'&:focus-within':\s*\{\s*transform:\s*'translateY\(0\)'/,
+  'keyboard focus within the app bar should always reveal it'
 );
 assert.match(
   appShell,

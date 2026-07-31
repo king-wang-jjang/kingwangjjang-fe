@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-export function useHideHeaderOnScroll(enabled: boolean, threshold = 64) {
+export function useHideHeaderOnScroll(
+  enabled: boolean,
+  threshold = 64,
+  resetKey?: string
+) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export function useHideHeaderOnScroll(enabled: boolean, threshold = 64) {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [enabled, threshold]);
+  }, [enabled, resetKey, threshold]);
 
   return enabled && hidden;
 }

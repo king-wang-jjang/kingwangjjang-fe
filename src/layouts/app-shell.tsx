@@ -253,7 +253,7 @@ export function AppShell({ children }: Props) {
   const { isAuthenticated, user, authStatus } = useAuthStore();
   const isAdminUser = isAdmin(user);
   const isBoardRoute = pathname === '/board' || pathname.startsWith('/board/');
-  const headerHidden = useHideHeaderOnScroll(isBoardRoute);
+  const headerHidden = useHideHeaderOnScroll(isBoardRoute, 64, pathname);
 
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
@@ -280,6 +280,9 @@ export function AppShell({ children }: Props) {
           borderColor: 'divider',
           boxShadow: 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
+          '&:focus-within': {
+            transform: 'translateY(0)',
+          },
           transition: (theme) =>
             theme.transitions.create('transform', {
               duration: theme.transitions.duration.shorter,
