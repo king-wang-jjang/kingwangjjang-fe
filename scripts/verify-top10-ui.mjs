@@ -92,6 +92,16 @@ const top10Index = readRequired('src/components/top10/index.ts');
 
 assert.match(
   top10List,
+  /import \{ CommentDrawer \} from 'src\/components\/comment';/,
+  'shared Top 10 list should reuse the existing comment drawer'
+);
+assert.match(
+  top10List,
+  /type Top10CommentTarget\s*=\s*\{\s*postId:\s*string;\s*site:\s*string;\s*\}\s*\|\s*null;/,
+  'Top 10 comments should retain a stable post ID and site while the drawer is open'
+);
+assert.match(
+  top10List,
   /type Top10ListProps[\s\S]*variant\?: 'sidebar' \| 'page'[\s\S]*selectedDate\?: string[\s\S]*initialExpandedRank\?: number/,
   'shared Top 10 list should expose sidebar, page, and selected-date inputs'
 );
@@ -132,6 +142,11 @@ assert.doesNotMatch(
   /Collapse|component="img"|getPostSummary/,
   'compact sidebar rows should not render expanded summary or image content'
 );
+assert.doesNotMatch(
+  sidebarRowSource,
+  /onOpenComments|CommentDrawer|ChatBubbleOutlineRoundedIcon/,
+  'compact sidebar rows should remain navigation-only without comment controls'
+);
 assert.match(
   pageRowSource,
   /<ButtonBase[\s\S]*aria-expanded=\{expanded\}[\s\S]*aria-controls=\{detailsId\}/,
@@ -154,6 +169,16 @@ assert.match(
   'expanded source actions should open safely in a new tab'
 );
 assert.match(
+  pageRowSource,
+  /onOpenComments:\s*\(post:\s*BoardPost\)\s*=>\s*void/,
+  'expanded Top 10 rows should accept a page-only comment action'
+);
+assert.match(
+  pageRowSource.slice(pageCollapseStart),
+  /<Button[\s\S]*?type="button"[\s\S]*?size="small"[\s\S]*?variant="outlined"[\s\S]*?color="inherit"[\s\S]*?startIcon=\{<ChatBubbleOutlineRoundedIcon fontSize="small" \/>\}[\s\S]*?onClick=\{\(\) => onOpenComments\(post\)\}[\s\S]*?disabled=\{!post\.Id\}[\s\S]*?aria-label=\{`\$\{post\.title\} 댓글 열기`\}[\s\S]*?>[\s\S]*?댓글/,
+  'expanded Top 10 rows should expose an accessible comment button for stored posts'
+);
+assert.match(
   top10List,
   /key=\{`\$\{selectedDate\}:\$\{key\}`\}/,
   'date changes should remount page rows and reset row-local image state'
@@ -167,6 +192,35 @@ assert.match(
   top10List,
   /initialExpandedRank - 1[\s\S]*setExpandedItem[\s\S]*requestAnalysis\(post\)/,
   'a rank query should expand that row and preserve the summary fallback'
+);
+assert.match(
+  top10List,
+  /const \[commentTarget,\s*setCommentTarget\]\s*=\s*useState<Top10CommentTarget>\(null\)/,
+  'Top 10 page comments should use drawer state independent from expanded row state'
+);
+
+const openCommentsStart = top10List.indexOf('onOpenComments={(selectedPost) => {');
+const openCommentsEnd = top10List.indexOf('onClose=', openCommentsStart);
+
+assert.notEqual(openCommentsStart, -1, 'Top 10 page rows should wire a comment open handler');
+assert.notEqual(openCommentsEnd, -1, 'Top 10 comment open handler should end before row close');
+
+const openCommentsSource = top10List.slice(openCommentsStart, openCommentsEnd);
+
+assert.match(
+  openCommentsSource,
+  /const postId = selectedPost\.Id;\s*if \(!postId\) return;\s*setCommentTarget\(\{ postId, site: selectedPost\.site \}\);/,
+  'Top 10 comments should open the shared thread using the stored board ID and site'
+);
+assert.doesNotMatch(
+  openCommentsSource,
+  /selectedPost\.no|postKey/,
+  'Top 10 comment targets should never fall back to a site-number key'
+);
+assert.match(
+  top10List,
+  /variant === 'page' && \(\s*<CommentDrawer[\s\S]*?open=\{Boolean\(commentTarget\)\}[\s\S]*?onClose=\{\(\) => setCommentTarget\(null\)\}[\s\S]*?postId=\{commentTarget\?\.postId \?\? ''\}[\s\S]*?site=\{commentTarget\?\.site \?\? ''\}[\s\S]*?title="댓글"[\s\S]*?\/>\s*\)/,
+  'dedicated Top 10 page should render a controlled shared comment drawer'
 );
 assert.match(
   top10Page,

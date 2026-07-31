@@ -9,6 +9,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import LaunchRoundedIcon from '@mui/icons-material/LaunchRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import {
   Box,
   Card,
@@ -29,7 +30,13 @@ import {
 import { useTopBoardAnalysis } from 'src/hooks/use-top-board-analysis';
 import { useTopBoards, TOP_BOARDS_LIMIT, TOP_BOARDS_TODAY } from 'src/hooks/use-top-boards';
 
+import { CommentDrawer } from 'src/components/comment';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
+
+type Top10CommentTarget = {
+  postId: string;
+  site: string;
+} | null;
 
 type Top10ListProps = {
   variant?: 'sidebar' | 'page';
@@ -186,6 +193,7 @@ type Top10PageRowProps = {
   analysisJob?: BoardAnalysisJobStatus;
   analysisError?: string;
   onExpand: (post: BoardPost) => void;
+  onOpenComments: (post: BoardPost) => void;
   onClose: () => void;
   onRequestAnalysis: (post: BoardPost) => void;
 };
@@ -199,6 +207,7 @@ function Top10PageRow({
   analysisJob,
   analysisError,
   onExpand,
+  onOpenComments,
   onClose,
   onRequestAnalysis,
 }: Top10PageRowProps) {
@@ -392,7 +401,11 @@ function Top10PageRow({
             )}
           </Stack>
 
-          <Stack direction="row" sx={{ mt: 1.25, justifyContent: 'flex-end' }}>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={0.75}
+            sx={{ mt: 1.25, justifyContent: 'flex-end' }}
+          >
             <Button
               component="a"
               href={post.url}
@@ -417,6 +430,29 @@ function Top10PageRow({
             >
               원문 바로가기
             </Button>
+            <Button
+              type="button"
+              size="small"
+              variant="outlined"
+              color="inherit"
+              startIcon={<ChatBubbleOutlineRoundedIcon fontSize="small" />}
+              onClick={() => onOpenComments(post)}
+              disabled={!post.Id}
+              aria-label={`${post.title} 댓글 열기`}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                bgcolor: 'background.paper',
+                borderColor: 'divider',
+                color: 'text.primary',
+                '&:hover': {
+                  bgcolor: 'background.subtle',
+                  borderColor: 'divider',
+                  color: 'secondary.main',
+                },
+              }}
+            >
+              {post.commentCount && post.commentCount > 0 ? `댓글 ${post.commentCount}` : '댓글'}
+            </Button>
           </Stack>
         </Box>
       </Collapse>
@@ -431,6 +467,7 @@ export function Top10List({
 }: Top10ListProps) {
   const isToday = selectedDate === TOP_BOARDS_TODAY;
   const [expandedItem, setExpandedItem] = useState<{ date: string; postKey: string } | null>(null);
+  const [commentTarget, setCommentTarget] = useState<Top10CommentTarget>(null);
   const appliedInitialRankRef = useRef<number | null>(null);
   const { data: posts = [], isError, isPending, isFetching, refetch } = useTopBoards(selectedDate);
   const { analysisJobs, analysisErrors, isAuthenticated, requestAnalysis } =
@@ -462,108 +499,127 @@ export function Top10List({
   }, [initialExpandedRank, isToday, posts, requestAnalysis, selectedDate, variant]);
 
   return (
-    <Card
-      component="section"
-      aria-labelledby={`top10-${variant}-title`}
-      sx={{ overflow: 'hidden', bgcolor: 'background.paper', borderColor: 'divider' }}
-    >
-      <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-        <Stack
-          direction="row"
-          sx={{
-            minHeight: 52,
-            px: variant === 'page' ? 1.75 : 1.5,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          {variant === 'sidebar' ? (
-            <Typography
-              id="top10-sidebar-title"
-              component={Link}
-              href="/top10/"
-              variant="subtitle1"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 800,
-                '&:hover': { color: 'secondary.main' },
-              }}
-            >
-              {heading}
-            </Typography>
-          ) : (
-            <Typography
-              id="top10-page-title"
-              variant="h6"
-              sx={{ color: 'text.primary', fontWeight: 800 }}
-            >
-              {heading}
-            </Typography>
-          )}
-          {isFetching && !isPending && (
-            <CircularProgress size={16} aria-label="Top 10 새로고침 중" />
-          )}
-        </Stack>
-        <Divider />
-
-        {isPending && <Top10Skeleton />}
-
-        {isError && (
-          <Alert
-            severity="warning"
-            action={
-              <Button color="inherit" size="small" onClick={() => refetch()}>
-                다시 시도
-              </Button>
-            }
-            sx={{ m: 1.25 }}
+    <>
+      <Card
+        component="section"
+        aria-labelledby={`top10-${variant}-title`}
+        sx={{ overflow: 'hidden', bgcolor: 'background.paper', borderColor: 'divider' }}
+      >
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          <Stack
+            direction="row"
+            sx={{
+              minHeight: 52,
+              px: variant === 'page' ? 1.75 : 1.5,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
-            {isToday
-              ? '오늘의 인기 순위를 불러오지 못했습니다.'
-              : '선택한 날짜의 인기 순위를 불러오지 못했습니다.'}
-          </Alert>
-        )}
+            {variant === 'sidebar' ? (
+              <Typography
+                id="top10-sidebar-title"
+                component={Link}
+                href="/top10/"
+                variant="subtitle1"
+                sx={{
+                  color: 'text.primary',
+                  fontWeight: 800,
+                  '&:hover': { color: 'secondary.main' },
+                }}
+              >
+                {heading}
+              </Typography>
+            ) : (
+              <Typography
+                id="top10-page-title"
+                variant="h6"
+                sx={{ color: 'text.primary', fontWeight: 800 }}
+              >
+                {heading}
+              </Typography>
+            )}
+            {isFetching && !isPending && (
+              <CircularProgress size={16} aria-label="Top 10 새로고침 중" />
+            )}
+          </Stack>
+          <Divider />
 
-        {!isPending && !isError && !posts.length && (
-          <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              {isToday ? '아직 집계된 인기 글이 없습니다.' : '이 날짜에 저장된 인기 글이 없습니다.'}
-            </Typography>
-          </Box>
-        )}
+          {isPending && <Top10Skeleton />}
 
-        {!isPending && !isError && !!posts.length && (
-          <Box component="ol" sx={{ m: 0, p: 0, listStyle: 'none' }}>
-            {posts.slice(0, TOP_BOARDS_LIMIT).map((post, index) => {
-              const key = postKey(post);
-              const rank = index + 1;
+          {isError && (
+            <Alert
+              severity="warning"
+              action={
+                <Button color="inherit" size="small" onClick={() => refetch()}>
+                  다시 시도
+                </Button>
+              }
+              sx={{ m: 1.25 }}
+            >
+              {isToday
+                ? '오늘의 인기 순위를 불러오지 못했습니다.'
+                : '선택한 날짜의 인기 순위를 불러오지 못했습니다.'}
+            </Alert>
+          )}
 
-              return variant === 'sidebar' ? (
-                <Top10SidebarRow key={key} post={post} rank={rank} />
-              ) : (
-                <Top10PageRow
-                  key={`${selectedDate}:${key}`}
-                  post={post}
-                  rank={rank}
-                  expanded={expandedPostKey === key}
-                  isToday={isToday}
-                  isAuthenticated={isAuthenticated}
-                  analysisJob={isToday && post.Id ? analysisJobs[post.Id] : undefined}
-                  analysisError={isToday && post.Id ? analysisErrors[post.Id] : undefined}
-                  onExpand={(selectedPost) => {
-                    setExpandedItem({ date: selectedDate, postKey: key });
-                    requestAnalysis(selectedPost).catch(() => undefined);
-                  }}
-                  onClose={() => setExpandedItem(null)}
-                  onRequestAnalysis={(selectedPost) => {
-                    requestAnalysis(selectedPost).catch(() => undefined);
-                  }}
-                />
-              );
-            })}
-          </Box>
-        )}
-      </CardContent>
-    </Card>
+          {!isPending && !isError && !posts.length && (
+            <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                {isToday
+                  ? '아직 집계된 인기 글이 없습니다.'
+                  : '이 날짜에 저장된 인기 글이 없습니다.'}
+              </Typography>
+            </Box>
+          )}
+
+          {!isPending && !isError && !!posts.length && (
+            <Box component="ol" sx={{ m: 0, p: 0, listStyle: 'none' }}>
+              {posts.slice(0, TOP_BOARDS_LIMIT).map((post, index) => {
+                const key = postKey(post);
+                const rank = index + 1;
+
+                return variant === 'sidebar' ? (
+                  <Top10SidebarRow key={key} post={post} rank={rank} />
+                ) : (
+                  <Top10PageRow
+                    key={`${selectedDate}:${key}`}
+                    post={post}
+                    rank={rank}
+                    expanded={expandedPostKey === key}
+                    isToday={isToday}
+                    isAuthenticated={isAuthenticated}
+                    analysisJob={isToday && post.Id ? analysisJobs[post.Id] : undefined}
+                    analysisError={isToday && post.Id ? analysisErrors[post.Id] : undefined}
+                    onExpand={(selectedPost) => {
+                      setExpandedItem({ date: selectedDate, postKey: key });
+                      requestAnalysis(selectedPost).catch(() => undefined);
+                    }}
+                    onOpenComments={(selectedPost) => {
+                      const postId = selectedPost.Id;
+                      if (!postId) return;
+                      setCommentTarget({ postId, site: selectedPost.site });
+                    }}
+                    onClose={() => setExpandedItem(null)}
+                    onRequestAnalysis={(selectedPost) => {
+                      requestAnalysis(selectedPost).catch(() => undefined);
+                    }}
+                  />
+                );
+              })}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+
+      {variant === 'page' && (
+        <CommentDrawer
+          open={Boolean(commentTarget)}
+          onClose={() => setCommentTarget(null)}
+          postId={commentTarget?.postId ?? ''}
+          site={commentTarget?.site ?? ''}
+          title="댓글"
+        />
+      )}
+    </>
   );
 }
