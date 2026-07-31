@@ -20,7 +20,8 @@
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",
     "start:out": "npx serve@latest out -p 8083",
-    "check": "yarn ts && yarn lint && node scripts/verify-theme-ui.mjs && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs && node scripts/verify-board-ui.mjs && node scripts/verify-admin-shorts-ui.mjs"
+    "test": "vitest run",
+    "check": "yarn test && yarn ts && yarn lint && node scripts/verify-theme-ui.mjs && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs && node scripts/verify-board-ui.mjs && node scripts/verify-admin-shorts-ui.mjs"
   },
   "engines": {
     "node": "24.x"
@@ -71,6 +72,9 @@
     "zustand": "5.0.13"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "25.9.1",
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
@@ -88,7 +92,10 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-unused-imports": "^3.2.0",
+    "jsdom": "^30.0.1",
     "prettier": "^3.3.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   }
 }

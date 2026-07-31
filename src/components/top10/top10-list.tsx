@@ -451,7 +451,7 @@ function Top10PageRow({
                 },
               }}
             >
-              {post.commentCount && post.commentCount > 0 ? `댓글 ${post.commentCount}` : '댓글'}
+              {post.commentCount != null ? `댓글 ${post.commentCount}` : '댓글'}
             </Button>
           </Stack>
         </Box>
