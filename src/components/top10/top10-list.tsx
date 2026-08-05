@@ -9,6 +9,8 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import LaunchRoundedIcon from '@mui/icons-material/LaunchRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import FavoriteBorderRoundedIcon from '@mui/icons-material/FavoriteBorderRounded';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import {
   Box,
   Card,
@@ -35,6 +37,7 @@ type Top10ListProps = {
   variant?: 'sidebar' | 'page';
   selectedDate?: string;
   initialExpandedRank?: number;
+  onCommentOpen?: (post: BoardPost) => void;
 };
 
 const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat('ko-KR', {
@@ -188,6 +191,7 @@ type Top10PageRowProps = {
   onExpand: (post: BoardPost) => void;
   onClose: () => void;
   onRequestAnalysis: (post: BoardPost) => void;
+  onCommentOpen: (post: BoardPost) => void;
 };
 
 function Top10PageRow({
@@ -201,6 +205,7 @@ function Top10PageRow({
   onExpand,
   onClose,
   onRequestAnalysis,
+  onCommentOpen,
 }: Top10PageRowProps) {
   const detailsId = useId();
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -249,13 +254,32 @@ function Top10PageRow({
         <Top10Rank rank={rank} />
 
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography
+          <Stack
             component="span"
-            variant="caption"
-            sx={{ display: 'block', color: '#65675e', fontWeight: 700, lineHeight: 1.2 }}
+            direction="row"
+            spacing={1}
+            sx={{ display: 'flex', alignItems: 'center' }}
           >
-            {post.siteLabel}
-          </Typography>
+            <Typography
+              component="span"
+              variant="caption"
+              sx={{ color: '#65675e', fontWeight: 700, lineHeight: 1.2 }}
+            >
+              {post.siteLabel}
+            </Typography>
+            <Stack
+              component="span"
+              direction="row"
+              spacing={0.35}
+              aria-label={`좋아요 ${post.likeCount ?? 0}개`}
+              sx={{ alignItems: 'center', color: '#65675e' }}
+            >
+              <FavoriteBorderRoundedIcon aria-hidden="true" sx={{ fontSize: 15 }} />
+              <Typography component="span" variant="caption" sx={{ lineHeight: 1.2 }}>
+                {post.likeCount ?? 0}
+              </Typography>
+            </Stack>
+          </Stack>
           <Typography
             component="span"
             variant="body2"
@@ -392,7 +416,11 @@ function Top10PageRow({
             )}
           </Stack>
 
-          <Stack direction="row" sx={{ mt: 1.25, justifyContent: 'flex-end' }}>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={0.75}
+            sx={{ mt: 1.25, justifyContent: 'flex-end' }}
+          >
             <Button
               component="a"
               href={post.url}
@@ -417,6 +445,26 @@ function Top10PageRow({
             >
               원문 바로가기
             </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="inherit"
+              startIcon={<ChatBubbleOutlineRoundedIcon fontSize="small" />}
+              onClick={() => onCommentOpen(post)}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                bgcolor: '#fdfdf8',
+                borderColor: '#bfc1b7',
+                color: '#4d4f46',
+                '&:hover': {
+                  bgcolor: '#eeefe9',
+                  borderColor: '#bfc1b7',
+                  color: '#F54E00',
+                },
+              }}
+            >
+              댓글 열기
+            </Button>
           </Stack>
         </Box>
       </Collapse>
@@ -428,6 +476,7 @@ export function Top10List({
   variant = 'sidebar',
   selectedDate = TOP_BOARDS_TODAY,
   initialExpandedRank,
+  onCommentOpen = () => undefined,
 }: Top10ListProps) {
   const isToday = selectedDate === TOP_BOARDS_TODAY;
   const [expandedItem, setExpandedItem] = useState<{ date: string; postKey: string } | null>(null);
@@ -488,7 +537,11 @@ export function Top10List({
               {heading}
             </Typography>
           ) : (
-            <Typography id="top10-page-title" variant="h6" sx={{ color: '#23251d', fontWeight: 800 }}>
+            <Typography
+              id="top10-page-title"
+              variant="h6"
+              sx={{ color: '#23251d', fontWeight: 800 }}
+            >
               {heading}
             </Typography>
           )}
@@ -550,6 +603,7 @@ export function Top10List({
                   onRequestAnalysis={(selectedPost) => {
                     requestAnalysis(selectedPost).catch(() => undefined);
                   }}
+                  onCommentOpen={onCommentOpen}
                 />
               );
             })}

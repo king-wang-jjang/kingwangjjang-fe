@@ -154,6 +154,16 @@ assert.match(
   'expanded source actions should open safely in a new tab'
 );
 assert.match(
+  pageRowSource,
+  /FavoriteBorderRoundedIcon[\s\S]*post\.likeCount \?\? 0/,
+  'page rows should show each post like count'
+);
+assert.match(
+  pageRowSource.slice(pageCollapseStart),
+  /ChatBubbleOutlineRoundedIcon[\s\S]*onCommentOpen\(post\)[\s\S]*댓글 열기/,
+  'expanded page rows should expose the comment action'
+);
+assert.match(
   top10List,
   /key=\{`\$\{selectedDate\}:\$\{key\}`\}/,
   'date changes should remount page rows and reset row-local image state'
@@ -193,8 +203,8 @@ assert.match(
 );
 assert.match(
   boardView,
-  /position: 'sticky'[\s\S]*maxHeight: 'calc\(100vh - 94px\)'[\s\S]*overflowY: 'auto'/,
-  'desktop left column should float and remain usable on short viewports'
+  /position: 'sticky'[\s\S]*top: 'var\(--board-sticky-top, 78px\)'[\s\S]*maxHeight: 'calc\(100vh - var\(--board-sticky-top, 78px\) - 16px\)'[\s\S]*overflowY: 'auto'/,
+  'desktop left column should follow the header and remain usable on short viewports'
 );
 assert.match(
   boardView,
@@ -271,6 +281,16 @@ assert.match(
   top10View,
   /<Top10List[\s\S]*variant="page"[\s\S]*selectedDate=\{selectedDate\}[\s\S]*initialExpandedRank=\{initialExpandedRank\}/,
   'dedicated route should pass the selected date and requested rank to the shared list'
+);
+assert.match(
+  top10View,
+  /gridTemplateColumns:\s*'minmax\(0, 760px\) 320px'[\s\S]*<CommentSidebar/,
+  'desktop Top 10 should place comments in a right sidebar'
+);
+assert.match(
+  top10View,
+  /<CommentDrawer[\s\S]*open=\{isMobile && mobileCommentOpen\}/,
+  'mobile Top 10 should retain the bottom comment drawer'
 );
 assert.match(
   top10View,
