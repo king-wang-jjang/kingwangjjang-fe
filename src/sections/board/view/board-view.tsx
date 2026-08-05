@@ -49,12 +49,7 @@ import { useBoard } from 'src/hooks/use-board';
 
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
-import {
-  addBoardLike,
-  analyzeBoardPost,
-  getBoardAnalysis,
-  getBoardAnalysisJob,
-} from 'src/api/board-api';
+import { analyzeBoardPost, getBoardAnalysis, getBoardAnalysisJob } from 'src/api/board-api';
 
 import { Top10List } from 'src/components/top10';
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
@@ -490,11 +485,12 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
             sx={{
               display: isContentFirstLayout ? 'none' : 'block',
               position: 'sticky',
-              top: 78,
-              maxHeight: 'calc(100vh - 94px)',
+              top: 'var(--board-sticky-top, 78px)',
+              maxHeight: 'calc(100vh - var(--board-sticky-top, 78px) - 16px)',
               overflowY: 'auto',
               pr: 0.25,
               scrollbarWidth: 'thin',
+              transition: 'top 160ms ease, max-height 160ms ease',
             }}
           >
             {renderToolPane}
@@ -506,7 +502,12 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
           </Stack>
 
           <Box
-            sx={{ display: isContentFirstLayout ? 'none' : 'block', position: 'sticky', top: 78 }}
+            sx={{
+              display: isContentFirstLayout ? 'none' : 'block',
+              position: 'sticky',
+              top: 'var(--board-sticky-top, 78px)',
+              transition: 'top 160ms ease',
+            }}
           >
             {selectedPost ? (
               <CommentSidebar
@@ -557,7 +558,6 @@ function BoardPostCard({
   const [expanded, setExpanded] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
-  const [currentLikeCount, setCurrentLikeCount] = useState(post.likeCount ?? 0);
 
   const { isAuthenticated } = useAuthStore();
   const { isRead, markAsRead } = useReadStore();
@@ -571,10 +571,6 @@ function BoardPostCard({
   const analyzing = isActiveAnalysisJob(analysisJob);
   const progressPercent = analysisJob?.progressPercent ?? 0;
   const crawledPreview = getCrawledContentPreview(post);
-
-  useEffect(() => {
-    setCurrentLikeCount(post.likeCount ?? 0);
-  }, [post.likeCount]);
 
   useEffect(() => {
     setThumbnailFailed(false);
@@ -600,22 +596,6 @@ function BoardPostCard({
     event.stopPropagation();
     setExpanded(false);
     markAsRead(boardId);
-  };
-
-  const handleLike = async (event: React.MouseEvent) => {
-    event.stopPropagation();
-
-    if (!isAuthenticated) {
-      toast.error('로그인이 필요합니다.');
-      return;
-    }
-
-    try {
-      const result = await addBoardLike(boardId);
-      setCurrentLikeCount(result.likeCount);
-    } catch (error: any) {
-      toast.warning(`좋아요 추가 실패: ${error.message || error}`);
-    }
   };
 
   const handleOpenComments = (event: React.MouseEvent) => {
@@ -815,33 +795,26 @@ function BoardPostCard({
                       }}
                     />
 
-                    <Tooltip title="좋아요">
-                      <Button
-                        className="post-card-action"
-                        size="small"
-                        color="inherit"
-                        disableRipple
-                        startIcon={<FavoriteBorderIcon fontSize="small" />}
-                        onClick={handleLike}
-                        sx={{
-                          minWidth: 0,
+                    <Chip
+                      icon={<FavoriteBorderIcon fontSize="small" />}
+                      label={`${post.likeCount ?? 0}`}
+                      size="small"
+                      variant="outlined"
+                      aria-label={`좋아요 ${post.likeCount ?? 0}개`}
+                      sx={{
+                        height: 24,
+                        bgcolor: 'transparent',
+                        borderColor: 'transparent',
+                        color: '#65675e',
+                        '& .MuiChip-label': {
                           px: 0.5,
-                          py: 0,
-                          color: '#65675e',
-                          '&:hover': {
-                            bgcolor: 'transparent',
-                          },
-                          '&:active': {
-                            bgcolor: 'transparent',
-                          },
-                          '& .MuiButton-startIcon': {
-                            mr: 0.5,
-                          },
-                        }}
-                      >
-                        {currentLikeCount}
-                      </Button>
-                    </Tooltip>
+                        },
+                        '& .MuiChip-icon': {
+                          color: 'inherit',
+                          ml: 0,
+                        },
+                      }}
+                    />
                   </Stack>
                 </Stack>
 

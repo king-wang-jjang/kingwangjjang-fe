@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import MenuIcon from '@mui/icons-material/Menu';
+import useScrollTrigger from '@mui/material/useScrollTrigger';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
@@ -246,8 +247,11 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
 
 export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const scrolledPastHeader = useScrollTrigger({ threshold: headerHeight });
   const { isAuthenticated, user, authStatus } = useAuthStore();
   const isAdminUser = isAdmin(user);
+  const hideBoardHeader = pathname.startsWith('/board') && scrolledPastHeader;
 
   const toggleMobileNav = () => {
     setMobileOpen((open) => !open);
@@ -256,6 +260,7 @@ export function AppShell({ children }: Props) {
   return (
     <Box
       sx={{
+        '--board-sticky-top': hideBoardHeader ? '12px' : '78px',
         width: '100%',
         minHeight: '100vh',
         bgcolor: 'background.default',
@@ -272,6 +277,11 @@ export function AppShell({ children }: Props) {
           borderBottom: 1,
           borderColor: '#bfc1b7',
           boxShadow: 'none',
+          transform: hideBoardHeader ? 'translateY(-100%)' : 'translateY(0)',
+          transition: (theme) =>
+            theme.transitions.create('transform', {
+              duration: theme.transitions.duration.shorter,
+            }),
         }}
       >
         <Toolbar
