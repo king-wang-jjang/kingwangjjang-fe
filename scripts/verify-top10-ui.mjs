@@ -247,8 +247,8 @@ assert.match(
 );
 assert.match(
   boardView,
-  /position: 'sticky'[\s\S]*maxHeight: 'calc\(100vh - 94px\)'[\s\S]*overflowY: 'auto'/,
-  'desktop left column should float and remain usable on short viewports'
+  /position: 'sticky'[\s\S]*top: 'var\(--board-sticky-top, 78px\)'[\s\S]*maxHeight: 'calc\(100vh - var\(--board-sticky-top, 78px\) - 16px\)'[\s\S]*overflowY: 'auto'/,
+  'desktop left column should follow the header and remain usable on short viewports'
 );
 assert.match(
   boardView,

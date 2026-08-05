@@ -262,6 +262,7 @@ export function AppShell({ children }: Props) {
   return (
     <Box
       sx={{
+        '--board-sticky-top': headerHidden ? '12px' : '78px',
         width: '100%',
         minHeight: '100vh',
         bgcolor: 'background.default',

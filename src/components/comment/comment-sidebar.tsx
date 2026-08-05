@@ -37,14 +37,15 @@ export function CommentSidebar({ postId, site, title = '댓글', onClose, sx }: 
     <Card
       sx={{
         position: 'sticky',
-        top: '78px',
-        height: 'calc(100vh - 94px)',
+        top: 'var(--board-sticky-top, 78px)',
+        height: 'calc(100vh - var(--board-sticky-top, 78px) - 16px)',
         display: 'flex',
         flexDirection: 'column',
         bgcolor: 'background.subtle',
         borderColor: 'divider',
         borderRadius: 1,
         overflow: 'hidden',
+        transition: 'top 160ms ease, height 160ms ease',
         ...sx,
       }}
     >
