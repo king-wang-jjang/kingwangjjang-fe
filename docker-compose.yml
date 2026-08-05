@@ -11,8 +11,6 @@ services:
       - '8083:8083'
     env_file:
       - .env
-    environment:
-      SERVER_API_URL: http://kingwangjjang-api-gateway:8000
     volumes:
       - ./log:/home/ubuntu/kingwangjjang/logs
     networks:

@@ -68,7 +68,16 @@ export const CommentForm = ({
       sx={{ display: 'flex', gap: 1, py: 1, alignItems: 'flex-start' }}
     >
       {isAuthenticated && (
-        <Avatar sx={{ width: 28, height: 28, bgcolor: '#1e1f23', fontSize: '0.75rem', mt: 0.5 }}>
+        <Avatar
+          sx={{
+            width: 28,
+            height: 28,
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            fontSize: '0.75rem',
+            mt: 0.5,
+          }}
+        >
           {userInitial}
         </Avatar>
       )}
@@ -88,7 +97,7 @@ export const CommentForm = ({
           disabled={!isAuthenticated}
           sx={{
             '& .MuiOutlinedInput-root': {
-              bgcolor: '#eeefe9',
+              bgcolor: 'background.subtle',
               borderRadius: 1,
               fontSize: 14,
             },
@@ -124,11 +133,11 @@ export const CommentForm = ({
               sx={{
                 textTransform: 'none',
                 minWidth: 'auto',
-                bgcolor: '#1e1f23',
-                color: '#ffffff',
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
                 '&:hover': {
-                  bgcolor: '#1e1f23',
-                  color: '#F7A501',
+                  bgcolor: 'primary.main',
+                  color: 'secondary.light',
                   opacity: 0.72,
                 },
               }}

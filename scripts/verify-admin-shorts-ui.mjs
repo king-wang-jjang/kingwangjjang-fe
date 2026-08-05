@@ -14,8 +14,7 @@ const permissions = readRequired('src/auth/permissions.ts');
 const adminGuard = readRequired('src/auth/guard/admin-guard.tsx');
 const adminLayout = readRequired('src/app/admin/layout.tsx');
 const adminPage = readRequired('src/app/admin/shorts/page.tsx');
-const serverProxy = readRequired('src/proxy.ts');
-const dockerCompose = readRequired('docker-compose.yml');
+const serverProxyExists = fs.existsSync('src/proxy.ts');
 const boardApi = readRequired('src/api/board-api.ts');
 const shortsHook = readRequired('src/hooks/use-top10-shorts-package.ts');
 const shortsView = readRequired('src/sections/admin/shorts/view/shorts-view.tsx');
@@ -53,25 +52,10 @@ assert.match(
   'admin route should be noindex'
 );
 assert.match(adminPage, /<ShortsView \/>/, 'admin Shorts page should render its focused view');
-assert.match(
-  serverProxy,
-  /userservice\/api\/users\/me[\s\S]*userservice\/api\/auth\/refresh[\s\S]*user\?\.role === 'admin'[\s\S]*NextResponse\.redirect/,
-  'server proxy should fail closed before non-admin requests reach admin routes'
-);
-assert.match(
-  serverProxy,
-  /matcher: \['\/admin\/:path\*'\]/,
-  'server role check should cover every admin route'
-);
-assert.match(
-  serverProxy,
-  /process\.env\.SERVER_API_URL \|\| CONFIG\.serverUrl/,
-  'server proxy should support a runtime-only internal gateway URL'
-);
-assert.match(
-  dockerCompose,
-  /SERVER_API_URL: http:\/\/kingwangjjang-api-gateway:8000/,
-  'Docker admin checks should target the API gateway over the shared network'
+assert.equal(
+  serverProxyExists,
+  false,
+  'frontend server must not reject sessions using API-origin host-only cookies'
 );
 
 assert.match(
@@ -136,8 +120,8 @@ assert.match(
 );
 assert.match(
   adminGuard,
-  /getMe\(\)[\s\S]*setInterval\(refreshSession, 60_000\)[\s\S]*visibilitychange/,
-  'admin guard should refresh server roles while the protected route stays open'
+  /recoverAuthSession\(\)[\s\S]*session\.status === 'authenticated'[\s\S]*session\.status === 'unauthenticated'[\s\S]*setInterval\(refreshSession, 60_000\)[\s\S]*visibilitychange/,
+  'admin guard should recover expired access sessions without logging out on temporary failures'
 );
 assert.match(
   shortsView,

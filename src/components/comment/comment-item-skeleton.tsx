@@ -9,11 +9,11 @@ export function CommentItemSkeleton() {
         p: 1,
         my: 0.75,
         border: 1,
-        borderColor: '#bfc1b7',
+        borderColor: 'divider',
         borderRadius: 1,
-        bgcolor: '#fdfdf8',
+        bgcolor: 'background.paper',
         '& .MuiSkeleton-root': {
-          bgcolor: '#eeefe9',
+          bgcolor: 'background.subtle',
         },
       }}
     >

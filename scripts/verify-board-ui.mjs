@@ -8,6 +8,9 @@ const globalCss = read('src/global.css');
 const rootLayout = read('src/app/layout.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
+const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
+  ? read('src/hooks/use-hide-header-on-scroll.ts')
+  : '';
 const boardApi = read('src/api/board-api.ts');
 const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
@@ -27,6 +30,13 @@ const boardButtonBlocks = [...boardView.matchAll(/<Button[\s\S]*?<\/Button>/g)].
 const handlePostSelectStart = boardView.indexOf('const handlePostSelect');
 const handleCommentOpenStart = boardView.indexOf('const handleCommentOpen');
 const handleCommentCloseStart = boardView.indexOf('const handleCommentClose');
+const collapsedCardStart = boardView.indexOf('className="metadata-chip-row"');
+const expandedPanelStart = boardView.indexOf('<Collapse in={expanded}');
+const expandedActionsStart = boardView.indexOf('className="expanded-card-actions"');
+const expandedActionsEnd = boardView.indexOf('</Stack>', expandedActionsStart);
+const collapsedCardSource = boardView.slice(collapsedCardStart, expandedPanelStart);
+const expandedActionsSource = boardView.slice(expandedActionsStart, expandedActionsEnd);
+const postTagChipSource = boardView.match(/className="post-tag-chip"[\s\S]*?\/>/)?.[0] ?? '';
 
 const redesignedFiles = [
   globalCss,
@@ -77,6 +87,11 @@ assert.match(
   /handlePostSelect\(post\)[\s\S]*isContentFirstLayout[\s\S]*setMobileCommentOpen\(true\)/,
   'the explicit comment action should open comments on mobile'
 );
+assert.match(
+  packageJson,
+  /node scripts\/verify-board-ui\.mjs/,
+  'repository check should run the Board UI contract'
+);
 
 assert.match(
   packageJson,
@@ -110,7 +125,11 @@ assert.doesNotMatch(
   'legacy green should no longer be the primary visual accent'
 );
 
-assert.match(rootLayout, /themeColor:\s*'#fdfdf8'/i, 'viewport theme color should match parchment');
+assert.match(
+  rootLayout,
+  /prefers-color-scheme: light[\s\S]*#fdfdf8[\s\S]*prefers-color-scheme: dark[\s\S]*#12140f/i,
+  'viewport theme color should match both application color schemes'
+);
 assert.match(
   appLoading,
   /loading\.gif/,
@@ -137,8 +156,8 @@ assert.doesNotMatch(
   'app initial loading should not show the old loading text or spinner'
 );
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
-assert.match(appShell, /#F54E00/i, 'app shell hover states should flash orange');
-assert.match(appShell, /#bfc1b7/i, 'app shell should use sage borders');
+assert.match(appShell, /secondary\.main/i, 'app shell hover states should use the orange accent');
+assert.match(appShell, /borderColor:\s*'divider'/i, 'app shell should use themed borders');
 assert.match(appShell, /background\.default/, 'app shell should use themed app background');
 assert.match(
   appShell,
@@ -154,6 +173,66 @@ assert.match(
   appShell,
   /component="main"[\s\S]*width:\s*'100%'[\s\S]*boxSizing:\s*'border-box'/,
   'main content should fill the body with balanced left and right padding'
+);
+assert.match(
+  hideHeaderHook,
+  /export function useHideHeaderOnScroll\(\s*enabled: boolean,\s*threshold = 64,\s*resetKey\?: string\s*\)/,
+  'header scroll hook should expose the approved route-aware reset API and default threshold'
+);
+assert.match(
+  hideHeaderHook,
+  /window\.addEventListener\('scroll', handleScroll, \{ passive: true \}\)/,
+  'header scroll hook should use a passive window scroll listener'
+);
+assert.match(
+  hideHeaderHook,
+  /if \(currentScrollY <= threshold\) \{\s*setHidden\(false\);/,
+  'header should remain visible near the top of the page'
+);
+assert.match(
+  hideHeaderHook,
+  /if \(delta > 0\) \{\s*setHidden\(true\);[\s\S]*?else if \(delta < 0\) \{\s*setHidden\(false\);/,
+  'header should hide while scrolling down and show immediately while scrolling up'
+);
+assert.match(
+  hideHeaderHook,
+  /return \(\) => window\.removeEventListener\('scroll', handleScroll\)/,
+  'header scroll hook should clean up its window scroll listener'
+);
+assert.match(
+  hideHeaderHook,
+  /\}, \[enabled, resetKey, threshold\]\);/,
+  'header scroll hook should reset and recapture scroll position when its route key changes'
+);
+assert.match(
+  appShell,
+  /const isBoardRoute = pathname === '\/board' \|\| pathname\.startsWith\('\/board\/'\);[\s\S]*useHideHeaderOnScroll\(isBoardRoute, 64, pathname\)/,
+  'app shell should enable direction-aware hiding only for board routes and reset on navigation'
+);
+assert.match(
+  appShell,
+  /<AppBar[\s\S]*className="app-header"/,
+  'app bar should expose the app-header class'
+);
+assert.match(
+  appShell,
+  /transform:\s*headerHidden \? 'translateY\(-100%\)' : 'translateY\(0\)'/,
+  'app bar should move off-canvas without changing document flow'
+);
+assert.match(
+  appShell,
+  /'&:focus-within':\s*\{\s*transform:\s*'translateY\(0\)'/,
+  'keyboard focus within the app bar should always reveal it'
+);
+assert.match(
+  appShell,
+  /transition:\s*\(theme\)\s*=>\s*theme\.transitions\.create\(\s*'transform',\s*\{\s*duration:\s*theme\.transitions\.duration\.shorter,?\s*\}\s*\)/,
+  'app bar should animate its transform with the theme shorter transition'
+);
+assert.match(
+  appShell,
+  /'@media \(prefers-reduced-motion: reduce\)':\s*\{[\s\S]*?transition:\s*'none'/,
+  'app bar should disable its transform animation when reduced motion is preferred'
 );
 
 assert.match(boardView, /BoardWorkbench/, 'board view should expose a workbench container');
@@ -435,6 +514,32 @@ assert.match(
   /metadata-chip-row[\s\S]*post\.siteLabel[\s\S]*tags\.map/,
   'post tag chips should sit on the same metadata row as the site chip'
 );
+assert.match(postTagChipSource, /variant="filled"/, 'post tag chips should use a filled surface');
+assert.match(
+  postTagChipSource,
+  /height:\s*18[\s\S]*bgcolor:\s*'#34372f'[\s\S]*color:\s*'common\.white'/,
+  'post tag chips should use a compact dark surface with white text'
+);
+assert.match(
+  postTagChipSource,
+  /fontSize:\s*'0\.6875rem'[\s\S]*px:\s*0\.625/,
+  'post tag chips should use compact text and horizontal padding'
+);
+assert.doesNotMatch(
+  postTagChipSource,
+  /background\.warm|secondary\.dark/,
+  'post tag chips should not use the attention-grabbing orange treatment'
+);
+assert.doesNotMatch(
+  boardView,
+  /handleLike|currentLikeCount|expanded-like-action/,
+  'post cards should not expose an interactive like action'
+);
+assert.match(
+  collapsedCardSource,
+  /FavoriteBorderIcon[\s\S]*post\.likeCount \?\? 0/,
+  'collapsed post cards should show a read-only like count'
+);
 assert.match(boardView, /filter-icon-button/, 'site filtering should be opened by an icon button');
 assert.doesNotMatch(
   boardView,
@@ -466,8 +571,16 @@ assert.match(
 assert.match(boardView, /실시간 게시판/, 'board title copy should be valid Korean');
 assert.match(boardView, /필터 초기화/, 'filter reset copy should be valid Korean');
 assert.match(boardView, /게시글이 없습니다/, 'empty feed copy should be valid Korean');
-assert.match(boardView, /#F54E00/i, 'post cards should use orange selected or hover accents');
-assert.match(boardView, /#eeefe9/i, 'post cards and filters should use sage cream surfaces');
+assert.match(
+  boardView,
+  /secondary\.main|--mui-palette-secondary-main/i,
+  'post cards should use themed orange selected or hover accents'
+);
+assert.match(
+  boardView,
+  /background\.subtle/i,
+  'post cards and filters should use themed subtle surfaces'
+);
 
 assert.match(oauthForm, /kakao-login-button/, 'Kakao login should expose a compact button class');
 assert.match(oauthForm, /kakao-login-image/, 'Kakao login should render the provided image asset');
@@ -483,11 +596,19 @@ assert.doesNotMatch(
   /size="large"/,
   'header login button should not use the large CTA size'
 );
-assert.match(commentSidebar, /#eeefe9/i, 'comment sidebar should use sage panel surface');
-assert.match(commentDrawer, /#eeefe9/i, 'comment drawer should use sage panel surface');
+assert.match(
+  commentSidebar,
+  /background\.subtle/i,
+  'comment sidebar should use themed panel surface'
+);
+assert.match(
+  commentDrawer,
+  /background\.subtle/i,
+  'comment drawer should use themed panel surface'
+);
 assert.match(
   commentSection,
-  /#eeefe9|background\.default|background\.paper/i,
+  /background\.subtle|background\.default|background\.paper/i,
   'comment section should use themed surfaces'
 );
 assert.match(
@@ -495,11 +616,15 @@ assert.match(
   /첫 댓글을 남겨보세요/,
   'comment empty state should keep valid Korean copy'
 );
-assert.match(commentItem, /#F54E00/i, 'comment actions should use orange hover accents');
-assert.match(commentForm, /#1e1f23/i, 'comment submit buttons should use the dark primary style');
+assert.match(commentItem, /secondary\.main/i, 'comment actions should use themed hover accents');
+assert.match(
+  commentForm,
+  /primary\.main/i,
+  'comment submit buttons should use themed primary style'
+);
 assert.match(
   commentSkeleton,
-  /#eeefe9|background\.default|background\.paper/i,
+  /background\.subtle|background\.default|background\.paper/i,
   'comment skeleton should use sage-themed surfaces'
 );
 

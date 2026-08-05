@@ -132,6 +132,11 @@ assert.doesNotMatch(
   /Collapse|component="img"|getPostSummary/,
   'compact sidebar rows should not render expanded summary or image content'
 );
+assert.doesNotMatch(
+  sidebarRowSource,
+  /onOpenComments|CommentDrawer|ChatBubbleOutlineRoundedIcon/,
+  'compact sidebar rows should remain navigation-only without comment controls'
+);
 assert.match(
   pageRowSource,
   /<ButtonBase[\s\S]*aria-expanded=\{expanded\}[\s\S]*aria-controls=\{detailsId\}/,
@@ -160,8 +165,8 @@ assert.match(
 );
 assert.match(
   pageRowSource.slice(pageCollapseStart),
-  /ChatBubbleOutlineRoundedIcon[\s\S]*onCommentOpen\(post\)[\s\S]*댓글 열기/,
-  'expanded page rows should expose the comment action'
+  /<Button[\s\S]*?type="button"[\s\S]*?startIcon=\{<ChatBubbleOutlineRoundedIcon fontSize="small" \/>\}[\s\S]*?onClick=\{\(\) => onCommentOpen\(post\)\}[\s\S]*?disabled=\{!post\.Id\}[\s\S]*?aria-label=\{`\$\{post\.title\} 댓글 열기`\}[\s\S]*?>[\s\S]*?댓글/,
+  'expanded Top 10 rows should expose an accessible comment button for stored posts'
 );
 assert.match(
   top10List,
@@ -177,6 +182,16 @@ assert.match(
   top10List,
   /initialExpandedRank - 1[\s\S]*setExpandedItem[\s\S]*requestAnalysis\(post\)/,
   'a rank query should expand that row and preserve the summary fallback'
+);
+assert.match(
+  top10View,
+  /if \(!post\.Id\) return;[\s\S]*setSelectedPost\(\{ boardId: post\.Id, site: post\.site \}\)/,
+  'Top 10 comments should open the shared thread using the stored board ID and site'
+);
+assert.doesNotMatch(
+  top10View,
+  /boardId:\s*post\.Id\s*\|\||boardId:\s*`\$\{post\.site\}/,
+  'Top 10 comment targets should never fall back to a site-number key'
 );
 assert.match(
   top10Page,

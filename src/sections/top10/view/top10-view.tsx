@@ -62,10 +62,6 @@ type SelectedPost = {
   site: string;
 } | null;
 
-function getPostId(post: BoardPost) {
-  return post.Id || `${post.site}-${post.no}`;
-}
-
 export function Top10View({ initialExpandedRank }: Top10ViewProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -88,7 +84,9 @@ export function Top10View({ initialExpandedRank }: Top10ViewProps) {
   );
 
   const handleCommentOpen = (post: BoardPost) => {
-    setSelectedPost({ boardId: getPostId(post), site: post.site });
+    if (!post.Id) return;
+
+    setSelectedPost({ boardId: post.Id, site: post.site });
     if (isMobile) {
       setMobileCommentOpen(true);
     }
@@ -144,9 +142,9 @@ export function Top10View({ initialExpandedRank }: Top10ViewProps) {
             sx={{
               p: 1.5,
               border: 1,
-              borderColor: '#bfc1b7',
+              borderColor: 'divider',
               borderRadius: 1,
-              bgcolor: '#fdfdf8',
+              bgcolor: 'background.paper',
             }}
           >
             <Stack
@@ -236,9 +234,9 @@ export function Top10View({ initialExpandedRank }: Top10ViewProps) {
                 display: 'grid',
                 placeItems: 'center',
                 border: 1,
-                borderColor: '#bfc1b7',
+                borderColor: 'divider',
                 borderRadius: 1,
-                bgcolor: '#eeefe9',
+                bgcolor: 'background.subtle',
                 textAlign: 'center',
               }}
             >

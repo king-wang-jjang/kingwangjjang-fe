@@ -34,7 +34,7 @@ const SocialLoginButtons: React.FC = () => {
         color: 'inherit',
         borderRadius: 1,
         '&:hover': {
-          bgcolor: '#f4f4f4',
+          bgcolor: 'background.hover',
         },
       }}
     >

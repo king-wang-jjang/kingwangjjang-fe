@@ -19,6 +19,7 @@ type BoardRestPost = {
   category: string;
   no: number;
   site: string;
+  site_label?: string | null;
   title: string;
   url: string;
   contents?: string | CrawledContentBlock[] | Record<string, unknown> | null;
@@ -49,6 +50,15 @@ export type BoardListFilters = {
   query?: string;
   sites?: string[];
   tag?: string;
+};
+
+export type BoardFilterOption = {
+  value: string;
+  label: string;
+};
+
+export type BoardFilterOptions = {
+  sites: BoardFilterOption[];
 };
 
 export type BoardPost = {
@@ -240,26 +250,13 @@ export type Top10ShortsPackage = {
   notices: string[];
 };
 
-function getSiteLabel(site: string) {
-  switch (site) {
-    case 'ygosu':
-      return '와이고수';
-    case 'dcinside':
-      return '디시인사이드';
-    case 'ppomppu':
-      return '뽐뿌';
-    default:
-      return site;
-  }
-}
-
 function normalizeBoardPost(post: BoardRestPost): BoardPost {
   return {
     Id: post._id,
     category: post.category,
     no: post.no,
     site: post.site,
-    siteLabel: getSiteLabel(post.site),
+    siteLabel: post.site_label || post.site,
     title: post.title,
     url: post.url,
     contents: post.contents,
@@ -283,6 +280,10 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
     metricsCrawledAt: post.metrics_crawled_at,
     scoreUpdatedAt: post.score_updated_at,
   };
+}
+
+export function getBoardFilterOptions() {
+  return apiFetch<BoardFilterOptions>('/boardservice/api/boards/filters');
 }
 
 export async function getRealtimeBoards(index: number, limit = 30, filters: BoardListFilters = {}) {
