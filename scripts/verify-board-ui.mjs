@@ -531,14 +531,19 @@ assert.doesNotMatch(
   'post tag chips should not use the attention-grabbing orange treatment'
 );
 assert.doesNotMatch(
-  boardView,
-  /handleLike|currentLikeCount|expanded-like-action/,
-  'post cards should not expose an interactive like action'
+  collapsedCardSource,
+  /onClick=\{handleLike\}/,
+  'collapsed post cards should not expose an interactive like action'
 );
 assert.match(
   collapsedCardSource,
-  /FavoriteBorderIcon[\s\S]*post\.likeCount \?\? 0/,
+  /FavoriteBorderIcon[\s\S]*label=\{`\$\{currentLikeCount\}`\}/,
   'collapsed post cards should show a read-only like count'
+);
+assert.match(
+  expandedActionsSource,
+  /expanded-like-action[\s\S]*FavoriteBorderIcon[\s\S]*onClick=\{handleLike\}[\s\S]*좋아요 \{currentLikeCount\}[\s\S]*원문 바로가기/,
+  'expanded posts should place the interactive like action before the source link'
 );
 assert.match(boardView, /filter-icon-button/, 'site filtering should be opened by an icon button');
 assert.doesNotMatch(
