@@ -469,6 +469,21 @@ assert.match(
   /analysisStatus === 'pending'[\s\S]*analysisStatus === 'processing'[\s\S]*refetchInterval/,
   'realtime boards should refresh automatically while background summaries are active'
 );
+assert.match(
+  infiniteBoardHook,
+  /realtimePagination:\s*queryData\?\.pages\.flat\(\)/,
+  'realtime feed pages should retain the API-provided site-diversified order'
+);
+assert.doesNotMatch(
+  infiniteBoardHook,
+  /queryData\?\.pages[\s\S]{0,160}\.sort\(/,
+  'realtime feed should not re-sort the API-provided ranking in the client'
+);
+assert.match(
+  boardView,
+  /postData\.map\(\(post\) =>/,
+  'board cards should render directly in the ranked order supplied by the board hook'
+);
 assert.doesNotMatch(
   boardView,
   /onClick=\{handleExpand\}/,

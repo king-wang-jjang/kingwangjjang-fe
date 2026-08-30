@@ -38,6 +38,8 @@ const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS
 
   const data = useMemo(
     () => ({
+      // Ranking and site diversification are owned by the API.
+      // Keep page and row order intact.
       realtimePagination: queryData?.pages.flat() ?? ([] as BoardPost[]),
     }),
     [queryData]

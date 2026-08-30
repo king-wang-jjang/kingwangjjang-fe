@@ -596,6 +596,7 @@ export function Top10List({
 
           {!isPending && !isError && !!posts.length && (
             <Box component="ol" sx={{ m: 0, p: 0, listStyle: 'none' }}>
+              {/* The daily API already returns the ranked, site-diversified sequence. */}
               {posts.slice(0, TOP_BOARDS_LIMIT).map((post, index) => {
                 const key = postKey(post);
                 const rank = index + 1;

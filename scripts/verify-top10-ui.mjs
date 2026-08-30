@@ -106,6 +106,16 @@ assert.match(
   /posts\.slice\(0,\s*TOP_BOARDS_LIMIT\)/,
   'ranking UI should defensively render at most ten rows'
 );
+assert.match(
+  top10List,
+  /posts\.slice\(0,\s*TOP_BOARDS_LIMIT\)\.map\(\(post, index\) =>/,
+  'ranking UI should assign ranks directly from the API-provided sequence'
+);
+assert.doesNotMatch(
+  top10List,
+  /posts(?:\s*\n?\s*|\.)[^;{}]*\.sort\(/,
+  'ranking UI should not override the API-provided site-diversified order'
+);
 assert.match(top10List, /isPending/, 'ranking UI should render a loading state');
 assert.match(top10List, /isError/, 'ranking UI should render an error state');
 assert.match(top10List, /refetch/, 'ranking error state should expose retry');
