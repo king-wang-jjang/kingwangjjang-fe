@@ -12,6 +12,8 @@ const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
   ? read('src/hooks/use-hide-header-on-scroll.ts')
   : '';
 const boardApi = read('src/api/board-api.ts');
+const issueTreemap = read('src/components/issues/issue-treemap.tsx');
+const issueOverviewHook = read('src/hooks/use-issue-overview.ts');
 const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
 const boardView = read('src/sections/board/view/board-view.tsx');
@@ -44,6 +46,7 @@ const redesignedFiles = [
   appLoading,
   appShell,
   boardView,
+  issueTreemap,
   boardPostUtils,
   themeProvider,
   oauthForm,
@@ -483,6 +486,31 @@ assert.match(
   boardView,
   /postData\.map\(\(post\) =>/,
   'board cards should render directly in the ranked order supplied by the board hook'
+);
+assert.match(
+  boardApi,
+  /getIssueOverview[\s\S]*\/boardservice\/api\/boards\/issues/,
+  'board API should expose the recent category issue overview'
+);
+assert.match(
+  issueOverviewHook,
+  /getIssueOverview\(\{ hours: 24, limit: 16, sites: stableSites \}\)/,
+  'issue overview should refresh the 24-hour visualization in the selected site scope'
+);
+assert.match(
+  issueTreemap,
+  /from 'd3-hierarchy'/,
+  'issue map should use the D3 hierarchy treemap layout'
+);
+assert.match(
+  issueTreemap,
+  /onCategorySelect\(selected \? undefined : issue\.category\)/,
+  'issue blocks should toggle category selection'
+);
+assert.match(
+  boardView,
+  /category: selectedCategory[\s\S]*<IssueTreemap/,
+  'selected issue categories should filter the realtime board feed'
 );
 assert.doesNotMatch(
   boardView,

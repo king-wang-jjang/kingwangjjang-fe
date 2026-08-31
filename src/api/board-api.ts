@@ -61,6 +61,52 @@ export type BoardFilterOptions = {
   sites: BoardFilterOption[];
 };
 
+type IssueOverviewRest = {
+  generated_at: string;
+  window_hours: number;
+  total_posts: number;
+  total_categories: number;
+  categories: {
+    category: string;
+    post_count: number;
+    current_posts: number;
+    previous_posts: number;
+    impact_score: number;
+    share: number;
+    momentum_percent: number;
+    top_sites: {
+      site: string;
+      site_label: string;
+      post_count: number;
+    }[];
+    top_tags: string[];
+  }[];
+};
+
+export type IssueCategory = {
+  category: string;
+  postCount: number;
+  currentPosts: number;
+  previousPosts: number;
+  impactScore: number;
+  share: number;
+  momentumPercent: number;
+  topSites: {
+    site: string;
+    siteLabel: string;
+    postCount: number;
+  }[];
+  topTags: string[];
+};
+
+export type IssueOverview = {
+  generatedAt: string;
+  windowHours: number;
+  totalPosts: number;
+  totalCategories: number;
+  categories: IssueCategory[];
+};
+
 export type BoardPost = {
   Id?: string | null;
   category: string;
@@ -284,6 +330,53 @@ function normalizeBoardPost(post: BoardRestPost): BoardPost {
 
 export function getBoardFilterOptions() {
   return apiFetch<BoardFilterOptions>('/boardservice/api/boards/filters');
+}
+
+export async function getIssueOverview({
+  hours = 24,
+  limit = 16,
+  sites = [],
+}: {
+  hours?: number;
+  limit?: number;
+  sites?: string[];
+} = {}): Promise<IssueOverview> {
+  const params = new URLSearchParams({
+    hours: String(hours),
+    limit: String(limit),
+  });
+  sites.forEach((site) => {
+    const trimmedSite = site.trim();
+    if (trimmedSite) {
+      params.append('sites', trimmedSite);
+    }
+  });
+
+  const overview = await apiFetch<IssueOverviewRest>(
+    `/boardservice/api/boards/issues?${params}`
+  );
+
+  return {
+    generatedAt: overview.generated_at,
+    windowHours: overview.window_hours,
+    totalPosts: overview.total_posts,
+    totalCategories: overview.total_categories,
+    categories: overview.categories.map((category) => ({
+      category: category.category,
+      postCount: category.post_count,
+      currentPosts: category.current_posts,
+      previousPosts: category.previous_posts,
+      impactScore: category.impact_score,
+      share: category.share,
+      momentumPercent: category.momentum_percent,
+      topSites: category.top_sites.map((site) => ({
+        site: site.site,
+        siteLabel: site.site_label,
+        postCount: site.post_count,
+      })),
+      topTags: category.top_tags,
+    })),
+  };
 }
 
 export async function getRealtimeBoards(index: number, limit = 30, filters: BoardListFilters = {}) {

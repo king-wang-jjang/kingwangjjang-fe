@@ -46,6 +46,7 @@ import {
 } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
+import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
@@ -57,6 +58,7 @@ import {
 } from 'src/api/board-api';
 
 import { Top10List } from 'src/components/top10';
+import { IssueTreemap, formatCategory } from 'src/components/issues';
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
 
@@ -85,6 +87,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
   const [analysisJobsByPostId, setAnalysisJobsByPostId] = useState<
@@ -96,8 +99,9 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
   const boardFilters = useMemo<BoardListFilters>(
     () => ({
       sites: selectedSites,
+      category: selectedCategory,
     }),
-    [selectedSites]
+    [selectedCategory, selectedSites]
   );
 
   const {
@@ -108,6 +112,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     boardContentsQueryError,
     boardContentsQueryLoading,
   } = useBoard(boardFilters);
+  const issueOverviewQuery = useIssueOverview(selectedSites);
 
   const siteLabels = useMemo(
     () =>
@@ -377,7 +382,11 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
                   },
                 }}
               >
-                <Badge color="secondary" variant="dot" invisible={!selectedSites.length}>
+                <Badge
+                  color="secondary"
+                  variant="dot"
+                  invisible={!selectedSites.length && !selectedCategory}
+                >
                   <FilterListIcon fontSize="small" />
                 </Badge>
               </IconButton>
@@ -393,8 +402,24 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
               />
             ))}
 
-            {!!selectedSites.length && (
-              <Button color="inherit" size="small" onClick={() => setSelectedSites([])}>
+            {selectedCategory && (
+              <Chip
+                size="small"
+                color="secondary"
+                label={`카테고리 · ${formatCategory(selectedCategory)}`}
+                onDelete={() => setSelectedCategory(undefined)}
+              />
+            )}
+
+            {(!!selectedSites.length || !!selectedCategory) && (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setSelectedSites([]);
+                  setSelectedCategory(undefined);
+                }}
+              >
                 필터 초기화
               </Button>
             )}
@@ -517,6 +542,13 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
             {renderFeedHeader}
+            <IssueTreemap
+              overview={issueOverviewQuery.data}
+              isLoading={issueOverviewQuery.isPending}
+              isError={issueOverviewQuery.isError}
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+            />
             {renderPostList}
           </Stack>
 
