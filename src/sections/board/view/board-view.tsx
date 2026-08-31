@@ -46,7 +46,6 @@ import {
 } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
-import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
@@ -58,7 +57,7 @@ import {
 } from 'src/api/board-api';
 
 import { Top10List } from 'src/components/top10';
-import { IssueTreemap, formatCategory } from 'src/components/issues';
+import { formatCategory } from 'src/components/issues';
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
 
@@ -66,6 +65,7 @@ import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/b
 
 type Props = {
   title?: string;
+  initialCategory?: string;
 };
 
 type SelectedPost = {
@@ -77,7 +77,7 @@ const workbenchSideColumnWidth = 320;
 const analysisPollIntervalMs = 1500;
 const analysisPollLimit = 80;
 
-export function BoardView({ title = '실시간 게시판' }: Props) {
+export function BoardView({ title = '실시간 게시판', initialCategory }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const isTabletContentViewport = useMediaQuery(
@@ -87,7 +87,7 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>();
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(initialCategory);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
   const [analysisJobsByPostId, setAnalysisJobsByPostId] = useState<
@@ -112,7 +112,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
     boardContentsQueryError,
     boardContentsQueryLoading,
   } = useBoard(boardFilters);
-  const issueOverviewQuery = useIssueOverview(selectedSites);
 
   const siteLabels = useMemo(
     () =>
@@ -542,13 +541,6 @@ export function BoardView({ title = '실시간 게시판' }: Props) {
 
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
             {renderFeedHeader}
-            <IssueTreemap
-              overview={issueOverviewQuery.data}
-              isLoading={issueOverviewQuery.isPending}
-              isError={issueOverviewQuery.isError}
-              selectedCategory={selectedCategory}
-              onCategorySelect={setSelectedCategory}
-            />
             {renderPostList}
           </Stack>
 

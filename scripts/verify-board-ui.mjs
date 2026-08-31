@@ -6,6 +6,7 @@ const read = (path) => fs.readFileSync(path, 'utf8');
 const packageJson = read('package.json');
 const globalCss = read('src/global.css');
 const rootLayout = read('src/app/layout.tsx');
+const rootPage = read('src/app/page.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
 const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
@@ -16,7 +17,9 @@ const issueTreemap = read('src/components/issues/issue-treemap.tsx');
 const issueOverviewHook = read('src/hooks/use-issue-overview.ts');
 const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
+const boardPage = read('src/app/board/page.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
+const homeView = read('src/sections/home/view/home-view.tsx');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
 const oauthForm = read('src/auth/components/form-oauth.tsx');
 const commentSidebar = read('src/components/comment/comment-sidebar.tsx');
@@ -43,8 +46,10 @@ const postTagChipSource = boardView.match(/className="post-tag-chip"[\s\S]*?\/>/
 const redesignedFiles = [
   globalCss,
   rootLayout,
+  rootPage,
   appLoading,
   appShell,
+  homeView,
   boardView,
   issueTreemap,
   boardPostUtils,
@@ -508,9 +513,34 @@ assert.match(
   'issue blocks should toggle category selection'
 );
 assert.match(
+  rootPage,
+  /<AppShell>[\s\S]*<HomeView/,
+  'the root route should render the issue overview home page'
+);
+assert.doesNotMatch(
+  rootPage,
+  /redirect\(['"]\/board['"]\)/,
+  'the root route should not redirect to the board'
+);
+assert.match(
+  homeView,
+  /useIssueOverview\(\)[\s\S]*<IssueTreemap/,
+  'the issue map should load on the root home view'
+);
+assert.match(
+  homeView,
+  /router\.push\(`\/board\?\$\{query\.toString\(\)\}`\)/,
+  'selecting a home category should open the filtered board'
+);
+assert.doesNotMatch(
   boardView,
-  /category: selectedCategory[\s\S]*<IssueTreemap/,
-  'selected issue categories should filter the realtime board feed'
+  /<IssueTreemap/,
+  'the issue map should not render inside the board page'
+);
+assert.match(
+  boardPage,
+  /<BoardView initialCategory=\{parseCategory\(category\)\}/,
+  'the board page should apply a category selected from the home issue map'
 );
 assert.doesNotMatch(
   boardView,

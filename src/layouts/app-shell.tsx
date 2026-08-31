@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -47,6 +48,11 @@ type Props = {
 type AuthenticatedUser = NonNullable<UserType>;
 
 const navItems = [
+  {
+    label: '실시간 이슈 맵',
+    href: '/',
+    icon: <InsightsOutlinedIcon fontSize="small" />,
+  },
   {
     label: '실시간 게시판',
     href: '/board',
@@ -302,7 +308,7 @@ export function AppShell({ children }: Props) {
         >
           <Box
             component={Link}
-            href="/board"
+            href="/"
             aria-label="홈으로 이동"
             sx={{
               width: 40,
