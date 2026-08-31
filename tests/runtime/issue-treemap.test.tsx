@@ -44,7 +44,9 @@ describe('IssueTreemap', () => {
     const disconnect = vi.fn();
     vi.stubGlobal(
       'ResizeObserver',
-      vi.fn(() => ({ observe, unobserve: vi.fn(), disconnect }))
+      vi.fn(function ResizeObserverMock() {
+        return { observe, unobserve: vi.fn(), disconnect };
+      })
     );
 
     const { rerender, unmount } = render(
