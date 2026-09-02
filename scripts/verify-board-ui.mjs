@@ -13,13 +13,15 @@ const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
   ? read('src/hooks/use-hide-header-on-scroll.ts')
   : '';
 const boardApi = read('src/api/board-api.ts');
-const issueTreemap = read('src/components/issues/issue-treemap.tsx');
+const issuePulseField = read('src/components/issues/issue-pulse-field.tsx');
+const issuePulseStyles = read('src/components/issues/issue-pulse-field.module.css');
 const issueOverviewHook = read('src/hooks/use-issue-overview.ts');
 const boardPostUtils = read('src/components/board-post/board-post-utils.ts');
 const infiniteBoardHook = read('src/hooks/use-infinite-scrollable-post-list.ts');
 const boardPage = read('src/app/board/page.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const homeView = read('src/sections/home/view/home-view.tsx');
+const homeStyles = read('src/sections/home/view/home-view.module.css');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
 const oauthForm = read('src/auth/components/form-oauth.tsx');
 const commentSidebar = read('src/components/comment/comment-sidebar.tsx');
@@ -50,8 +52,10 @@ const redesignedFiles = [
   appLoading,
   appShell,
   homeView,
+  homeStyles,
   boardView,
-  issueTreemap,
+  issuePulseField,
+  issuePulseStyles,
   boardPostUtils,
   themeProvider,
   oauthForm,
@@ -503,14 +507,19 @@ assert.match(
   'issue overview should refresh the 24-hour visualization in the selected site scope'
 );
 assert.match(
-  issueTreemap,
-  /from 'd3-hierarchy'/,
-  'issue map should use the D3 hierarchy treemap layout'
+  issuePulseField,
+  /\{ pack, hierarchy \} from 'd3-hierarchy'/,
+  'issue field should use the D3 packed-circle layout'
 );
 assert.match(
-  issueTreemap,
+  issuePulseField,
   /onCategorySelect\(selected \? undefined : issue\.category\)/,
-  'issue blocks should toggle category selection'
+  'issue signals should toggle category selection'
+);
+assert.match(
+  issuePulseStyles,
+  /@keyframes signal-drift[\s\S]*@media \(prefers-reduced-motion: reduce\)/,
+  'issue signals should move with a reduced-motion fallback'
 );
 assert.match(
   rootPage,
@@ -524,8 +533,28 @@ assert.doesNotMatch(
 );
 assert.match(
   homeView,
-  /useIssueOverview\(\)[\s\S]*<IssueTreemap/,
-  'the issue map should load on the root home view'
+  /useIssueOverview\(\)[\s\S]*<IssuePulseField/,
+  'the live issue field should load on the root home view'
+);
+assert.match(
+  homeView,
+  /useTopBoards\(\)[\s\S]*onRankSelect=\{setSelectedRank\}[\s\S]*role="tablist"/,
+  'the home page should let visitors preview live Top 10 stories'
+);
+assert.match(
+  homeView,
+  /href=\{`\/top10\/\?rank=\$\{activeRank \+ 1\}`\}/,
+  'the selected home story should retain a rank-aware Top 10 deep link'
+);
+assert.match(
+  homeView,
+  /<IssuePulseField[\s\S]*variant="showcase"[\s\S]*onCategorySelect=\{handleCategorySelect\}/,
+  'the home issue field should use the immersive showcase treatment'
+);
+assert.match(
+  homeStyles,
+  /\.hero[\s\S]*\.tickerTrack[\s\S]*@media \(prefers-reduced-motion: reduce\)/,
+  'the active home experience should include motion with a reduced-motion fallback'
 );
 assert.match(
   homeView,
@@ -534,8 +563,8 @@ assert.match(
 );
 assert.doesNotMatch(
   boardView,
-  /<IssueTreemap/,
-  'the issue map should not render inside the board page'
+  /<IssuePulseField/,
+  'the issue field should not render inside the board page'
 );
 assert.match(
   boardPage,

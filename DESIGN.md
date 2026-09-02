@@ -1,256 +1,492 @@
-# Design System Inspired by PostHog
+# Kingwangjjang Design System
 
-## 1. Visual Theme & Atmosphere
+> Phantom-inspired editorial dashboard · v2.1 · 2026-09-03
 
-PostHog's website feels like a startup's internal wiki that escaped into the wild — warm, irreverent, and deliberately anti-corporate. The background isn't the expected crisp white or dark void of developer tools; it's a warm, sage-tinted cream (`#fdfdf8`) that gives every surface a handmade, paper-like quality. Colors lean into earthy olive greens and muted sage rather than the conventional blues and purples of the SaaS world. It's as if someone designed a developer analytics platform inside a cozy garden shed.
+이 문서는 Kingwangjjang 프론트엔드의 시각 언어와 화면 구성 원칙을 정의한다. 기준 레퍼런스는 [Phantom 공식 홈페이지](https://phantom.com/)의 2026-08-31 상태다. 레퍼런스의 로고, 고유 서체, 일러스트, 영상, 카피를 복제하지 않고 다음 특징을 Kingwangjjang의 게시판 경험에 맞게 번역한다.
 
-The personality is the star: hand-drawn hedgehog illustrations, quirky action figures, and playful imagery replace the stock photography and abstract gradients typical of B2B SaaS. IBM Plex Sans Variable serves as the typographic foundation — a font with genuine technical credibility (created by IBM, widely used in developer contexts) deployed here with bold weights (700, 800) on headings and generous line-heights on body text. The typography says "we're serious engineers" while everything around it says "but we don't take ourselves too seriously."
+- 부드러운 연보라 캔버스와 짙은 보라색 잉크
+- 떠 있는 캡슐형 내비게이션과 CTA
+- 크고 단정한 에디토리얼 타이포그래피
+- 16–24px 라운드의 넉넉한 카드
+- 보라·파랑·초록·노랑·분홍 컬러 블록
+- 실제 커뮤니티 세기와 상승세를 움직임으로 보여주는 라이브 시그널
+- 그림자보다 색면, 여백, 겹침으로 만드는 깊이
+- 콘텐츠를 먼저 보여주고 세부 기능은 필요할 때 펼치는 흐름
 
-The interaction design carries the same spirit: hover states flash PostHog Orange (`#F54E00`) text — a hidden brand color that doesn't appear at rest but surprises on interaction. Dark near-black buttons (`#1e1f23`) use opacity reduction on hover rather than color shifts, and active states scale slightly. The border system uses sage-tinted grays (`#bfc1b7`) that harmonize with the olive text palette. Built on Tailwind CSS with Radix UI and shadcn/ui primitives, the technical foundation is modern and component-driven, but the visual output is stubbornly unique.
+이 문서는 목표 상태를 설명하는 단일 기준이다. 현재 구현과 충돌하면 신규 작업은 이 문서를 따르되, 아래의 제품 계약은 반드시 보존한다.
 
-**Key Characteristics:**
-- Warm sage/olive color palette instead of conventional blues — earthy and approachable
-- IBM Plex Sans Variable font at bold weights (700/800) for headings with generous 1.50+ line-heights
-- Hidden brand orange (`#F54E00`) that only appears on hover interactions — a delightful surprise
-- Hand-drawn hedgehog illustrations and playful imagery — deliberately anti-corporate
-- Sage-tinted borders (`#bfc1b7`) and backgrounds (`#eeefe9`) creating a unified warm-green system
-- Dark near-black CTAs (`#1e1f23`) with opacity-based hover states
-- Content-heavy editorial layout — the site reads like a magazine, not a typical landing page
-- Tailwind CSS + Radix UI + shadcn/ui component architecture
+---
 
-## 2. Color Palette & Roles
+## 1. Design Direction
 
-### Primary
-- **Olive Ink** (`#4d4f46`): Primary text color — a distinctive olive-gray that gives all text a warm, earthy tone
-- **Deep Olive** (`#23251d`): Link text and high-emphasis headings — near-black with green undertone
-- **PostHog Orange** (`#F54E00`): Hidden brand accent — appears only on hover states, a vibrant orange that surprises
+### 한 문장 정의
 
-### Secondary & Accent
-- **Amber Gold** (`#F7A501`): Secondary hover accent on dark buttons — warm gold that pairs with the orange
-- **Gold Border** (`#b17816`): Special button borders — an amber-gold for featured CTAs
-- **Focus Blue** (`#3b82f6`): Focus ring color (Tailwind default) — the only blue in the system, reserved for accessibility
+**“하루의 커뮤니티 소음을 편안하게 탐색하는 퍼플 뉴스 라운지.”**
 
-### Surface & Background
-- **Warm Parchment** (`#fdfdf8`): Primary page background — warm near-white with yellow-green undertone
-- **Sage Cream** (`#eeefe9`): Input backgrounds, secondary surfaces — light sage tint
-- **Light Sage** (`#e5e7e0`): Button backgrounds, tertiary surfaces — muted sage-green
-- **Warm Tan** (`#d4c9b8`): Featured button backgrounds — warm tan/khaki for emphasis
-- **Hover White** (`#f4f4f4`): Universal hover background state
+Kingwangjjang은 관리자 도구처럼 건조하거나 뉴스 포털처럼 과밀하게 보이지 않아야 한다. 첫인상은 밝고 친근하지만, 게시글 제목·순위·요약·댓글은 빠르게 스캔할 수 있어야 한다.
 
-### Neutrals & Text
-- **Olive Ink** (`#4d4f46`): Primary body and UI text
-- **Muted Olive** (`#65675e`): Secondary text, button labels on light backgrounds
-- **Sage Placeholder** (`#9ea096`): Placeholder text, disabled states — warm sage-green
-- **Sage Border** (`#bfc1b7`): Primary border color — olive-tinted gray for all borders
-- **Light Border** (`#b6b7af`): Secondary border, toolbar borders — slightly darker sage
+### 핵심 원칙
 
-### Semantic & Accent
-- **PostHog Orange** (`#F54E00`): Hover text accent — signals interactivity and brand personality
-- **Amber Gold** (`#F7A501`): Dark button hover accent — warmth signal
-- **Focus Blue** (`#3b82f6` at 50% opacity): Keyboard focus rings — accessibility-only color
-- **Dark Text** (`#111827`): High-contrast link text — near-black for important links
+1. **Content first**
 
-### Gradient System
-- No gradients on the marketing site — PostHog's visual language is deliberately flat and warm
-- Depth is achieved through layered surfaces and border containment, not color transitions
+   장식보다 게시글 제목, 출처, 시간, 반응 수, 요약을 먼저 읽게 한다.
 
-## 3. Typography Rules
+2. **One strong action**
 
-### Font Family
-- **Display & Body**: `IBM Plex Sans Variable` — variable font (100–700+ weight range). Fallbacks: `IBM Plex Sans, -apple-system, system-ui, Avenir Next, Avenir, Segoe UI, Helvetica Neue, Helvetica, Ubuntu, Roboto, Noto, Arial`
-- **Monospace**: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New` — system monospace stack
-- **Code Display**: `Source Code Pro` — with fallbacks: `Menlo, Consolas, Monaco`
+   한 영역에는 가장 중요한 기본 행동 하나만 강한 보라색으로 표시한다. 나머지는 밝은 보라색 또는 텍스트 액션으로 낮춘다.
 
-### Hierarchy
+3. **Soft outside, crisp inside**
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-|------|------|------|--------|-------------|----------------|-------|
-| Display Hero | IBM Plex Sans Variable | 30px | 800 | 1.20 | -0.75px | Extra-bold, tight, maximum impact |
-| Section Heading | IBM Plex Sans Variable | 36px | 700 | 1.50 | 0px | Large but generous line-height |
-| Feature Heading | IBM Plex Sans Variable | 24px | 700 | 1.33 | 0px | Feature section titles |
-| Card Heading | IBM Plex Sans Variable | 21.4px | 700 | 1.40 | -0.54px | Slightly unusual size (scaled) |
-| Sub-heading | IBM Plex Sans Variable | 20px | 700 | 1.40 | -0.5px | Content sub-sections |
-| Sub-heading Uppercase | IBM Plex Sans Variable | 20px | 700 | 1.40 | 0px | Uppercase transform for labels |
-| Body Emphasis | IBM Plex Sans Variable | 19.3px | 600 | 1.56 | -0.48px | Semi-bold callout text |
-| Label Uppercase | IBM Plex Sans Variable | 18px | 700 | 1.50 | 0px | Uppercase category labels |
-| Body Semi | IBM Plex Sans Variable | 18px | 600 | 1.56 | 0px | Semi-bold body text |
-| Body | IBM Plex Sans Variable | 16px | 400 | 1.50 | 0px | Standard reading text |
-| Body Medium | IBM Plex Sans Variable | 16px | 500 | 1.50 | 0px | Medium-weight body |
-| Body Relaxed | IBM Plex Sans Variable | 15px | 400 | 1.71 | 0px | Relaxed line-height for long reads |
-| Nav / UI | IBM Plex Sans Variable | 15px | 600 | 1.50 | 0px | Navigation and UI labels |
-| Caption | IBM Plex Sans Variable | 14px | 400–700 | 1.43 | 0px | Small text, various weights |
-| Small Label | IBM Plex Sans Variable | 13px | 500–700 | 1.00–1.50 | 0px | Tags, badges, micro labels |
-| Micro | IBM Plex Sans Variable | 12px | 400–700 | 1.33 | 0px | Smallest text, some uppercase |
-| Code | Source Code Pro | 14px | 500 | 1.43 | 0px | Code snippets and terminal |
+   페이지와 큰 컨테이너는 부드러운 색과 큰 라운드를 사용하고, 숫자·메타데이터·상태는 명확한 대비와 정렬을 사용한다.
 
-### Principles
-- **Bold heading dominance**: Headings use 700–800 weight — PostHog's typography is confident and assertive, not whispery
-- **Generous body line-heights**: Body text at 1.50–1.71 line-height creates extremely comfortable reading — the site is content-heavy and optimized for long sessions
-- **Fractional sizes**: Several sizes (21.4px, 19.3px, 13.7px) suggest a fluid/scaled type system rather than fixed stops — likely computed from Tailwind's rem scale at non-standard base
-- **Uppercase as category signal**: Bold uppercase labels (18px–20px weight 700) are used for product category headings — a magazine-editorial convention
-- **Selective negative tracking**: Letter-spacing tightens on display text (-0.75px at 30px) but relaxes to 0px on body — headlines compress, body breathes
+4. **Color blocks, not decoration**
 
-## 4. Component Stylings
+   컬러는 기능, 순위, 콘텐츠 그룹을 구분할 때만 쓴다. 화면을 보라색으로만 채우지 않는다.
 
-### Buttons
-- **Dark Primary**: `#1e1f23` background, white text, 6px radius, `10px 12px` padding. Hover: opacity 0.7 with Amber Gold text. Active: opacity 0.8 with slight scale transform. The main CTA — dark and confident
-- **Sage Light**: `#e5e7e0` background, Olive Ink (`#4d4f46`) text, 4px radius, `4px` padding. Hover: `#f4f4f4` bg with PostHog Orange text. Compact utility button
-- **Warm Tan Featured**: `#d4c9b8` background, black text, no visible radius. Hover: same orange text flash. Featured/premium actions
-- **Input-style**: `#eeefe9` background, Sage Placeholder (`#9ea096`) text, 4px radius, 1px `#b6b7af` border. Looks like a search/filter control
-- **Near-white Ghost**: `#fdfdf8` background, Olive Ink text, 4px radius, transparent 1px border. Minimal presence
-- **Hover pattern**: All buttons flash PostHog Orange (`#F54E00`) or Amber Gold (`#F7A501`) text on hover — the brand's signature interaction surprise
+5. **Reveal progressively**
 
-### Cards & Containers
-- **Bordered Card**: Warm Parchment (`#fdfdf8`) or white background, 1px `#bfc1b7` border, 4px–6px radius — clean and minimal
-- **Sage Surface Card**: `#eeefe9` background for secondary content containers
-- **Shadow Card**: `0px 25px 50px -12px rgba(0, 0, 0, 0.25)` — a single deep shadow for elevated content (modals, dropdowns)
-- **Hover**: Orange text flash on interactive cards — consistent with button behavior
+   긴 요약, 댓글, 상세 도구는 펼침·드로어·사이드 패널로 제공한다. 목록의 밀도는 유지한다.
 
-### Inputs & Forms
-- **Default**: `#eeefe9` background, `#9ea096` placeholder text, 1px `#b6b7af` border, 4px radius, `2px 0px 2px 8px` padding
-- **Focus**: `#3b82f6` ring at 50% opacity (Tailwind blue focus ring)
-- **Text color**: `#374151` for input values — darker than primary text for readability
-- **Border variations**: Multiple border patterns — some inputs use compound borders (top, left, bottom-only)
+### 보존해야 하는 제품 계약
 
-### Navigation
-- **Top nav**: Warm background, IBM Plex Sans at 15px weight 600
-- **Dropdown menus**: Rich mega-menu structure with product categories
-- **Link color**: Deep Olive (`#23251d`) for nav links, underline on hover
-- **CTA**: Dark Primary button (#1e1f23) in the nav — "Get started - free"
-- **Mobile**: Collapses to hamburger with simplified menu
+- `/top10/?rank=N` 진입 시 해당 순위가 자동으로 펼쳐져야 한다.
+- 모바일에서 게시글 선택은 요약을 펼치며, 댓글은 명시적인 `댓글 열기` 행동으로만 연다.
+- 데스크톱 게시판은 도구/Top 10, 피드, 댓글의 3영역 작업 흐름을 유지한다.
+- 크롤링 성공 기반 사이트 필터, 로그인 상태, 로딩·오류·빈 상태를 시각적으로 숨기지 않는다.
+- 색상이나 모션만으로 선택·상태·순위를 전달하지 않는다.
 
-### Image Treatment
-- **Hand-drawn illustrations**: Hedgehog mascot and quirky illustrations — the signature visual element
-- **Product screenshots**: UI screenshots embedded in device frames or clean containers
-- **Action figures**: Playful product photography of hedgehog figurines — anti-corporate
-- **Trust logos**: Enterprise logos (Airbus, GOV.UK) displayed in a muted trust bar
-- **Aspect ratios**: Mixed — illustrations are irregular, screenshots are 16:9 or widescreen
+---
 
-### AI Chat Widget
-- Floating PostHog AI assistant with speech bubble — an interactive product demo embedded in the marketing site
+## 2. Visual Language
 
-## 5. Layout Principles
+### 분위기
 
-### Spacing System
-- **Base unit**: 8px
-- **Scale**: 2px, 4px, 6px, 8px, 10px, 12px, 16px, 18px, 24px, 32px, 34px
-- **Section padding**: 32px–48px vertical between sections (compact for a content-heavy site)
-- **Card padding**: 4px–12px internal (notably compact)
-- **Component gaps**: 4px–8px between related elements
+- 밝고 낙관적이지만 장난감처럼 보이지 않는다.
+- 금융 앱에서 느껴지는 신뢰감과 매거진의 대담한 편집감을 함께 사용한다.
+- 큰 제목과 넓은 여백은 페이지 수준에서 사용하고, 피드 내부는 촘촘하게 유지한다.
+- 완전한 흰색 일색 대신 연보라 캔버스 위에 아이보리 카드가 떠 있는 구조를 만든다.
+- 브랜드 개성은 Phantom 자산이 아니라 Kingwangjjang 로고, 실제 크롤링 이미지, 한국어 카피에서 나온다.
 
-### Grid & Container
-- **Max width**: 1536px (largest breakpoint), with content containers likely 1200px–1280px
-- **Column patterns**: Varied — single column for text content, 2-3 column grids for feature cards, asymmetric layouts for product demos
-- **Breakpoints**: 13 defined — 1px, 425px, 482px, 640px, 768px, 767px, 800px, 900px, 1024px, 1076px, 1160px, 1280px, 1536px
+### 형태
 
-### Whitespace Philosophy
-- **Content-dense by design**: PostHog's site is information-rich — whitespace is measured, not lavish
-- **Editorial pacing**: Content sections flow like a magazine with varied layouts keeping the eye moving
-- **Illustrations as breathing room**: Hand-drawn hedgehog art breaks up dense content sections naturally
+- 캡슐: 내비게이션, 주요 버튼, 검색, 필터 그룹
+- 24px 라운드: 히어로, 대형 패널, 모달, 모바일 드로어
+- 16px 라운드: 게시글 카드, Top 10, 댓글 패널, 드롭다운
+- 12px 라운드: 입력창, 썸네일, 작은 상태 카드
+- 원형: 아이콘 버튼, 아바타, 작은 로고 액션
 
-### Border Radius Scale
-- **2px**: Small inline elements, tags (`span`)
-- **4px**: Primary UI components — buttons, inputs, dropdowns, menu items (`button`, `div`, `combobox`)
-- **6px**: Secondary containers — larger buttons, list items, card variants (`button`, `div`, `li`)
-- **9999px**: Pill shape — badges, status indicators, rounded tags (`span`, `div`)
+작은 4px 코너와 모든 요소를 둘러싼 회색 테두리는 사용하지 않는다. 경계가 필요하면 색면 차이, 간격, 약한 내곽선 순서로 해결한다.
 
-## 6. Depth & Elevation
+---
 
-| Level | Treatment | Use |
-|-------|-----------|-----|
-| Level 0 (Flat) | No shadow, warm parchment background | Page canvas, most surfaces |
-| Level 1 (Border) | `1px solid #bfc1b7` (Sage Border) | Card containment, input borders, section dividers |
-| Level 2 (Compound Border) | Multiple 1px borders on different sides | Input groupings, toolbar elements |
-| Level 3 (Deep Shadow) | `0px 25px 50px -12px rgba(0, 0, 0, 0.25)` | Modals, floating elements, mega-menu dropdowns |
+## 3. Color System
 
-### Shadow Philosophy
-PostHog's elevation system is remarkably minimal — only one shadow definition exists in the entire system. Depth is communicated through:
-- **Border containment**: Sage-tinted borders (`#bfc1b7`) at 1px create gentle warm separation
-- **Surface color shifts**: Moving from `#fdfdf8` to `#eeefe9` to `#e5e7e0` creates layered depth without shadows
-- **The single shadow**: The one defined shadow (`0 25px 50px -12px`) is reserved for floating elements — modals, dropdowns, popovers. It's a deep, dramatic shadow that creates clear separation when needed
+아래 값은 Phantom의 분위기를 Kingwangjjang에 맞게 재구성한 목표 토큰이다. 원본 사이트의 브랜드 토큰을 그대로 복사한 목록이 아니다.
 
-### Decorative Depth
-- **Illustration layering**: Hand-drawn hedgehog art creates visual depth naturally
-- **No gradients or glow**: The flat, warm surface system relies entirely on border and surface-color differentiation
-- **No glassmorphism**: Fully opaque surfaces throughout
+### Light scheme
 
-## 7. Do's and Don'ts
+| Token                | Value                    | Role                           |
+| -------------------- | ------------------------ | ------------------------------ |
+| `background.default` | `#F5F2FF`                | 앱 캔버스, 브라우저 테마 색상  |
+| `background.paper`   | `#FFFDF8`                | 기본 카드, 메뉴, 댓글 패널     |
+| `background.raised`  | `#FFFFFF`                | 선택 카드, 팝오버, 강조 패널   |
+| `background.subtle`  | `#E2DFFE`                | 선택, 읽음, 필터, 보조 버튼    |
+| `background.muted`   | `#F4F2F4`                | 비활성 행, 스켈레톤, 입력 배경 |
+| `background.dark`    | `#1C1C1C`                | 미디어 히어로, 강한 역상 영역  |
+| `primary.main`       | `#AB9FF2`                | 주요 CTA, 활성 컨트롤          |
+| `primary.light`      | `#E2DFFE`                | 약한 강조, hover 배경          |
+| `primary.dark`       | `#3C315B`                | 로고, 제목, CTA 텍스트         |
+| `text.primary`       | `#3C315B`                | 제목과 본문                    |
+| `text.secondary`     | `#6E6E6E`                | 출처, 날짜, 설명, 보조 정보    |
+| `text.onDark`        | `#FFFDF8`                | 어두운 미디어 위 텍스트        |
+| `divider`            | `rgba(60, 49, 91, 0.14)` | 필요한 경우에만 쓰는 경계      |
+| `focus`              | `#4A87F2`                | 키보드 포커스 링               |
 
-### Do
-- Use the olive/sage color family (#4d4f46, #23251d, #bfc1b7) for text and borders — the warm green undertone is essential to the brand
-- Flash PostHog Orange (#F54E00) on hover states — it's the hidden brand signature
-- Use IBM Plex Sans at bold weights (700/800) for headings — the font carries technical credibility
-- Keep body text at generous line-heights (1.50–1.71) — the content-heavy site demands readability
-- Maintain the warm parchment background (#fdfdf8) — not pure white, never cold
-- Use 4px border-radius for most UI elements — keep corners subtle and functional
-- Include playful, hand-drawn illustration elements — the personality is the differentiator
-- Apply opacity-based hover states (0.7 opacity) on dark buttons rather than color shifts
+### Supporting accents
 
-### Don't
-- Use blue, purple, or typical tech-SaaS colors — PostHog's palette is deliberately olive/sage
-- Add heavy shadows — the system uses one shadow for floating elements only; everything else uses borders
-- Make the design look "polished" or "premium" in a conventional sense — PostHog's charm is its irreverent, scrappy energy
-- Use tight line-heights on body text — the generous 1.50+ spacing is essential for the content-heavy layout
-- Apply large border-radius (12px+) on cards — PostHog uses 4px–6px, keeping things tight and functional
-- Remove the orange hover flash — it's a core interaction pattern, not decoration
-- Replace illustrations with stock photography — the hand-drawn hedgehog art is the brand
-- Use pure white (#ffffff) as page background — the warm sage-cream (#fdfdf8) tint is foundational
+| Token           | Value     | Use                          |
+| --------------- | --------- | ---------------------------- |
+| `accent.blue`   | `#4A87F2` | 링크, 정보, 하락/중립 데이터 |
+| `accent.green`  | `#2EC08B` | 성공, 상승, 정상 수집        |
+| `accent.yellow` | `#FFD13F` | 주의, 2차 강조               |
+| `accent.pink`   | `#FFDADC` | 커뮤니티 반응, 가벼운 강조   |
+| `accent.orange` | `#FF7243` | 오류, 위험, 즉시 확인 필요   |
+| `accent.cream`  | `#FFFFC4` | 읽음, 보조 하이라이트        |
+| `accent.lime`   | `#C7FF6B` | 빠른 상승 신호, 라이브 맥박 |
+| `accent.hotPink`| `#FF79C6` | 폭발적 상승 신호            |
 
-## 8. Responsive Behavior
+보조색은 한 화면에서 최대 세 종류까지만 사용한다. 의미가 없는 랜덤 카드 색상은 금지한다.
+
+### Dark scheme
+
+| Token                | Value                       | Role                      |
+| -------------------- | --------------------------- | ------------------------- |
+| `background.default` | `#0D0621`                   | 앱 캔버스                 |
+| `background.paper`   | `#171126`                   | 기본 카드와 패널          |
+| `background.raised`  | `#221A38`                   | 떠 있는 표면              |
+| `background.subtle`  | `#3C315B`                   | 선택, 보조 표면           |
+| `background.muted`   | `#282233`                   | 입력, 스켈레톤, 비활성 행 |
+| `primary.main`       | `#AB9FF2`                   | CTA와 활성 상태           |
+| `primary.light`      | `#D4CAFE`                   | hover, 약한 강조          |
+| `primary.dark`       | `#8D7EE5`                   | 눌림 상태                 |
+| `text.primary`       | `#FFFDF8`                   | 제목과 본문               |
+| `text.secondary`     | `#B4B4B4`                   | 메타데이터와 설명         |
+| `divider`            | `rgba(226, 223, 254, 0.18)` | 최소 경계                 |
+| `focus`              | `#6CA0FB`                   | 키보드 포커스 링          |
+
+다크 모드는 검정 바탕에 보라색을 얹는 단순 반전이 아니다. 카드 사이의 레이어를 `#171126` → `#221A38` → `#3C315B` 순서로 구분한다.
+
+### 색상 사용 규칙
+
+- 본문 배경은 `background.default`, 실제 콘텐츠는 `background.paper`를 사용한다.
+- 주요 CTA는 `primary.main` 배경과 `primary.dark` 텍스트를 사용한다.
+- 어두운 CTA는 특별한 한 가지 행동에만 `#1C1C1C`과 `#FFFDF8` 조합을 허용한다.
+- 선택 상태는 테두리만 바꾸지 말고 배경색, 아이콘 또는 텍스트 레이블을 함께 바꾼다.
+- 그라디언트는 데이터 시각화 또는 실제 미디어 오버레이에만 사용한다. 일반 카드 배경에는 사용하지 않는다.
+- 오류에 브랜드 보라색을 사용하지 않는다. 오류는 `accent.orange`, 성공은 `accent.green`으로 분리한다.
+
+---
+
+## 4. Typography
+
+Phantom의 독점 서체는 사용하지 않는다. 현재 프로젝트 의존성인 `IBM Plex Sans Variable`을 기본으로 유지하고, 한국어 시스템 폰트 fallback을 반드시 둔다.
+
+```css
+font-family:
+  'IBM Plex Sans Variable',
+  'Pretendard Variable',
+  Pretendard,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
+```
+
+숫자 순위와 통계는 `font-variant-numeric: tabular-nums`를 사용한다. 코드, ID, 날짜 원문 외에는 monospace를 사용하지 않는다.
+
+### Type scale
+
+| Role          | Desktop                    | Mobile    | Weight  | Line height | Tracking   |
+| ------------- | -------------------------- | --------- | ------- | ----------- | ---------- |
+| Hero display  | `clamp(56px, 5.6vw, 80px)` | `36–44px` | 400–500 | 1.04        | `-0.04em`  |
+| Page title    | `40–48px`                  | `30–36px` | 500–600 | 1.08        | `-0.03em`  |
+| Section title | `32–40px`                  | `26–32px` | 500–600 | 1.12        | `-0.025em` |
+| Panel title   | `22–28px`                  | `20–24px` | 600     | 1.25        | `-0.015em` |
+| Card title    | `17–20px`                  | `16–18px` | 600–700 | 1.35        | `-0.01em`  |
+| Body          | `16px`                     | `16px`    | 400     | 1.6         | `0`        |
+| UI label      | `14–15px`                  | `14–15px` | 500–600 | 1.4         | `0`        |
+| Metadata      | `12–13px`                  | `12–13px` | 400–600 | 1.4         | `0.01em`   |
+
+### 타이포그래피 규칙
+
+- 페이지 제목은 굵기 800 대신 넓은 크기와 타이트한 자간으로 힘을 만든다.
+- 게시글 제목에는 최대 두 줄 말줄임을 기본으로 하고, 펼침 상태에서 전체 제목을 제공한다.
+- 긴 한국어 본문은 `word-break: keep-all`과 `overflow-wrap: anywhere`를 함께 사용한다.
+- 작은 텍스트를 대문자 장식처럼 쓰지 않는다. 영문 overline은 필요한 관리 화면에만 쓴다.
+- 한 줄에 70자를 넘는 요약은 읽기 폭을 제한한다.
+
+---
+
+## 5. Layout & Spacing
+
+### Grid
+
+- 최대 작업 폭: `1536px`
+- 일반 콘텐츠 폭: `1092–1200px`
+- 긴 본문 읽기 폭: `680–760px`
+- 데스크톱 바깥 여백: `32–48px`
+- 태블릿 바깥 여백: `24px`
+- 모바일 바깥 여백: `20px`
+- 기본 간격 단위: `4px`; 주 사용 간격은 `8, 12, 16, 24, 32, 48, 64px`
+
+### Vertical rhythm
+
+| Relationship       | Gap         |
+| ------------------ | ----------- |
+| 아이콘 ↔ 라벨     | `8px`       |
+| 메타데이터 ↔ 제목 | `6–8px`     |
+| 카드 내부 그룹     | `12–16px`   |
+| 카드 ↔ 카드       | `12px`      |
+| 패널 내부 여백     | `20–24px`   |
+| 섹션 ↔ 섹션       | `64–96px`   |
+| 랜딩형 대형 구간   | `120–160px` |
+
+피드에서는 섹션 간격을 그대로 적용하지 않는다. 게시글 목록은 스캔 속도를 위해 카드 간 `12px`, 카드 내부 `16–20px`를 기준으로 한다.
 
 ### Breakpoints
-| Name | Width | Key Changes |
-|------|-------|-------------|
-| Mobile Small | <425px | Single column, compact padding, stacked cards |
-| Mobile | 425px–640px | Slight layout adjustments, larger touch targets |
-| Tablet | 640px–768px | 2-column grids begin, nav partially visible |
-| Tablet Large | 768px–1024px | Multi-column layouts, expanded navigation |
-| Desktop | 1024px–1280px | Full layout, 3-column feature grids, expanded mega-menu |
-| Large Desktop | 1280px–1536px | Max-width container, generous margins |
-| Extra Large | >1536px | Centered container at max-width |
 
-### Touch Targets
-- Buttons: 4px–6px radius with `4px–12px` padding — compact but usable
-- Nav links: 15px text at weight 600 with adequate padding
-- Mobile: Hamburger menu with simplified navigation
-- Inputs: Generous vertical padding for thumb-friendly forms
+프로젝트의 MUI breakpoint를 단일 기준으로 사용한다.
 
-### Collapsing Strategy
-- **Navigation**: Full mega-menu with dropdowns → hamburger menu on mobile
-- **Feature grids**: 3-column → 2-column → single column stacked
-- **Typography**: Display sizes reduce across breakpoints (30px → smaller)
-- **Illustrations**: Scale within containers, some may hide on mobile for space
-- **Section spacing**: Reduces proportionally while maintaining readability
+| Range         | Layout behavior                                         |
+| ------------- | ------------------------------------------------------- |
+| `<600px`      | 단일 열, 20px gutter, 전체 너비 CTA, 댓글 bottom drawer |
+| `600–899px`   | 단일 콘텐츠 열, 일부 컨트롤 가로 배치, 24px gutter      |
+| `900–1199px`  | 피드 우선 레이아웃, 보조 패널은 drawer 또는 접힘        |
+| `1200–1535px` | 3영역 게시판, sticky Top 10과 댓글 패널                 |
+| `≥1536px`     | 1536px 작업 폭을 가운데 정렬, 열 너비는 더 늘리지 않음  |
 
-### Image Behavior
-- Illustrations scale responsively within containers
-- Product screenshots maintain aspect ratios
-- Trust logos reflow into multi-row grids on mobile
-- AI chat widget may reposition or simplify on small screens
+CSS와 JavaScript의 breakpoint가 어긋나지 않도록 모두 MUI theme 값을 참조한다.
 
-## 9. Agent Prompt Guide
+---
 
-### Quick Color Reference
-- Primary Text: Olive Ink (`#4d4f46`)
-- Dark Text: Deep Olive (`#23251d`)
-- Hover Accent: PostHog Orange (`#F54E00`)
-- Dark CTA: Near-Black (`#1e1f23`)
-- Button Surface: Light Sage (`#e5e7e0`)
-- Page Background: Warm Parchment (`#fdfdf8`)
-- Border: Sage Border (`#bfc1b7`)
-- Placeholder: Sage Placeholder (`#9ea096`)
+## 6. Navigation
 
-### Example Component Prompts
-- "Create a hero section on warm parchment background (#fdfdf8) with 30px IBM Plex Sans heading at weight 800, line-height 1.20, letter-spacing -0.75px, olive ink text (#4d4f46), and a dark CTA button (#1e1f23, 6px radius, white text, opacity 0.7 on hover)"
-- "Design a feature card with #fdfdf8 background, 1px #bfc1b7 border, 4px radius, IBM Plex Sans heading at 20px weight 700, and 16px body text at weight 400 with 1.50 line-height in olive ink (#4d4f46)"
-- "Build a navigation bar with warm background, IBM Plex Sans links at 15px weight 600 in deep olive (#23251d), underline on hover, and a dark CTA button (#1e1f23) at the right"
-- "Create a button group: primary dark (#1e1f23, white text, 6px radius), secondary sage (#e5e7e0, #4d4f46 text, 4px radius), and ghost/text button — all flash #F54E00 orange text on hover"
-- "Design an input field with #eeefe9 background, 1px #b6b7af border, 4px radius, #9ea096 placeholder text, focus ring in #3b82f6 at 50% opacity"
+### Desktop
 
-### Iteration Guide
-When refining existing screens generated with this design system:
-1. Verify the background is warm parchment (#fdfdf8) not pure white — the sage-cream warmth is essential
-2. Check that all text uses the olive family (#4d4f46, #23251d) not pure black or neutral gray
-3. Ensure hover states flash PostHog Orange (#F54E00) — if hovering feels bland, you're missing this
-4. Confirm borders use sage-tinted gray (#bfc1b7) not neutral gray — warmth runs through every element
-5. The overall tone should feel like a fun, scrappy startup wiki — never corporate-polished or sterile
+- 헤더는 캔버스와 같은 연보라 배경 위에 떠 있는 구조다.
+- 로고는 왼쪽, 핵심 내비게이션은 가운데의 아이보리 캡슐, 계정 액션은 오른쪽에 둔다.
+- 내비게이션 캡슐 높이는 `56–60px`, 내부 padding은 `8px`, 전체 radius는 `999px`다.
+- 기본 메뉴는 `실시간 게시판`, `TOP 10`; 관리자는 `Shorts Studio`를 추가한다.
+- 현재 메뉴는 작은 보라색 pill 또는 움직이는 활성 배경으로 표시한다.
+- 프로필/로그인 버튼은 primary pill, 테마와 메뉴 아이콘은 48–52px 원형 버튼으로 사용한다.
+- 헤더는 스크롤 시 숨길 수 있지만 키보드 focus가 들어오면 즉시 다시 보여야 한다.
+
+### Mobile
+
+- 좌측에는 심볼 로고, 우측에는 로그인/프로필 CTA와 원형 메뉴 버튼만 둔다.
+- 메뉴는 오른쪽 또는 전체 높이 drawer로 열며 radius `24px`의 카드처럼 보이게 한다.
+- 모바일 상단에 데스크톱 메뉴를 억지로 축소하지 않는다.
+- 터치 대상은 최소 `44×44px`, 주요 버튼은 `48–52px` 높이를 유지한다.
+
+---
+
+## 7. Components
+
+### Buttons
+
+| Variant | Styling                                            | Use                           |
+| ------- | -------------------------------------------------- | ----------------------------- |
+| Primary | `#AB9FF2` bg, `#3C315B` text, 48–52px height, pill | 로그인, 저장, 확정            |
+| Soft    | `#E2DFFE` bg, `#3C315B` text, pill                 | 필터, 보조 CTA                |
+| Dark    | `#1C1C1C` bg, `#FFFDF8` text, pill                 | 한 화면의 가장 강한 행동 하나 |
+| Ghost   | transparent bg, ink text                           | 취소, 접기, 작은 도구         |
+| Icon    | 44–52px circle, paper/soft bg                      | 메뉴, 테마, 검색, 닫기        |
+
+- hover: 배경을 한 단계 진하게 하고 `translateY(-1px)` 또는 `scale(0.985)` 중 하나만 사용한다.
+- active: `scale(0.97)`.
+- disabled: opacity만 낮추지 말고 muted 배경과 secondary 텍스트를 함께 사용한다.
+- destructive 행동은 보라색 primary 버튼으로 표현하지 않는다.
+
+### Cards
+
+- 기본: `background.paper`, radius `16px`, border 없음.
+- 필요한 경계: `1px solid divider` 또는 `inset 0 0 0 1px divider`.
+- hover 가능한 카드: `background.raised`, `scale(0.989)`, 260ms.
+- 선택 카드: `background.subtle` + 텍스트/아이콘 상태 + `aria-selected` 또는 `aria-expanded`.
+- 대형 feature 카드: radius `24px`, media overflow hidden, 최소 하나의 넓은 색면.
+- 카드 안에 또 같은 모양의 카드를 반복해서 중첩하지 않는다.
+
+### Chips & filters
+
+- chip 높이 `28–32px`, radius `999px`, padding inline `12–16px`.
+- 기본 필터는 paper, 선택 필터는 primary 또는 subtle 배경을 사용한다.
+- 선택된 사이트는 텍스트와 닫기 아이콘을 함께 표시한다.
+- 필터가 많으면 가로 스크롤 또는 popover를 사용한다. 여러 줄로 화면 상단을 밀어내지 않는다.
+
+### Inputs & menus
+
+- 입력 높이 `48–52px`, muted 또는 paper 배경, radius `12–16px`.
+- 포커스는 `3px` focus ring과 명확한 label로 표시한다.
+- dropdown은 radius `16–24px`, paper 배경, 약한 ambient shadow를 사용한다.
+- placeholder만으로 필드의 목적을 설명하지 않는다.
+
+### Images
+
+- 실제 크롤링 썸네일을 우선하고 `object-fit: cover`를 기본으로 한다.
+- 목록 썸네일 radius는 `12px`, feature media는 `20–24px`.
+- 이미지가 없으면 사이트 첫 글자 또는 카테고리 아이콘을 pastel color block 위에 표시한다.
+- 깨진 이미지는 레이아웃을 유지한 채 fallback으로 교체한다.
+- Phantom의 고스트, 제품 화면, 영상, 로고를 프로젝트 자산으로 복제하지 않는다.
+
+### Feedback states
+
+- loading: 실제 카드 구조를 닮은 muted skeleton을 사용한다.
+- empty: 한 문장 설명 + 가능한 다음 행동 하나를 제공한다.
+- error: orange tint, 오류 요약, `다시 시도` 행동을 함께 제공한다.
+- background refresh: 기존 콘텐츠를 유지하고 작은 progress indicator만 표시한다.
+- toast는 보조 피드백이며, 중요한 오류를 toast에만 두지 않는다.
+
+---
+
+## 8. Page Blueprints
+
+### `/` — 라이브 홈
+
+- 히어로는 큰 한국어 헤드라인과 실제 이슈 데이터에서 온 원형 신호를 함께 보여준다.
+- 기존 사각형 트리맵은 팩 서클 기반의 `실시간 시그널 필드`로 대체한다.
+- 버블 면적은 영향력, 색은 상승세, 맥박 속도는 상승 속도를 나타내며 같은 정보를 텍스트로도 제공한다.
+- 버블은 hover, focus, touch에 반응하고 선택 시 해당 카테고리로 필터된 `/board`로 연결한다.
+- 자동 드리프트, 휘도는 하나의 조합된 데이터 모션 시스템으로 취급하고 동시에 보이는 별도의 자동 모션은 추가하지 않는다.
+
+### `/board` — 실시간 게시판
+
+Desktop:
+
+```text
+┌──────────── Top 10 / tools ────────────┬──────────── live feed ────────────┬──────── comments ────────┐
+│ sticky · 280–320px                     │ fluid · min 0                     │ sticky · 280–320px       │
+│ 오늘의 순위                            │ issue overview / filters          │ 선택한 글의 댓글          │
+│ compact rows                           │ post cards                         │ empty state               │
+└────────────────────────────────────────┴───────────────────────────────────┴───────────────────────────┘
+```
+
+- 중앙 피드가 시각적 우선순위 1이다.
+- 이슈 overview는 Phantom의 feature card처럼 넓은 컬러 블록으로 구성하되 데이터 의미를 유지한다.
+- 게시글 카드는 제목과 메타데이터를 먼저, 반응 수와 이미지가 그 다음에 읽히게 한다.
+- 카드 선택 시 요약을 내부에서 펼치고 선택 surface를 subtle purple로 전환한다.
+- desktop 댓글은 우측 sticky 패널, content-first 구간에서는 명시적 행동으로 drawer를 연다.
+
+Mobile:
+
+- Top 10과 도구는 피드 위의 접을 수 있는 soft panel로 이동한다.
+- 게시글 탭은 요약만 펼친다.
+- 댓글은 별도 `댓글 열기` 버튼으로만 bottom drawer를 연다.
+- 이미지가 본문 너비를 밀어내지 않도록 기본 `72×72px`, 펼침 시 전체 폭 preview를 사용한다.
+
+### `/top10/` — 일간 Top 10
+
+- 페이지 제목은 큰 editorial heading으로, 날짜 선택은 오른쪽 또는 다음 줄의 pill control로 둔다.
+- 순위 목록 전체는 하나의 24px panel이며 각 행마다 독립 카드 테두리를 반복하지 않는다.
+- 1–3위는 primary/blue/green rank tile로 강조하고, 4–10위는 soft purple을 사용한다.
+- 행을 펼치면 요약, 실제 이미지, 원문, 댓글 행동을 제공한다.
+- `?rank=N` deep link의 자동 펼침과 분석 요청을 유지한다.
+- mobile 행동은 세로로 쌓되 `원문 바로가기`와 `댓글 열기`를 서로 다른 버튼으로 유지한다.
+
+### Comments
+
+- 댓글 본문은 paper, 작성 폼은 raised surface로 구분한다.
+- 댓글 작성 CTA만 primary로 사용하고 좋아요/답글/메뉴는 ghost로 낮춘다.
+- 긴 스레드는 들여쓰기를 무한히 늘리지 않고 두 단계 이후 선과 배경으로 구분한다.
+- drawer는 상단 모서리 radius `24px`, 명확한 drag handle/닫기 버튼, focus trap을 제공한다.
+
+### Account & admin
+
+- 계정 화면은 680–760px 읽기 폭의 단일 열을 기본으로 한다.
+- 관리 화면도 같은 토큰을 사용하되 데이터 표와 생성 도구의 밀도는 유지한다.
+- 관리 기능을 마케팅형 대형 카드로 과장하지 않는다.
+
+---
+
+## 9. Motion & Interaction
+
+### Timing
+
+| Motion            | Duration    | Easing                         |
+| ----------------- | ----------- | ------------------------------ |
+| hover / color     | `150ms`     | `cubic-bezier(.25, 1, .5, 1)`  |
+| card / indicator  | `260ms`     | `cubic-bezier(.22, 1, .36, 1)` |
+| collapse / drawer | `300–400ms` | `cubic-bezier(.22, 1, .36, 1)` |
+| theme transition  | `300ms`     | ease                           |
+
+### Rules
+
+- 모션은 계층, 선택, 공간 변화를 설명해야 한다.
+- hover scale은 `0.985–0.995` 범위를 넘지 않는다.
+- 한 화면에서 자동 재생하는 장식 모션은 하나 이하로 제한한다.
+- 하나의 데이터 필드 안에서 같은 메트릭을 설명하는 드리프트·맥박·휘도는 하나의 조합된 모션으로 간주한다.
+- 목록 항목을 순차적으로 늦게 등장시키지 않는다. 실시간 피드의 읽기 속도를 방해한다.
+- `prefers-reduced-motion: reduce`에서는 transform, smooth scroll, 자동 재생을 끈다.
+- drawer가 열리면 focus를 내부로 이동하고 닫힌 뒤 실행 버튼으로 돌려보낸다.
+
+---
+
+## 10. Depth & Elevation
+
+| Level | Treatment                            | Use                         |
+| ----- | ------------------------------------ | --------------------------- |
+| 0     | canvas color only                    | 페이지 배경                 |
+| 1     | paper on lavender, no shadow         | 일반 카드, 피드             |
+| 2     | raised surface + `0 0 0 1px divider` | 선택, 입력, 내부 패널       |
+| 3     | `0 12px 40px rgba(60, 49, 91, .14)`  | 메뉴, popover, floating nav |
+| 4     | `0 24px 64px rgba(13, 6, 33, .24)`   | modal, drawer               |
+
+- 동일한 화면에서 Level 3 이상 shadow를 세 곳 이상 사용하지 않는다.
+- 작은 카드에 큰 그림자를 적용하지 않는다.
+- glassmorphism, neon glow, 과한 blur는 사용하지 않는다.
+
+---
+
+## 11. Accessibility
+
+- 일반 텍스트는 WCAG AA 4.5:1, 큰 텍스트와 UI 아이콘은 3:1 이상을 만족한다.
+- 키보드 포커스는 `3px solid focus`, offset `2–3px`로 표시한다.
+- hover에서만 드러나는 기능을 만들지 않는다.
+- 모든 icon-only button에 한국어 `aria-label`을 제공한다.
+- loading 상태는 `aria-live="polite"`; 치명적 오류만 assertive를 고려한다.
+- touch target은 최소 `44×44px`.
+- 드로어와 모달은 focus trap, Escape 닫기, focus return을 지원한다.
+- rank, 성공/실패, 읽음/선택 상태는 텍스트 또는 아이콘을 함께 사용한다.
+- 콘텐츠 이미지가 정보 전달 목적이면 대체 텍스트를 제공하고, 장식이면 빈 `alt`를 사용한다.
+
+---
+
+## 12. MUI Implementation Map
+
+```text
+palette.primary.main         → #AB9FF2
+palette.primary.light        → #E2DFFE
+palette.primary.dark         → #3C315B
+palette.background.default   → #F5F2FF
+palette.background.paper     → #FFFDF8
+palette.background.subtle    → #E2DFFE
+palette.background.muted     → #F4F2F4
+palette.background.raised    → #FFFFFF
+palette.text.primary         → #3C315B
+palette.text.secondary       → #6E6E6E
+palette.divider              → rgba(60, 49, 91, .14)
+shape.borderRadius           → 16
+```
+
+Component overrides:
+
+- `MuiButton`: pill by default, 48px minimum height, no uppercase transform.
+- `MuiCard`: radius 16, no default shadow, no mandatory outline.
+- `MuiPaper`: radius 16; menu/dialog는 elevation level에 맞춰 shadow 적용.
+- `MuiChip`: radius 999, 28–32px height.
+- `MuiOutlinedInput`: radius 14, muted background, 3px focus ring.
+- `MuiIconButton`: circular by default; 카드 내부의 compact action만 12px radius 허용.
+- `MuiDrawer`: 모바일 top corners 24px, desktop navigation drawer 24px panel.
+
+색상 값을 개별 컴포넌트에 직접 쓰지 말고 theme token을 사용한다. 예외는 데이터 시각화의 명시적인 accent scale뿐이다.
+
+---
+
+## 13. Do / Don't
+
+### Do
+
+- 연보라 캔버스 위에 아이보리 콘텐츠 surface를 올린다.
+- 큰 제목은 얇고 넓게, 목록 제목은 작고 단단하게 쓴다.
+- 내비게이션과 CTA는 pill, 콘텐츠는 16–24px rounded panel로 구분한다.
+- 실제 콘텐츠 이미지와 색면을 함께 사용해 리듬을 만든다.
+- hover보다 선택/확장/오류 같은 실제 상태를 더 분명히 표현한다.
+- 모바일에서는 피드와 요약을 먼저 보여준다.
+
+### Don't
+
+- Phantom 로고, 고스트 캐릭터, 영상, 카피, 독점 폰트를 복제하지 않는다.
+- 예전 올리브/세이지/오렌지 hover 체계를 섞지 않는다.
+- 모든 카드에 회색 1px 테두리와 4px radius를 적용하지 않는다.
+- 보라색 그라디언트, glow, glass surface를 남발하지 않는다.
+- 작은 화면에서 3열 구조를 축소해서 유지하지 않는다.
+- 게시글을 누르는 것만으로 모바일 댓글 drawer를 열지 않는다.
+- 상태를 toast, 색상, hover 중 하나에만 의존하지 않는다.
+
+---
+
+## 14. Review Checklist
+
+디자인 또는 UI 변경을 완료하기 전에 확인한다.
+
+- [ ] 캔버스, surface, text, accent가 정의된 theme token을 사용하는가?
+- [ ] 한 영역에 강한 primary action이 하나 이하인가?
+- [ ] border 대신 surface와 spacing으로 계층이 먼저 드러나는가?
+- [ ] desktop, tablet, mobile에서 읽는 순서가 자연스러운가?
+- [ ] mobile 게시글 선택과 `댓글 열기` 행동이 분리되어 있는가?
+- [ ] `/top10/?rank=N` deep link가 해당 행을 펼치는가?
+- [ ] loading, empty, error, background refresh 상태가 모두 있는가?
+- [ ] keyboard focus와 44px touch target을 만족하는가?
+- [ ] light/dark scheme 모두에서 대비를 확인했는가?
+- [ ] `prefers-reduced-motion`을 존중하는가?
+- [ ] Phantom의 자산을 복제하지 않고 분위기만 재해석했는가?
+- [ ] `yarn check`와 관련 UI contract script를 통과했는가?

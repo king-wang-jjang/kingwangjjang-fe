@@ -36,6 +36,43 @@ vi.mock('src/hooks/use-issue-overview', () => ({
   }),
 }));
 
+vi.mock('src/hooks/use-top-boards', () => ({
+  useTopBoards: () => ({
+    data: [
+      {
+        Id: 'board-1',
+        category: 'humor',
+        no: 1,
+        site: 'dcinside',
+        siteLabel: '디시인사이드',
+        title: '첫 번째 인기 이야기',
+        url: 'https://example.com/1',
+        gptAnswer: '첫 번째 이야기의 요약입니다.',
+        tags: ['유머'],
+        createTime: '2026-08-31T11:00:00Z',
+        commentCount: 12,
+        likeCount: 34,
+      },
+      {
+        Id: 'board-2',
+        category: 'issue',
+        no: 2,
+        site: 'theqoo',
+        siteLabel: '더쿠',
+        title: '두 번째 인기 이야기',
+        url: 'https://example.com/2',
+        gptAnswer: '두 번째 이야기의 요약입니다.',
+        tags: ['이슈'],
+        createTime: '2026-08-31T10:00:00Z',
+        commentCount: 56,
+        likeCount: 78,
+      },
+    ],
+    isPending: false,
+    isError: false,
+  }),
+}));
+
 describe('HomeView', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -62,5 +99,30 @@ describe('HomeView', () => {
     await user.click(category!);
 
     expect(push).toHaveBeenCalledWith('/board?category=humor');
+  });
+
+  test('lets visitors preview another Top 10 story before opening it', async () => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class ResizeObserverMock {
+        observe() {}
+
+        unobserve() {}
+
+        disconnect() {}
+      }
+    );
+    const user = userEvent.setup();
+
+    const { getByRole } = render(<HomeView />);
+
+    expect(getByRole('heading', { name: '첫 번째 인기 이야기' })).toBeTruthy();
+
+    await user.click(getByRole('tab', { name: /두 번째 인기 이야기/ }));
+
+    expect(getByRole('heading', { name: '두 번째 인기 이야기' })).toBeTruthy();
+    expect(getByRole('link', { name: '2위 이야기 자세히 보기' }).getAttribute('href')).toBe(
+      '/top10?rank=2'
+    );
   });
 });

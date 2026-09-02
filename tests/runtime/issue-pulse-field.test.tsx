@@ -1,11 +1,10 @@
 import type { IssueOverview } from 'src/api/board-api';
 
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { vi, test, expect, describe } from 'vitest';
+import { render, screen } from '@testing-library/react';
 
-import { IssueTreemap, formatCategory } from 'src/components/issues';
-
+import { formatCategory, IssuePulseField } from 'src/components/issues';
 
 const OVERVIEW: IssueOverview = {
   generatedAt: '2026-08-31T12:00:00Z',
@@ -38,23 +37,27 @@ const OVERVIEW: IssueOverview = {
   ],
 };
 
-describe('IssueTreemap', () => {
+describe('IssuePulseField', () => {
   test('starts observing its width when asynchronous issue data arrives', () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
     vi.stubGlobal(
       'ResizeObserver',
-      vi.fn(function ResizeObserverMock() {
-        return { observe, unobserve: vi.fn(), disconnect };
-      })
+      class ResizeObserverMock {
+        observe = observe;
+
+        unobserve = vi.fn();
+
+        disconnect = disconnect;
+      }
     );
 
     const { rerender, unmount } = render(
-      <IssueTreemap isLoading onCategorySelect={() => undefined} />
+      <IssuePulseField isLoading onCategorySelect={() => undefined} />
     );
     expect(observe).not.toHaveBeenCalled();
 
-    rerender(<IssueTreemap overview={OVERVIEW} onCategorySelect={() => undefined} />);
+    rerender(<IssuePulseField overview={OVERVIEW} onCategorySelect={() => undefined} />);
 
     expect(observe).toHaveBeenCalledOnce();
     unmount();
@@ -62,15 +65,15 @@ describe('IssueTreemap', () => {
     vi.unstubAllGlobals();
   });
 
-  test('renders category impact blocks and selects a category', async () => {
+  test('renders packed category signals and selects a category', async () => {
     const user = userEvent.setup();
     const onCategorySelect = vi.fn();
 
-    render(<IssueTreemap overview={OVERVIEW} onCategorySelect={onCategorySelect} />);
+    render(<IssuePulseField overview={OVERVIEW} onCategorySelect={onCategorySelect} />);
 
-    expect(screen.getByTestId('issue-treemap')).toBeTruthy();
-    expect(screen.getByText('실시간 이슈 맵')).toBeTruthy();
-    expect(screen.getByText('게시물 12개 · 카테고리 2개')).toBeTruthy();
+    expect(screen.getByTestId('issue-pulse-field')).toBeTruthy();
+    expect(screen.getByText('실시간 시그널 필드')).toBeTruthy();
+    expect(screen.getByText('12')).toBeTruthy();
 
     await user.click(screen.getByRole('button', { name: /유머, 게시물 8개/ }));
 
@@ -82,7 +85,7 @@ describe('IssueTreemap', () => {
     const onCategorySelect = vi.fn();
 
     render(
-      <IssueTreemap
+      <IssuePulseField
         overview={OVERVIEW}
         selectedCategory="stock"
         onCategorySelect={onCategorySelect}
