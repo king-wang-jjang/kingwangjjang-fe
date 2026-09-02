@@ -77,7 +77,7 @@ export function AdminGuard({ children }: Props) {
     return (
       <GuardMessage
         title="로그인이 필요합니다"
-        description="Shorts 제작 도구는 관리자 계정으로 로그인한 뒤 사용할 수 있습니다."
+        description="관리자 도구는 관리자 계정으로 로그인한 뒤 사용할 수 있습니다."
       >
         <SocialLoginButtons />
       </GuardMessage>

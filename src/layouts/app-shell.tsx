@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import MenuIcon from '@mui/icons-material/Menu';
+import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
@@ -67,6 +68,12 @@ const navItems = [
     label: 'Shorts Studio',
     href: '/admin/shorts',
     icon: <VideoLibraryOutlinedIcon fontSize="small" />,
+    adminOnly: true,
+  },
+  {
+    label: 'AI Resource',
+    href: '/admin/resources',
+    icon: <DnsOutlinedIcon fontSize="small" />,
     adminOnly: true,
   },
 ];
@@ -241,12 +248,20 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
           <ListItemText primary="기록" secondary="활동 기록 확인" />
         </MenuItem>
         {isAdmin(user) && (
-          <MenuItem component={Link} href="/admin/shorts" onClick={closeMenu}>
-            <ListItemIcon>
-              <VideoLibraryOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Shorts Studio" secondary="Top 10 제작 데이터" />
-          </MenuItem>
+          <>
+            <MenuItem component={Link} href="/admin/shorts" onClick={closeMenu}>
+              <ListItemIcon>
+                <VideoLibraryOutlinedIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Shorts Studio" secondary="Top 10 제작 데이터" />
+            </MenuItem>
+            <MenuItem component={Link} href="/admin/resources" onClick={closeMenu}>
+              <ListItemIcon>
+                <DnsOutlinedIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="AI Resource" secondary="Node 처리량 및 라우팅 관리" />
+            </MenuItem>
+          </>
         )}
       </Menu>
     </>
