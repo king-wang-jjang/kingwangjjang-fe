@@ -1,132 +1,137 @@
 'use client';
 
-import type { CSSProperties } from 'react';
-import type { BoardPost, IssueCategory } from 'src/api/board-api';
+import type { IssueTag, BoardPost } from 'src/api/board-api';
 
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import EastRoundedIcon from '@mui/icons-material/EastRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
-import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
+import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import { Box, Alert, Button, Skeleton, ButtonBase, Typography } from '@mui/material';
 import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
-import {
-  Box,
-  Chip,
-  Alert,
-  Stack,
-  Button,
-  Skeleton,
-  Container,
-  Typography,
-  ButtonBase,
-} from '@mui/material';
 
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
-import { formatCategory, IssuePulseField, getIssueMomentumAccent } from 'src/components/issues';
+import { TagBriefing, formatMomentum } from 'src/components/issues';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
 
 // CSS modules stay after application imports to satisfy the repository import groups.
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './home-view.module.css';
 
-const HERO_ACCENTS = ['#AB9FF2', '#4A87F2', '#2EC08B', '#FFD13F', '#FFDADC'];
-const FALLBACK_SIGNALS = [
-  '실시간 이슈',
-  '오늘의 TOP 10',
-  'AI 한눈 요약',
-  '커뮤니티 흐름',
-  '반응 속도',
-  '지금의 분위기',
-];
-const FALLBACK_SOURCES = ['실시간 커뮤니티', '24시간 이슈', 'AI 요약', '오늘의 TOP 10'];
-
-type HeroSignalStyle = CSSProperties & {
-  '--hero-signal-color': string;
-  '--hero-signal-delay': string;
-};
+const STORY_TONES = ['toneBrick', 'toneOlive', 'toneBlue', 'toneOchre'] as const;
 
 export function HomeView() {
   const router = useRouter();
   const issueOverviewQuery = useIssueOverview();
   const topBoardsQuery = useTopBoards();
   const [selectedRank, setSelectedRank] = useState(0);
-  const issues = issueOverviewQuery.data?.categories ?? [];
+  const overview = issueOverviewQuery.data;
+  const tags = overview?.tags ?? [];
   const topBoards = topBoardsQuery.data ?? [];
   const activeRank = topBoards[selectedRank] ? selectedRank : 0;
   const activePost = topBoards[activeRank];
-  const sourceLabels = getSourceLabels(issues);
+  const sourceCount = getSourceLabels(tags).length;
+  const tagAssignments = tags.reduce((total, tag) => total + tag.postCount, 0);
 
-  const handleCategorySelect = (category: string | undefined) => {
-    if (!category) {
+  const handleTagSelect = (tag: string | undefined) => {
+    if (!tag) {
       return;
     }
 
-    const query = new URLSearchParams({ category });
+    const query = new URLSearchParams({ tag });
     router.push(`/board?${query.toString()}`);
   };
 
   return (
     <Box className={styles.home}>
-      <Container maxWidth={false} disableGutters className={styles.page}>
-        <Hero
-          issues={issues}
-          totalPosts={issueOverviewQuery.data?.totalPosts}
-          totalCategories={issueOverviewQuery.data?.totalCategories}
-          isLoading={issueOverviewQuery.isPending}
-        />
+      <Box component="main" className={styles.page}>
+        <Box component="section" className={styles.hero}>
+          <Box className={styles.issueLine}>
+            <Typography component="span">COMMUNITY BRIEF</Typography>
+            <Typography component="span">최근 {overview?.windowHours ?? 24}시간</Typography>
+            <Typography component="span">{formatGeneratedAt(overview?.generatedAt)}</Typography>
+          </Box>
 
-        <Box component="section" id="live-issues" className={styles.section}>
+          <Box className={styles.heroGrid}>
+            <Box className={styles.heroCopy}>
+              <Typography component="p" className={styles.eyebrow}>
+                여러 커뮤니티에서 반복된 말
+              </Typography>
+              <Typography component="h1">
+                지금 사람들이
+                <br /> 같이 말하는 것
+              </Typography>
+              <Typography component="p" className={styles.heroDescription}>
+                새 글을 수집하면 AI가 본문을 읽고 요약과 태그를 만듭니다. 첫 화면의 수치도 그
+                태그만을 기준으로 다시 계산했습니다.
+              </Typography>
+              <Box className={styles.heroActions}>
+                <Button
+                  component="a"
+                  href="#tag-index"
+                  className={styles.primaryAction}
+                  endIcon={<ArrowForwardRoundedIcon />}
+                >
+                  태그 브리핑 보기
+                </Button>
+                <Button component={Link} href="/board" className={styles.secondaryAction}>
+                  실시간 게시판
+                </Button>
+              </Box>
+            </Box>
+
+            <LeadTag tag={tags[0]} isLoading={issueOverviewQuery.isPending} />
+          </Box>
+
+          <StatsBand
+            isLoading={issueOverviewQuery.isPending}
+            totalPosts={overview?.totalPosts}
+            totalTags={overview?.totalTags}
+            tagAssignments={tagAssignments}
+            sourceCount={sourceCount}
+          />
+        </Box>
+
+        <Box component="section" id="tag-index" className={styles.section}>
           <SectionHeading
-            eyebrow="LIVE PULSE"
-            title="지금, 이야기가 살아 움직이는 곳"
-            description="사각형 지도 대신 영향력이 크고 작은 신호들을 한 필드에 띄웠습니다. 맥박이 빠르고 색이 선명할수록 지금 더 빠르게 커지는 이야기입니다."
-            action={
-              <Button
-                component={Link}
-                href="/board"
-                className={styles.textAction}
-                endIcon={<EastRoundedIcon />}
-              >
-                전체 게시판
-              </Button>
-            }
+            index="01"
+            eyebrow="AI TAG INDEX"
+            title="24시간 태그 브리핑"
+            description="AI 분석이 끝난 글의 태그를 펼쳐 빈도와 게시물 반응을 함께 계산했습니다. 행을 누르면 해당 태그의 글만 모아 볼 수 있습니다."
+            actionHref="/board"
+            actionLabel="전체 게시판"
           />
 
-          <Box className={styles.issueFieldFrame}>
-            <IssuePulseField
-              variant="showcase"
-              overview={issueOverviewQuery.data}
-              isLoading={issueOverviewQuery.isPending}
-              isError={issueOverviewQuery.isError}
-              onCategorySelect={handleCategorySelect}
-            />
+          <TagBriefing
+            overview={overview}
+            isLoading={issueOverviewQuery.isPending}
+            isError={issueOverviewQuery.isError}
+            onTagSelect={handleTagSelect}
+          />
+
+          <Box className={styles.methodNote}>
+            <Typography component="strong">집계 기준</Typography>
+            <Typography component="p">
+              분석 상태가 완료이고 AI 태그가 있는 글만 포함합니다. 한 글에 여러 태그가 붙을 수 있어
+              ‘태그 연결’은 ‘분석 게시물’보다 클 수 있습니다. 증가율은 최근 절반 구간과 직전 절반
+              구간을 비교합니다.
+            </Typography>
           </Box>
         </Box>
 
-        <SourceTicker labels={sourceLabels} />
-
         <Box component="section" id="top-stories" className={styles.section}>
           <SectionHeading
+            index="02"
             eyebrow="TODAY'S TOP 10"
-            title="오늘 가장 오래 머문 이야기"
-            description="순위를 고르면 핵심 내용과 반응을 바로 미리 볼 수 있습니다. 궁금한 이야기만 깊게 들어가세요."
-            action={
-              <Button
-                component={Link}
-                href="/top10/"
-                className={styles.textAction}
-                endIcon={<EastRoundedIcon />}
-              >
-                TOP 10 전체보기
-              </Button>
-            }
+            title="오늘 많이 읽힌 글"
+            description="순위를 고르면 AI 요약과 태그를 먼저 확인할 수 있습니다. 원문이 필요한 글만 자세히 열어보세요."
+            actionHref="/top10/"
+            actionLabel="TOP 10 전체보기"
           />
 
           <TopStoriesShowcase
@@ -139,261 +144,146 @@ export function HomeView() {
           />
         </Box>
 
-        <Box component="section" className={styles.featuresSection}>
-          <Box className={`${styles.featureCard} ${styles.featurePurple}`}>
-            <Stack className={styles.featureTopline} direction="row">
-              <BoltRoundedIcon />
-              <Typography component="span">LIVE</Typography>
-            </Stack>
-            <Box>
-              <Typography component="h2">흐름부터 보고</Typography>
-              <Typography component="p">
-                여러 커뮤니티를 돌아다니지 않아도 지금 커지는 카테고리를 먼저 발견합니다.
-              </Typography>
-            </Box>
-            <Button component="a" href="#live-issues" className={styles.featureLink}>
-              이슈 맵 보기
-            </Button>
-          </Box>
-
-          <Box className={`${styles.featureCard} ${styles.featureYellow}`}>
-            <Stack className={styles.featureTopline} direction="row">
-              <AutoAwesomeRoundedIcon />
-              <Typography component="span">AI SUMMARY</Typography>
-            </Stack>
-            <Box>
-              <Typography component="h2">핵심만 펼치고</Typography>
-              <Typography component="p">
-                제목을 누르면 요약이 먼저 열립니다. 긴 원문은 필요한 순간에만 확인하세요.
-              </Typography>
-            </Box>
-            <Button component={Link} href="/board" className={styles.featureLink}>
-              실시간 글 보기
-            </Button>
-          </Box>
-
-          <Box className={`${styles.featureCard} ${styles.featureBlue}`}>
-            <Stack className={styles.featureTopline} direction="row">
-              <ForumRoundedIcon />
-              <Typography component="span">COMMUNITY</Typography>
-            </Stack>
-            <Box>
-              <Typography component="h2">반응까지 이어서</Typography>
-              <Typography component="p">
-                좋아요와 댓글을 같은 흐름에서 확인하고, 관심 있는 이야기의 온도를 읽습니다.
-              </Typography>
-            </Box>
-            <Button component={Link} href="/top10/" className={styles.featureLink}>
-              인기 순위 보기
-            </Button>
-          </Box>
-        </Box>
-
-        <Box component="section" className={styles.finalCta}>
-          <Box className={styles.finalGlow} aria-hidden="true" />
-          <Stack className={styles.finalContent} spacing={3}>
-            <Typography component="p">오늘의 커뮤니티가 한곳에</Typography>
-            <Typography component="h2">
-              놓치기 전에,
-              <br /> 지금 흐름에 올라타세요.
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
-              <Button
-                component={Link}
-                href="/board"
-                className={styles.finalPrimary}
-                endIcon={<ArrowForwardRoundedIcon />}
-              >
-                실시간 게시판 시작
-              </Button>
-              <Button component={Link} href="/top10/" className={styles.finalSecondary}>
-                오늘의 TOP 10
-              </Button>
-            </Stack>
-          </Stack>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-function Hero({
-  issues,
-  totalPosts,
-  totalCategories,
-  isLoading,
-}: {
-  issues: IssueCategory[];
-  totalPosts?: number;
-  totalCategories?: number;
-  isLoading: boolean;
-}) {
-  return (
-    <Box component="section" className={styles.hero}>
-      <HeroSignals issues={issues} />
-      <Stack className={styles.heroContent} spacing={{ xs: 2.25, md: 3 }}>
-        <Stack direction="row" className={styles.livePill}>
-          <Box component="span" className={styles.liveDot} />
-          <Typography component="span">24시간 커뮤니티 라이브</Typography>
-        </Stack>
-
-        <Box>
-          <Typography component="p" className={styles.heroKicker}>
-            세상의 모든 커뮤니티,
-            <br /> 한눈에 흐르도록
-          </Typography>
-          <Typography component="h1" className={styles.heroTitle}>
-            지금 뜨는 이야기를
-            <br /> 가장 먼저 만나세요
-          </Typography>
-        </Box>
-
-        <Typography component="p" className={styles.heroDescription}>
-          흩어진 게시물의 흐름을 모으고, AI 요약과 반응을 연결했습니다.
-          <br className={styles.desktopBreak} /> 스크롤할수록 오늘의 분위기가 선명해집니다.
-        </Typography>
-
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1.25}
-          className={styles.heroActions}
-        >
-          <Button
-            component="a"
-            href="#live-issues"
-            className={styles.heroPrimary}
-            endIcon={<ArrowForwardRoundedIcon />}
-          >
-            라이브 신호 보기
+        <Box component="section" className={styles.closing}>
+          <Typography component="p">원문을 다 읽기 전에, 지금의 맥락부터.</Typography>
+          <Typography component="h2">새 글은 수집 직후 요약되고 태그 통계에 이어집니다.</Typography>
+          <Button component={Link} href="/board" endIcon={<EastRoundedIcon />}>
+            최신 글 확인하기
           </Button>
-          <Button component={Link} href="/board" className={styles.heroSecondary}>
-            실시간 게시판
-          </Button>
-        </Stack>
-      </Stack>
-
-      <Box className={styles.heroStats}>
-        <HeroStat
-          label="최근 24시간 게시물"
-          value={isLoading ? undefined : formatCount(totalPosts)}
-        />
-        <HeroStat
-          label="활성 카테고리"
-          value={isLoading ? undefined : formatCount(totalCategories)}
-        />
-        <HeroStat label="흐름 업데이트" value="LIVE" live />
+        </Box>
       </Box>
     </Box>
   );
 }
 
-function HeroSignals({ issues }: { issues: IssueCategory[] }) {
-  const signals = issues.length
-    ? issues.slice(0, 6).map((issue) => ({
-        label: formatCategory(issue.category),
-        momentum: formatMomentum(issue.momentumPercent),
-        count: `${formatCount(issue.postCount)} posts`,
-        color: getIssueMomentumAccent(issue.momentumPercent),
-      }))
-    : FALLBACK_SIGNALS.map((label, index) => ({
-        label,
-        momentum: 'NOW',
-        count: 'LIVE SIGNAL',
-        color: HERO_ACCENTS[index % HERO_ACCENTS.length],
-      }));
+function LeadTag({ tag, isLoading }: { tag?: IssueTag; isLoading: boolean }) {
+  if (isLoading) {
+    return (
+      <Box className={styles.leadTag} aria-label="대표 태그를 불러오는 중">
+        <Skeleton width={120} />
+        <Skeleton width="72%" height={70} />
+        <Skeleton width="88%" />
+        <Skeleton width="64%" />
+      </Box>
+    );
+  }
+
+  if (!tag) {
+    return (
+      <Box className={styles.leadTag}>
+        <Typography component="span" className={styles.leadLabel}>
+          TODAY&apos;S NOTE
+        </Typography>
+        <Typography component="h2">분석 결과를 기다리고 있습니다.</Typography>
+        <Typography component="p">
+          AI 태그가 생성되면 가장 영향력이 큰 주제를 이 자리에 보여드립니다.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box className={styles.heroSignals} aria-hidden="true">
-      {signals.map((signal, index) => (
-        <Box
-          key={signal.label}
-          className={styles.heroSignal}
-          style={
-            {
-              '--hero-signal-color': signal.color,
-              '--hero-signal-delay': `${index * -1.25}s`,
-            } as HeroSignalStyle
-          }
-        >
-          <Typography component="span">{signal.label}</Typography>
-          <Typography component="strong">{signal.momentum}</Typography>
-          <Typography component="em">{signal.count}</Typography>
+    <Box className={styles.leadTag}>
+      <Box className={styles.leadTopline}>
+        <Typography component="span" className={styles.leadLabel}>
+          가장 크게 포착된 태그
+        </Typography>
+        <Typography component="span">01</Typography>
+      </Box>
+      <Typography component="h2">#{tag.tag}</Typography>
+      <Typography component="p">
+        {formatCount(tag.postCount)}개 글에서 확인됐고, 태그 전체 영향도의{' '}
+        {Math.round(tag.share * 100)}%를 차지합니다.
+      </Typography>
+      <Box className={styles.leadMeta}>
+        <Box>
+          <Typography component="span">증가율</Typography>
+          <Typography component="strong">{formatMomentum(tag.momentumPercent)}</Typography>
+        </Box>
+        <Box>
+          <Typography component="span">주요 출처</Typography>
+          <Typography component="strong">{tag.topSites[0]?.siteLabel ?? '집계 중'}</Typography>
+        </Box>
+      </Box>
+      {!!tag.relatedTags.length && (
+        <Typography component="p" className={styles.relatedTags}>
+          함께 등장한 말{' '}
+          {tag.relatedTags
+            .slice(0, 3)
+            .map((item) => `#${item}`)
+            .join(' · ')}
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+function StatsBand({
+  isLoading,
+  totalPosts,
+  totalTags,
+  tagAssignments,
+  sourceCount,
+}: {
+  isLoading: boolean;
+  totalPosts?: number;
+  totalTags?: number;
+  tagAssignments: number;
+  sourceCount: number;
+}) {
+  const stats = [
+    { label: 'AI 분석 게시물', value: totalPosts },
+    { label: '고유 AI 태그', value: totalTags },
+    { label: '태그 연결', value: tagAssignments },
+    { label: '확인된 출처', value: sourceCount },
+  ];
+
+  return (
+    <Box className={styles.statsBand}>
+      {stats.map((stat) => (
+        <Box key={stat.label} className={styles.stat}>
+          <Typography component="span">{stat.label}</Typography>
+          {isLoading ? (
+            <Skeleton width={80} height={46} />
+          ) : (
+            <Typography component="strong">{formatCount(stat.value)}</Typography>
+          )}
         </Box>
       ))}
     </Box>
   );
 }
 
-function HeroStat({
-  label,
-  value,
-  live = false,
-}: {
-  label: string;
-  value?: string;
-  live?: boolean;
-}) {
-  return (
-    <Box className={styles.heroStat}>
-      {value ? (
-        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
-          {live && <Box component="span" className={styles.statDot} />}
-          <Typography component="strong">{value}</Typography>
-        </Stack>
-      ) : (
-        <Skeleton width={76} height={34} sx={{ bgcolor: 'rgba(255,255,255,.14)' }} />
-      )}
-      <Typography component="span">{label}</Typography>
-    </Box>
-  );
-}
-
 function SectionHeading({
+  index,
   eyebrow,
   title,
   description,
-  action,
+  actionHref,
+  actionLabel,
 }: {
+  index: string;
   eyebrow: string;
   title: string;
   description: string;
-  action: React.ReactNode;
+  actionHref: string;
+  actionLabel: string;
 }) {
   return (
-    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} className={styles.sectionHeading}>
-      <Box>
-        <Typography component="p" className={styles.sectionEyebrow}>
+    <Box className={styles.sectionHeading}>
+      <Typography component="span" className={styles.sectionIndex}>
+        {index}
+      </Typography>
+      <Box className={styles.sectionCopy}>
+        <Typography component="p" className={styles.eyebrow}>
           {eyebrow}
         </Typography>
         <Typography component="h2">{title}</Typography>
-        <Typography component="p" className={styles.sectionDescription}>
-          {description}
-        </Typography>
+        <Typography component="p">{description}</Typography>
       </Box>
-      {action}
-    </Stack>
-  );
-}
-
-function SourceTicker({ labels }: { labels: string[] }) {
-  const tickerLabels = labels.length ? labels : FALLBACK_SOURCES;
-
-  return (
-    <Box className={styles.ticker} aria-label="현재 수집 중인 주요 출처">
-      <Box className={styles.tickerTrack}>
-        {[...tickerLabels, ...tickerLabels].map((label, index) => (
-          <Stack
-            // The repeated second set keeps the ticker visually continuous.
-            key={`${label}-${index}`}
-            direction="row"
-            className={styles.tickerItem}
-            aria-hidden={index >= tickerLabels.length ? 'true' : undefined}
-          >
-            <Box component="span" />
-            <Typography component="strong">{label}</Typography>
-          </Stack>
-        ))}
-      </Box>
+      <Button component={Link} href={actionHref} endIcon={<EastRoundedIcon />}>
+        {actionLabel}
+      </Button>
     </Box>
   );
 }
@@ -415,32 +305,31 @@ function TopStoriesShowcase({
 }) {
   if (isLoading && !posts.length) {
     return (
-      <Box className={styles.topStoriesLoading} aria-label="오늘의 Top 10을 불러오는 중">
-        <Stack spacing={1}>
+      <Box className={styles.storiesLoading} aria-label="오늘의 Top 10을 불러오는 중">
+        <Box>
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} variant="rounded" height={72} />
+            <Skeleton key={index} height={76} />
           ))}
-        </Stack>
-        <Skeleton variant="rounded" height={460} />
+        </Box>
+        <Skeleton variant="rectangular" height={520} />
       </Box>
     );
   }
 
   if (isError && !posts.length) {
     return (
-      <Alert severity="warning" className={styles.topStoriesAlert}>
-        오늘의 인기 순위를 불러오지 못했습니다. 실시간 게시판은 계속 둘러볼 수 있습니다.
+      <Alert severity="warning" className={styles.storiesAlert}>
+        오늘의 인기 순위를 불러오지 못했습니다. 실시간 게시판은 계속 이용할 수 있습니다.
       </Alert>
     );
   }
 
   if (!activePost) {
     return (
-      <Box className={styles.topStoriesEmpty}>
-        <EmojiEventsRoundedIcon />
-        <Typography component="h3">오늘의 순위를 집계하고 있습니다.</Typography>
-        <Typography component="p">새로운 반응이 모이면 이곳에서 가장 먼저 보여드릴게요.</Typography>
-        <Button component={Link} href="/board" className={styles.softButton}>
+      <Box className={styles.storiesEmpty}>
+        <Typography component="strong">오늘의 순위를 집계하고 있습니다.</Typography>
+        <Typography component="p">반응이 모이면 인기 글을 이곳에 차례로 보여드립니다.</Typography>
+        <Button component={Link} href="/board">
           실시간 게시판 보기
         </Button>
       </Box>
@@ -448,8 +337,8 @@ function TopStoriesShowcase({
   }
 
   return (
-    <Box className={styles.topStoriesGrid}>
-      <Box className={styles.rankRail} role="tablist" aria-label="오늘의 인기 순위 선택">
+    <Box className={styles.storiesGrid}>
+      <Box className={styles.rankList} role="tablist" aria-label="오늘의 인기 순위 선택">
         {posts.map((post, index) => {
           const selected = index === activeRank;
 
@@ -483,42 +372,52 @@ function TopStoriesShowcase({
         className={styles.storyPanel}
       >
         <StoryMedia post={activePost} rank={activeRank} />
-        <Stack className={styles.storyContent} spacing={2}>
-          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
-            <Chip label={`오늘 ${activeRank + 1}위`} className={styles.rankChip} />
-            <Chip label={activePost.siteLabel} className={styles.sourceChip} />
-            {activePost.tags
-              ?.slice(0, 2)
-              .map((tag) => <Chip key={tag} label={`#${tag}`} className={styles.sourceChip} />)}
-          </Stack>
+        <Box className={styles.storyContent}>
+          <Box className={styles.storyByline}>
+            <Typography component="span">오늘 {activeRank + 1}위</Typography>
+            <Typography component="span">{activePost.siteLabel}</Typography>
+          </Box>
           <Typography component="h3">{activePost.title}</Typography>
+          {!!activePost.tags?.length && (
+            <Box className={styles.storyTags}>
+              {activePost.tags.slice(0, 4).map((tag) => (
+                <Typography component="span" key={tag}>
+                  #{tag}
+                </Typography>
+              ))}
+            </Box>
+          )}
           <Typography component="p" className={styles.storySummary}>
             {getPostSummary(activePost) ||
-              'AI가 핵심 내용을 정리하고 있습니다. 상세 화면에서 원문과 최신 반응을 먼저 확인할 수 있어요.'}
+              'AI가 핵심 내용을 정리하고 있습니다. 상세 화면에서 원문과 최신 분석 상태를 확인할 수 있습니다.'}
           </Typography>
-          <Stack direction="row" spacing={2.5} className={styles.storyMetrics}>
-            <Stack direction="row" spacing={0.75}>
+          <Box className={styles.storyMetrics}>
+            <Box>
               <LocalFireDepartmentRoundedIcon />
               <Typography component="span">
                 좋아요 {formatCount(activePost.likeCount ?? activePost.nativeLikeCount)}
               </Typography>
-            </Stack>
-            <Stack direction="row" spacing={0.75}>
+            </Box>
+            <Box>
               <ForumRoundedIcon />
               <Typography component="span">
                 댓글 {formatCount(activePost.commentCount ?? activePost.nativeCommentCount)}
               </Typography>
-            </Stack>
-          </Stack>
+            </Box>
+            <Box>
+              <ScheduleRoundedIcon />
+              <Typography component="span">{formatPostTime(activePost.createTime)}</Typography>
+            </Box>
+          </Box>
           <Button
             component={Link}
-            href={`/top10/?rank=${activeRank + 1}`}
+            href={`/top10?rank=${activeRank + 1}`}
             className={styles.storyAction}
             endIcon={<ArrowForwardRoundedIcon />}
           >
             {activeRank + 1}위 이야기 자세히 보기
           </Button>
-        </Stack>
+        </Box>
       </Box>
     </Box>
   );
@@ -528,12 +427,10 @@ function StoryMedia({ post, rank }: { post: BoardPost; rank: number }) {
   const src = resolveThumbnailSrc(post.thumbnail);
   const [failedSrc, setFailedSrc] = useState('');
   const canShowImage = src && src !== failedSrc;
+  const tone = STORY_TONES[rank % STORY_TONES.length];
 
   return (
-    <Box
-      className={styles.storyMedia}
-      style={{ backgroundColor: HERO_ACCENTS[rank % HERO_ACCENTS.length] }}
-    >
+    <Box className={`${styles.storyMedia} ${styles[tone]}`}>
       {canShowImage ? (
         <Box
           component="img"
@@ -545,25 +442,20 @@ function StoryMedia({ post, rank }: { post: BoardPost; rank: number }) {
       ) : (
         <Box className={styles.storyFallback} aria-hidden="true">
           <Typography component="span">{String(rank + 1).padStart(2, '0')}</Typography>
-          <LocalFireDepartmentRoundedIcon />
+          <Typography component="strong">TODAY&apos;S READ</Typography>
         </Box>
       )}
-      <Box className={styles.storyMediaShade} />
-      <Typography component="span" className={styles.storyMediaLabel}>
-        TRENDING NOW
+      <Typography component="span" className={styles.mediaSource}>
+        {post.siteLabel}
       </Typography>
     </Box>
   );
 }
 
-function getSourceLabels(issues: IssueCategory[]) {
+function getSourceLabels(tags: IssueTag[]) {
   const labels = new Set<string>();
-
-  issues.forEach((issue) => {
-    issue.topSites.forEach((site) => labels.add(site.siteLabel));
-  });
-
-  return Array.from(labels).slice(0, 8);
+  tags.forEach((tag) => tag.topSites.forEach((site) => labels.add(site.siteLabel)));
+  return Array.from(labels);
 }
 
 function formatCount(value?: number | null) {
@@ -571,10 +463,40 @@ function formatCount(value?: number | null) {
     return '0';
   }
 
-  return new Intl.NumberFormat('ko-KR', { notation: 'compact' }).format(value);
+  return new Intl.NumberFormat('ko-KR').format(value);
 }
 
-function formatMomentum(value: number) {
-  const rounded = Math.round(value);
-  return `${rounded > 0 ? '+' : ''}${rounded}%`;
+function formatGeneratedAt(value?: string) {
+  if (!value) {
+    return 'AI 태그 자동 집계';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return 'AI 태그 자동 집계';
+  }
+
+  return `${new Intl.DateTimeFormat('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  }).format(date)} 기준`;
+}
+
+function formatPostTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '시간 정보 없음';
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Seoul',
+  }).format(date);
 }

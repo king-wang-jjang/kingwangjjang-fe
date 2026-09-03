@@ -509,7 +509,7 @@ assert.match(
 assert.match(
   boardApi,
   /getIssueOverview[\s\S]*\/boardservice\/api\/boards\/issues/,
-  'board API should expose the recent category issue overview'
+  'board API should expose the recent AI tag overview'
 );
 assert.match(
   issueOverviewHook,
@@ -518,18 +518,18 @@ assert.match(
 );
 assert.match(
   issuePulseField,
-  /\{ pack, hierarchy \} from 'd3-hierarchy'/,
-  'issue field should use the D3 packed-circle layout'
+  /overview\?\.tags\.slice[\s\S]*tag\.impactScore/,
+  'tag briefing should render the AI tag impact ranking'
 );
 assert.match(
   issuePulseField,
-  /onCategorySelect\(selected \? undefined : issue\.category\)/,
-  'issue signals should toggle category selection'
+  /onTagSelect\(selected \? undefined : tag\.tag\)/,
+  'tag rows should toggle tag selection'
 );
 assert.match(
   issuePulseStyles,
-  /@keyframes signal-drift[\s\S]*@media \(prefers-reduced-motion: reduce\)/,
-  'issue signals should move with a reduced-motion fallback'
+  /\.impactTrack[\s\S]*--tag-impact/,
+  'tag briefing should visualize relative impact without animated bubbles'
 );
 assert.match(
   rootPage,
@@ -543,8 +543,8 @@ assert.doesNotMatch(
 );
 assert.match(
   homeView,
-  /useIssueOverview\(\)[\s\S]*<IssuePulseField/,
-  'the live issue field should load on the root home view'
+  /useIssueOverview\(\)[\s\S]*<TagBriefing/,
+  'the AI tag briefing should load on the root home view'
 );
 assert.match(
   homeView,
@@ -553,33 +553,33 @@ assert.match(
 );
 assert.match(
   homeView,
-  /href=\{`\/top10\/\?rank=\$\{activeRank \+ 1\}`\}/,
+  /href=\{`\/top10\?rank=\$\{activeRank \+ 1\}`\}/,
   'the selected home story should retain a rank-aware Top 10 deep link'
 );
 assert.match(
   homeView,
-  /<IssuePulseField[\s\S]*variant="showcase"[\s\S]*onCategorySelect=\{handleCategorySelect\}/,
-  'the home issue field should use the immersive showcase treatment'
+  /<TagBriefing[\s\S]*onTagSelect=\{handleTagSelect\}/,
+  'the home tag index should open boards through AI tag selection'
 );
 assert.match(
   homeStyles,
-  /\.hero[\s\S]*\.tickerTrack[\s\S]*@media \(prefers-reduced-motion: reduce\)/,
-  'the active home experience should include motion with a reduced-motion fallback'
+  /\.hero[\s\S]*\.statsBand[\s\S]*\.methodNote[\s\S]*\.storiesGrid/,
+  'the home experience should use an editorial data-first layout'
 );
 assert.match(
   homeView,
   /router\.push\(`\/board\?\$\{query\.toString\(\)\}`\)/,
-  'selecting a home category should open the filtered board'
+  'selecting a home AI tag should open the filtered board'
 );
 assert.doesNotMatch(
   boardView,
-  /<IssuePulseField/,
-  'the issue field should not render inside the board page'
+  /<TagBriefing/,
+  'the tag briefing should not render inside the board page'
 );
 assert.match(
   boardPage,
-  /<BoardView initialCategory=\{parseCategory\(category\)\}/,
-  'the board page should apply a category selected from the home issue map'
+  /initialCategory=\{parseFilter\(category\)\}[\s\S]*initialTag=\{parseFilter\(tag\)\}/,
+  'the board page should apply category and AI tag filters from the URL'
 );
 assert.doesNotMatch(
   boardView,

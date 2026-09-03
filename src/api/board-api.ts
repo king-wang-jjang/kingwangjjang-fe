@@ -65,9 +65,9 @@ type IssueOverviewRest = {
   generated_at: string;
   window_hours: number;
   total_posts: number;
-  total_categories: number;
-  categories: {
-    category: string;
+  total_tags: number;
+  tags: {
+    tag: string;
     post_count: number;
     current_posts: number;
     previous_posts: number;
@@ -79,12 +79,12 @@ type IssueOverviewRest = {
       site_label: string;
       post_count: number;
     }[];
-    top_tags: string[];
+    related_tags: string[];
   }[];
 };
 
-export type IssueCategory = {
-  category: string;
+export type IssueTag = {
+  tag: string;
   postCount: number;
   currentPosts: number;
   previousPosts: number;
@@ -96,15 +96,15 @@ export type IssueCategory = {
     siteLabel: string;
     postCount: number;
   }[];
-  topTags: string[];
+  relatedTags: string[];
 };
 
 export type IssueOverview = {
   generatedAt: string;
   windowHours: number;
   totalPosts: number;
-  totalCategories: number;
-  categories: IssueCategory[];
+  totalTags: number;
+  tags: IssueTag[];
 };
 
 export type BoardPost = {
@@ -355,21 +355,21 @@ export async function getIssueOverview({
     generatedAt: overview.generated_at,
     windowHours: overview.window_hours,
     totalPosts: overview.total_posts,
-    totalCategories: overview.total_categories,
-    categories: overview.categories.map((category) => ({
-      category: category.category,
-      postCount: category.post_count,
-      currentPosts: category.current_posts,
-      previousPosts: category.previous_posts,
-      impactScore: category.impact_score,
-      share: category.share,
-      momentumPercent: category.momentum_percent,
-      topSites: category.top_sites.map((site) => ({
+    totalTags: overview.total_tags,
+    tags: overview.tags.map((tag) => ({
+      tag: tag.tag,
+      postCount: tag.post_count,
+      currentPosts: tag.current_posts,
+      previousPosts: tag.previous_posts,
+      impactScore: tag.impact_score,
+      share: tag.share,
+      momentumPercent: tag.momentum_percent,
+      topSites: tag.top_sites.map((site) => ({
         site: site.site,
         siteLabel: site.site_label,
         postCount: site.post_count,
       })),
-      topTags: category.top_tags,
+      relatedTags: tag.related_tags,
     })),
   };
 }

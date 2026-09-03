@@ -16,10 +16,10 @@ vi.mock('src/hooks/use-issue-overview', () => ({
       generatedAt: '2026-08-31T12:00:00Z',
       windowHours: 24,
       totalPosts: 8,
-      totalCategories: 1,
-      categories: [
+      totalTags: 1,
+      tags: [
         {
-          category: 'humor',
+          tag: '유머',
           postCount: 8,
           currentPosts: 6,
           previousPosts: 2,
@@ -27,7 +27,7 @@ vi.mock('src/hooks/use-issue-overview', () => ({
           share: 1,
           momentumPercent: 133.3,
           topSites: [{ site: 'dcinside', siteLabel: '디시인사이드', postCount: 8 }],
-          topTags: ['이슈', '유머'],
+          relatedTags: ['이슈', '일상'],
         },
       ],
     },
@@ -75,43 +75,19 @@ vi.mock('src/hooks/use-top-boards', () => ({
 
 describe('HomeView', () => {
   afterEach(() => {
-    vi.unstubAllGlobals();
+    push.mockReset();
   });
 
-  test('opens the board with the selected issue category', async () => {
-    vi.stubGlobal(
-      'ResizeObserver',
-      class ResizeObserverMock {
-        observe() {}
-
-        unobserve() {}
-
-        disconnect() {}
-      }
-    );
+  test('opens the board with the selected AI tag', async () => {
     const user = userEvent.setup();
 
-    render(<HomeView />);
+    const { getByRole } = render(<HomeView />);
+    await user.click(getByRole('button', { name: /#유머/ }));
 
-    const category = document.querySelector<HTMLElement>('[data-category="humor"]');
-    expect(category).toBeTruthy();
-
-    await user.click(category!);
-
-    expect(push).toHaveBeenCalledWith('/board?category=humor');
+    expect(push).toHaveBeenCalledWith('/board?tag=%EC%9C%A0%EB%A8%B8');
   });
 
   test('lets visitors preview another Top 10 story before opening it', async () => {
-    vi.stubGlobal(
-      'ResizeObserver',
-      class ResizeObserverMock {
-        observe() {}
-
-        unobserve() {}
-
-        disconnect() {}
-      }
-    );
     const user = userEvent.setup();
 
     const { getByRole } = render(<HomeView />);

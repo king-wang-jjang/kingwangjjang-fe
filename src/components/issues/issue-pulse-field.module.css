@@ -1,418 +1,238 @@
-.card {
-  --field-muted: #6e6e6e;
+.table {
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid var(--mui-palette-divider);
+  border-bottom: 1px solid var(--mui-palette-divider);
 }
 
-.showcase {
-  --field-muted: rgba(255, 253, 248, 0.64);
-}
-
-.liveBadge {
-  display: inline-flex;
-  min-height: 28px;
+.tableHead,
+.row,
+.skeletonRow {
+  display: grid;
+  grid-template-columns: minmax(240px, 2fr) minmax(88px, 0.65fr) minmax(130px, 0.9fr) minmax(
+      92px,
+      0.7fr
+    ) minmax(180px, 1.25fr);
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
-  color: #c7ff6b;
-  background: rgba(199, 255, 107, 0.1);
-  border: 1px solid rgba(199, 255, 107, 0.22);
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 750;
-  letter-spacing: 0.12em;
+  column-gap: 24px;
 }
 
-.liveBadge > span {
-  width: 7px;
-  height: 7px;
-  background: #c7ff6b;
-  border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(199, 255, 107, 0.58);
-  animation: live-beacon 2s ease-out infinite;
-}
-
-.summary {
-  flex: 0 0 auto;
-}
-
-.summary > div {
-  min-width: 72px;
-}
-
-.summary :global(strong.MuiTypography-root),
-.summary :global(span.MuiTypography-root) {
-  display: block;
-}
-
-.summary :global(strong.MuiTypography-root) {
-  font-size: 1.4rem;
-  font-weight: 550;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
-}
-
-.summary :global(span.MuiTypography-root) {
-  margin-top: 2px;
-  color: var(--field-muted);
-  font-size: 0.7rem;
-}
-
-.legend {
-  align-items: center;
-  flex-wrap: wrap;
-  color: var(--field-muted);
-}
-
-.legend :global(.MuiTypography-root) {
+.tableHead {
+  min-height: 48px;
+  padding: 0 20px;
+  color: var(--mui-palette-text-secondary);
+  background: color-mix(in srgb, var(--mui-palette-background-paper) 72%, transparent);
   font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
-.field,
-.skeleton {
-  position: relative;
+.rows {
+  display: grid;
+}
+
+.row {
   width: 100%;
-  overflow: hidden;
-  background: radial-gradient(
-      460px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
-      rgba(171, 159, 242, 0.2),
-      transparent 68%
-    ),
-    radial-gradient(circle at 16% 18%, rgba(74, 135, 242, 0.14), transparent 26%),
-    radial-gradient(circle at 82% 78%, rgba(255, 121, 198, 0.12), transparent 28%), #0d0818;
-  border: 1px solid rgba(255, 253, 248, 0.1);
-  border-radius: 24px;
-  transition: background-position 180ms ease;
-  touch-action: pan-y;
+  min-height: 88px;
+  padding: 14px 20px;
+  color: var(--mui-palette-text-primary);
+  border-top: 1px solid var(--mui-palette-divider);
+  text-align: left;
+  transition: background-color 160ms ease;
 }
 
-.field::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.035),
-    transparent 38% 62%,
-    rgba(255, 255, 255, 0.02)
+.row:first-child {
+  border-top: 0;
+}
+
+.row:hover,
+.row:focus-visible,
+.selected {
+  background: color-mix(
+    in srgb,
+    var(--home-accent, var(--mui-palette-secondary-main)) 8%,
+    transparent
   );
-  content: '';
-  pointer-events: none;
 }
 
-.fieldGrid {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(255, 253, 248, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 253, 248, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(circle at center, black, transparent 84%);
-  pointer-events: none;
+.row:focus-visible {
+  outline: 2px solid var(--home-accent, var(--mui-palette-secondary-main));
+  outline-offset: -2px;
 }
 
-.connections {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.connections line {
-  stroke: rgba(199, 255, 107, 0.22);
-  stroke-dasharray: 3 14;
-  stroke-linecap: round;
-  stroke-width: 1.2;
-  animation: signal-trace 7s linear infinite;
-}
-
-.signalMotion {
-  position: absolute;
-  z-index: 1;
-  animation: signal-drift var(--signal-duration) cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
-  animation-delay: var(--signal-delay);
-  will-change: transform;
-}
-
-.signalMotion:focus-within,
-.signalMotion:hover {
-  z-index: 5;
-}
-
-.signal {
-  position: relative !important;
-  width: 100%;
-  height: 100%;
-  display: flex !important;
-  flex-direction: column;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: visible !important;
-  padding: 10px !important;
-  color: #fffdf8 !important;
-  background: radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.32), transparent 19%),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--signal-color) 92%, white),
-      color-mix(in srgb, var(--signal-color) 48%, #0d0818)
-    ) !important;
-  border: 1px solid color-mix(in srgb, var(--signal-color) 68%, white) !important;
-  border-radius: 50% !important;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-    inset -18px -22px 36px rgba(13, 8, 24, 0.26),
-    0 18px 46px color-mix(in srgb, var(--signal-color) 24%, transparent) !important;
-  text-align: center !important;
-  text-shadow: 0 1px 8px rgba(13, 8, 24, 0.38);
-  transition:
-    filter 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 260ms ease !important;
-}
-
-.signal:hover,
-.signal:focus-visible {
-  filter: saturate(1.18) brightness(1.08);
-  outline: 3px solid #fffdf8;
-  outline-offset: 5px;
-  transform: scale(1.035);
-}
-
-.signalSelected {
-  outline: 3px solid #fffdf8;
-  outline-offset: 5px;
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.32),
-    0 0 0 9px color-mix(in srgb, var(--signal-color) 22%, transparent),
-    0 22px 54px color-mix(in srgb, var(--signal-color) 36%, transparent) !important;
-}
-
-.signalRing {
-  position: absolute;
-  z-index: -1;
-  inset: -10%;
-  border: 1px solid color-mix(in srgb, var(--signal-color) 64%, transparent);
-  border-radius: 50%;
-  opacity: 0;
-  animation: signal-pulse var(--signal-pulse) ease-out infinite;
-  animation-delay: var(--signal-delay);
-  pointer-events: none;
-}
-
-.signalOrbit {
-  position: absolute;
-  z-index: -1;
-  inset: -7%;
-  border: 1px solid color-mix(in srgb, var(--signal-color) 28%, transparent);
-  border-radius: 50%;
-  animation: signal-orbit calc(var(--signal-duration) * 1.6) linear infinite;
-  pointer-events: none;
-}
-
-.signalOrbit > span {
-  position: absolute;
-  top: 7%;
-  left: 8%;
-  width: 6px;
-  height: 6px;
-  background: var(--signal-color);
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--signal-color);
-}
-
-.signalLabel,
-.signalCount,
-.signalMomentum {
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.signalLabel {
-  display: -webkit-box;
-  max-width: 92%;
-  overflow: hidden;
-  color: inherit;
-  font-size: clamp(0.62rem, 1vw, 0.98rem) !important;
-  font-weight: 750 !important;
-  line-height: 1.16 !important;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.signalCount {
-  margin-top: 4px;
-  color: rgba(255, 253, 248, 0.74);
-  font-size: clamp(0.54rem, 0.72vw, 0.68rem) !important;
-}
-
-.signalMomentum {
+.tagCell {
+  display: flex;
+  min-width: 0;
   align-items: center;
-  justify-content: center;
-  margin-top: 6px;
+  gap: 18px;
 }
 
-.signalMomentum :global(.MuiSvgIcon-root) {
-  font-size: clamp(12px, 1.3vw, 17px);
+.rank {
+  width: 28px;
+  flex: 0 0 28px;
+  color: var(--mui-palette-text-secondary);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
 }
 
-.signalMomentum :global(.MuiTypography-root) {
-  font-size: clamp(0.58rem, 0.82vw, 0.76rem);
+.tagCopy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.tagCopy strong {
+  overflow: hidden;
+  font-size: 1.08rem;
   font-weight: 750;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagCopy span {
+  overflow: hidden;
+  color: var(--mui-palette-text-secondary);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.countCell,
+.sourceCell,
+.momentumCell,
+.impactCell {
+  font-size: 0.84rem;
   font-variant-numeric: tabular-nums;
 }
 
-.signal[data-size='small'] {
-  padding: 5px !important;
+.countCell strong {
+  margin-right: 3px;
+  font-size: 1rem;
 }
 
-.signal[data-size='small'] .signalLabel {
-  font-size: 0.54rem !important;
-  -webkit-line-clamp: 1;
+.sourceCell {
+  overflow: hidden;
+  color: var(--mui-palette-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.signal[data-size='small'] .signalMomentum {
-  margin-top: 2px;
+.momentumCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.signal[data-size='small'] .signalMomentum :global(.MuiSvgIcon-root) {
-  display: none;
+.momentumCell svg {
+  width: 17px;
+  height: 17px;
+  color: var(--home-accent, var(--mui-palette-secondary-main));
 }
 
-.signal[data-size='small'] .signalMomentum :global(.MuiTypography-root) {
-  font-size: 0.5rem;
+.impactCell {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 38px;
+  align-items: center;
+  gap: 12px;
+  color: var(--mui-palette-text-secondary);
 }
 
-.signal[data-size='large'] .signalLabel {
-  font-size: clamp(0.96rem, 1.65vw, 1.36rem) !important;
-  letter-spacing: -0.035em;
+.impactTrack {
+  height: 7px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--mui-palette-text-primary) 10%, transparent);
 }
 
-.signal[data-size='large'] .signalMomentum :global(.MuiTypography-root) {
-  font-size: clamp(0.76rem, 1.05vw, 0.94rem);
+.impactTrack span {
+  display: block;
+  width: var(--tag-impact);
+  height: 100%;
+  background: var(--home-accent, var(--mui-palette-secondary-main));
 }
 
-.fieldHint {
-  position: absolute;
-  right: 18px;
-  bottom: 14px;
-  color: rgba(255, 253, 248, 0.34);
-  font-size: 0.58rem !important;
-  font-weight: 650 !important;
-  letter-spacing: 0.12em !important;
-  pointer-events: none;
-}
-
-.skeletonSignal {
-  position: absolute !important;
+.skeletonRow {
+  min-height: 88px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--mui-palette-divider);
 }
 
 .empty,
 .alert {
-  min-height: 320px;
-  color: var(--field-muted) !important;
-  background: rgba(171, 159, 242, 0.08) !important;
-  border: 0 !important;
-  border-radius: 24px !important;
+  border-radius: 0;
 }
 
 .empty {
   display: grid;
+  min-height: 240px;
   place-content: center;
-  justify-items: center;
+  gap: 8px;
+  padding: 32px;
+  border-top: 1px solid var(--mui-palette-divider);
+  border-bottom: 1px solid var(--mui-palette-divider);
   text-align: center;
 }
 
-.empty :global(.MuiSvgIcon-root) {
-  margin-bottom: 12px;
-  color: #ab9ff2;
-  font-size: 42px;
+.empty p {
+  max-width: 440px;
+  margin: 0;
+  color: var(--mui-palette-text-secondary);
 }
 
-@keyframes live-beacon {
-  0% {
-    box-shadow: 0 0 0 0 rgba(199, 255, 107, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(199, 255, 107, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(199, 255, 107, 0);
-  }
-}
-
-@keyframes signal-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(var(--drift-x), var(--drift-y), 0);
-  }
-}
-
-@keyframes signal-pulse {
-  0% {
-    opacity: 0.72;
-    transform: scale(0.9);
-  }
-  72%,
-  100% {
-    opacity: 0;
-    transform: scale(1.24);
-  }
-}
-
-@keyframes signal-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes signal-trace {
-  to {
-    stroke-dashoffset: -68;
-  }
-}
-
-@media (max-width: 599px) {
-  .summary {
-    width: 100%;
-    justify-content: space-between;
+@media (max-width: 920px) {
+  .tableHead,
+  .row,
+  .skeletonRow {
+    grid-template-columns: minmax(220px, 1.8fr) 80px 90px minmax(150px, 1fr);
   }
 
-  .field,
-  .skeleton {
-    border-radius: 20px;
-  }
-
-  .fieldGrid {
-    background-size: 42px 42px;
-  }
-
-  .legend {
-    column-gap: 12px !important;
-    row-gap: 7px !important;
-  }
-
-  .signal:hover,
-  .signal:focus-visible {
-    transform: scale(1.02);
-  }
-
-  .fieldHint {
+  .tableHead > :nth-child(3),
+  .sourceCell,
+  .skeletonRow > :nth-child(3) {
     display: none;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .liveBadge > span,
-  .connections line,
-  .signalMotion,
-  .signalRing,
-  .signalOrbit {
-    animation: none;
+@media (max-width: 640px) {
+  .tableHead {
+    display: none;
   }
 
-  .signal,
-  .field {
-    transition: none !important;
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 96px;
+    padding: 16px 4px;
+    column-gap: 12px;
+  }
+
+  .tagCell {
+    gap: 10px;
+  }
+
+  .rank {
+    width: 24px;
+    flex-basis: 24px;
+  }
+
+  .countCell {
+    text-align: right;
+  }
+
+  .momentumCell {
+    grid-column: 1;
+    padding-left: 34px;
+    color: var(--mui-palette-text-secondary);
+  }
+
+  .impactCell {
+    grid-column: 2;
+    width: 112px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
   }
 }

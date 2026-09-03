@@ -57,6 +57,7 @@ import { isAdmin } from 'src/auth/permissions';
 type Props = {
   title?: string;
   initialCategory?: string;
+  initialTag?: string;
 };
 
 type SelectedPost = {
@@ -68,7 +69,7 @@ const workbenchSideColumnWidth = 320;
 const analysisPollIntervalMs = 1500;
 const analysisPollLimit = 80;
 
-export function BoardView({ title = '실시간 게시판', initialCategory }: Props) {
+export function BoardView({ title = '실시간 게시판', initialCategory, initialTag }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const isTabletContentViewport = useMediaQuery(
@@ -79,6 +80,7 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(initialCategory);
+  const [selectedTag, setSelectedTag] = useState<string | undefined>(initialTag);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);
   const [mobileCommentOpen, setMobileCommentOpen] = useState(false);
   const [analysisJobsByPostId, setAnalysisJobsByPostId] = useState<
@@ -91,8 +93,9 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
     () => ({
       sites: selectedSites,
       category: selectedCategory,
+      tag: selectedTag,
     }),
-    [selectedCategory, selectedSites]
+    [selectedCategory, selectedSites, selectedTag]
   );
 
   const {
@@ -327,7 +330,7 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
                 <Badge
                   color="secondary"
                   variant="dot"
-                  invisible={!selectedSites.length && !selectedCategory}
+                  invisible={!selectedSites.length && !selectedCategory && !selectedTag}
                 >
                   <FilterListIcon fontSize="small" />
                 </Badge>
@@ -353,13 +356,23 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
               />
             )}
 
-            {(!!selectedSites.length || !!selectedCategory) && (
+            {selectedTag && (
+              <Chip
+                size="small"
+                color="secondary"
+                label={`AI 태그 · #${selectedTag}`}
+                onDelete={() => setSelectedTag(undefined)}
+              />
+            )}
+
+            {(!!selectedSites.length || !!selectedCategory || !!selectedTag) && (
               <Button
                 color="inherit"
                 size="small"
                 onClick={() => {
                   setSelectedSites([]);
                   setSelectedCategory(undefined);
+                  setSelectedTag(undefined);
                 }}
               >
                 필터 초기화
