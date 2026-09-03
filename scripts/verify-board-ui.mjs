@@ -94,6 +94,16 @@ assert.doesNotMatch(
   /setMobileCommentOpen\(true\)/,
   'selecting a post should not automatically open comments on mobile'
 );
+assert.doesNotMatch(
+  boardView.slice(handlePostSelectStart, boardView.indexOf('const handleReanalyze')),
+  /reanalyzeBoardPost|analyzeBoardPost/,
+  'selecting a post should not trigger AI analysis'
+);
+assert.match(
+  boardView,
+  /isAdminUser && \([\s\S]*post-reanalyze-action[\s\S]*재요약/,
+  'board reanalysis should only be exposed to administrators'
+);
 assert.match(
   boardView.slice(handleCommentOpenStart, handleCommentCloseStart),
   /handlePostSelect\(post\)[\s\S]*isContentFirstLayout[\s\S]*setMobileCommentOpen\(true\)/,

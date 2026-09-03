@@ -78,8 +78,8 @@ assert.match(
 );
 assert.match(
   topBoardAnalysisHook,
-  /selectedDate !== TOP_BOARDS_TODAY[\s\S]*analyzeBoardPost\(boardId\)[\s\S]*pollBoardAnalysisJob/,
-  'missing summaries should only be generated for today and should poll the analysis job'
+  /selectedDate !== TOP_BOARDS_TODAY[\s\S]*!isAdminUser[\s\S]*reanalyzeBoardPost\(boardId\)[\s\S]*pollBoardAnalysisJob/,
+  'only admins should be able to explicitly reanalyze today posts and poll the job'
 );
 assert.match(
   topBoardAnalysisHook,
@@ -190,8 +190,21 @@ assert.match(
 );
 assert.match(
   top10List,
-  /initialExpandedRank - 1[\s\S]*setExpandedItem[\s\S]*requestAnalysis\(post\)/,
-  'a rank query should expand that row and preserve the summary fallback'
+  /initialExpandedRank - 1[\s\S]*setExpandedItem/,
+  'a rank query should expand that row'
+);
+assert.doesNotMatch(
+  top10List.slice(
+    top10List.indexOf('useEffect(() =>'),
+    top10List.indexOf('return (', top10List.indexOf('useEffect(() =>'))
+  ),
+  /requestReanalysis|reanalyzeBoardPost/,
+  'expanding a rank query should not trigger analysis'
+);
+assert.match(
+  pageRowSource,
+  /isToday && isAdminUser[\s\S]*재요약/,
+  'the reanalysis button should only render for administrators on today posts'
 );
 assert.match(
   top10View,

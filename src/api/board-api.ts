@@ -262,10 +262,7 @@ export type Top10ShortsPackage = {
     };
     generationWorkflow: {
       step: 'draft' | 'final' | 'edit';
-      requestField:
-        | 'nanoBananaDraftRequests'
-        | 'nanoBananaFinalRequestTemplates'
-        | null;
+      requestField: 'nanoBananaDraftRequests' | 'nanoBananaFinalRequestTemplates' | null;
       execution: 'parallel' | 'parallel_after_master_approval' | 'external_video_editor';
       review: string;
     }[];
@@ -352,9 +349,7 @@ export async function getIssueOverview({
     }
   });
 
-  const overview = await apiFetch<IssueOverviewRest>(
-    `/boardservice/api/boards/issues?${params}`
-  );
+  const overview = await apiFetch<IssueOverviewRest>(`/boardservice/api/boards/issues?${params}`);
 
   return {
     generatedAt: overview.generated_at,
@@ -454,7 +449,7 @@ export function addBoardLike(boardId: string) {
   );
 }
 
-export function analyzeBoardPost(boardId: string) {
+export function reanalyzeBoardPost(boardId: string) {
   return apiFetch<BoardAnalysisJobStatus>(`/boardservice/api/boards/${boardId}/ai`, {
     method: 'POST',
   });

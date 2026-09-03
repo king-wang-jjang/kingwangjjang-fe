@@ -108,8 +108,8 @@ describe('Top10List comments', () => {
     mocks.useTopBoardAnalysis.mockReturnValue({
       analysisJobs: {},
       analysisErrors: {},
-      isAuthenticated: false,
-      requestAnalysis: vi.fn().mockResolvedValue(undefined),
+      isAdminUser: false,
+      requestReanalysis: vi.fn().mockResolvedValue(undefined),
     });
   });
 
@@ -166,5 +166,31 @@ describe('Top10List comments', () => {
         })
       ).textContent
     ).toContain('댓글 0');
+  });
+
+  test('does not expose reanalysis to regular users', async () => {
+    const user = userEvent.setup();
+    renderPage([COMPLETE_POST]);
+
+    await expandPost(user, COMPLETE_POST, 1);
+
+    expect(screen.queryByRole('button', { name: '재요약' })).toBeNull();
+  });
+
+  test('allows an admin to request reanalysis explicitly', async () => {
+    const user = userEvent.setup();
+    const requestReanalysis = vi.fn().mockResolvedValue(undefined);
+    mocks.useTopBoardAnalysis.mockReturnValue({
+      analysisJobs: {},
+      analysisErrors: {},
+      isAdminUser: true,
+      requestReanalysis,
+    });
+    renderPage([COMPLETE_POST]);
+
+    await expandPost(user, COMPLETE_POST, 1);
+    await user.click(await screen.findByRole('button', { name: '재요약' }));
+
+    expect(requestReanalysis).toHaveBeenCalledWith(COMPLETE_POST);
   });
 });

@@ -1,12 +1,6 @@
 'use client';
 
-import type {
-  BoardPost,
-  BoardAnalysis,
-  AnalysisStatus,
-  BoardListFilters,
-  BoardAnalysisJobStatus,
-} from 'src/api/board-api';
+import type { BoardPost, BoardListFilters, BoardAnalysisJobStatus } from 'src/api/board-api';
 
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -49,17 +43,14 @@ import { useBoard } from 'src/hooks/use-board';
 
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
-import {
-  addBoardLike,
-  analyzeBoardPost,
-  getBoardAnalysis,
-  getBoardAnalysisJob,
-} from 'src/api/board-api';
+import { addBoardLike, reanalyzeBoardPost, getBoardAnalysisJob } from 'src/api/board-api';
 
 import { Top10List } from 'src/components/top10';
 import { formatCategory } from 'src/components/issues';
 import { CommentDrawer, CommentSidebar } from 'src/components/comment';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
+
+import { isAdmin } from 'src/auth/permissions';
 
 // ----------------------------------------------------------------------
 
@@ -93,9 +84,9 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
   const [analysisJobsByPostId, setAnalysisJobsByPostId] = useState<
     Record<string, BoardAnalysisJobStatus>
   >({});
-  const [analysisStatuses, setAnalysisStatuses] = useState<Record<string, AnalysisStatus>>({});
   const analysisRequestsRef = useRef(new Set<string>());
-  const { isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
+  const isAdminUser = isAdmin(user);
   const boardFilters = useMemo<BoardListFilters>(
     () => ({
       sites: selectedSites,
@@ -151,111 +142,63 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
     );
   }, []);
 
-  const applyAnalysisResult = useCallback(
-    (analysis: BoardAnalysis) => {
-      updatePostAnalysis(analysis);
+  const handlePostSelect = useCallback((post: BoardPost) => {
+    const boardId = getPostId(post);
 
-      if (analysis.status === 'done' && analysis.summary) {
-        analysisRequestsRef.current.delete(analysis.boardId);
-        setAnalysisStatuses((current) => {
-          const next = { ...current };
-          delete next[analysis.boardId];
-          return next;
-        });
-        return;
-      }
+    setSelectedPost({ boardId, site: post.site });
+  }, []);
 
-      if (analysis.status === 'failed') {
-        analysisRequestsRef.current.delete(analysis.boardId);
-      }
-
-      setAnalysisStatuses((current) => ({
-        ...current,
-        [analysis.boardId]: analysis.status,
-      }));
-    },
-    [updatePostAnalysis]
-  );
-
-  useEffect(() => {
-    const activeIds = Object.entries(analysisStatuses)
-      .filter(([, status]) => status === 'pending' || status === 'processing')
-      .map(([boardId]) => boardId);
-
-    if (!activeIds.length) {
-      return undefined;
-    }
-
-    const intervalId = window.setInterval(() => {
-      activeIds.forEach((boardId) => {
-        getBoardAnalysis(boardId)
-          .then(applyAnalysisResult)
-          .catch(() => {
-            // Polling failures are transient; the next interval will retry.
-          });
-      });
-    }, 5000);
-
-    return () => window.clearInterval(intervalId);
-  }, [analysisStatuses, applyAnalysisResult]);
-
-  const handlePostSelect = useCallback(
+  const handleReanalyze = useCallback(
     (post: BoardPost) => {
       const boardId = getPostId(post);
 
-      setSelectedPost({ boardId, site: post.site });
-
-      if (isAuthenticated && shouldAnalyzePost(post) && !analysisRequestsRef.current.has(boardId)) {
-        analysisRequestsRef.current.add(boardId);
-        setAnalysisJobsByPostId((current) => ({
-          ...current,
-          [boardId]: createPendingAnalysisJob(boardId),
-        }));
-
-        analyzeBoardPost(boardId)
-          .then(async (job) => {
-            setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: job }));
-            const finishedJob = isActiveAnalysisJob(job)
-              ? await pollBoardAnalysisJob(job.jobId, (latestJob) => {
-                  setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: latestJob }));
-                })
-              : job;
-
-            if (finishedJob.status === 'completed' && finishedJob.summary) {
-              analysisRequestsRef.current.delete(boardId);
-              updatePostAnalysis({
-                boardId: finishedJob.boardId,
-                status: 'done',
-                summary: finishedJob.summary,
-                tags: finishedJob.tags ?? [],
-                llmEngagementScore: finishedJob.llmEngagementScore,
-                llmEngagementReason: finishedJob.llmEngagementReason,
-              });
-              return;
-            }
-
-            if (finishedJob.status === 'failed') {
-              throw new Error(finishedJob.error || finishedJob.message);
-            }
-          })
-          .catch((error: any) => {
-            analysisRequestsRef.current.delete(boardId);
-            setAnalysisStatuses((current) => ({
-              ...current,
-              [boardId]: 'failed',
-            }));
-            toast.warning(`요약 생성 실패: ${error.message || error}`);
-          })
-          .finally(() => {
-            setAnalysisJobsByPostId((current) => {
-              const next = { ...current };
-              delete next[boardId];
-              return next;
-            });
-          });
+      if (!isAdminUser || !boardId || analysisRequestsRef.current.has(boardId)) {
+        return;
       }
+
+      analysisRequestsRef.current.add(boardId);
+      setAnalysisJobsByPostId((current) => ({
+        ...current,
+        [boardId]: createPendingAnalysisJob(boardId),
+      }));
+
+      reanalyzeBoardPost(boardId)
+        .then(async (job) => {
+          setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: job }));
+          const finishedJob = isActiveAnalysisJob(job)
+            ? await pollBoardAnalysisJob(job.jobId, (latestJob) => {
+                setAnalysisJobsByPostId((current) => ({ ...current, [boardId]: latestJob }));
+              })
+            : job;
+
+          if (finishedJob.status === 'completed' && finishedJob.summary) {
+            updatePostAnalysis({
+              boardId: finishedJob.boardId,
+              status: 'done',
+              summary: finishedJob.summary,
+              tags: finishedJob.tags ?? [],
+              llmEngagementScore: finishedJob.llmEngagementScore,
+              llmEngagementReason: finishedJob.llmEngagementReason,
+            });
+            toast.success('재요약이 완료되었습니다.');
+            return;
+          }
+
+          throw new Error(finishedJob.error || finishedJob.message || '재요약 결과가 없습니다.');
+        })
+        .catch((error: any) => {
+          toast.warning(`재요약 실패: ${error.message || error}`);
+        })
+        .finally(() => {
+          analysisRequestsRef.current.delete(boardId);
+          setAnalysisJobsByPostId((current) => {
+            const next = { ...current };
+            delete next[boardId];
+            return next;
+          });
+        });
     },
-    [isAuthenticated, updatePostAnalysis]
+    [isAdminUser, updatePostAnalysis]
   );
 
   const handleCommentOpen = useCallback(
@@ -462,8 +405,10 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
               key={getPostId(post)}
               post={post}
               selected={selectedPost?.boardId === getPostId(post)}
+              isAdminUser={isAdminUser}
               analysisJob={analysisJobsByPostId[getPostId(post)]}
               onPostSelect={handlePostSelect}
+              onReanalyze={handleReanalyze}
               onCommentOpen={handleCommentOpen}
             />
           ))}
@@ -586,16 +531,20 @@ export function BoardView({ title = '실시간 게시판', initialCategory }: Pr
 type BoardPostCardProps = {
   post: BoardPost;
   selected: boolean;
+  isAdminUser: boolean;
   analysisJob?: BoardAnalysisJobStatus;
   onPostSelect: (post: BoardPost) => void;
+  onReanalyze: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
 
 function BoardPostCard({
   post,
   selected,
+  isAdminUser,
   analysisJob,
   onPostSelect,
+  onReanalyze,
   onCommentOpen,
 }: BoardPostCardProps) {
   const [expanded, setExpanded] = useState(false);
@@ -644,6 +593,11 @@ function BoardPostCard({
     event.stopPropagation();
     setExpanded(false);
     markAsRead(boardId);
+  };
+
+  const handleReanalyzeClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onReanalyze(post);
   };
 
   const handleLike = async (event: React.MouseEvent) => {
@@ -906,25 +860,38 @@ function BoardPostCard({
                     <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
                       요약
                     </Typography>
-                    <Tooltip title="닫기">
-                      <IconButton
-                        className="expanded-card-close post-card-action"
-                        size="small"
-                        onClick={handleCloseExpanded}
-                        aria-label="확장 닫기"
-                        sx={{
-                          width: 26,
-                          height: 26,
-                          color: 'text.secondary',
-                          '&:hover': {
-                            bgcolor: 'background.subtle',
-                            color: 'secondary.main',
-                          },
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                      {isAdminUser && (
+                        <Button
+                          className="post-reanalyze-action"
+                          size="small"
+                          variant="text"
+                          disabled={analyzing}
+                          onClick={handleReanalyzeClick}
+                        >
+                          {analyzing ? '요약 중' : '재요약'}
+                        </Button>
+                      )}
+                      <Tooltip title="닫기">
+                        <IconButton
+                          className="expanded-card-close post-card-action"
+                          size="small"
+                          onClick={handleCloseExpanded}
+                          aria-label="확장 닫기"
+                          sx={{
+                            width: 26,
+                            height: 26,
+                            color: 'text.secondary',
+                            '&:hover': {
+                              bgcolor: 'background.subtle',
+                              color: 'secondary.main',
+                            },
+                          }}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Stack>
 
                   {analyzing ? (
@@ -946,9 +913,9 @@ function BoardPostCard({
                       sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
                     >
                       {summary ||
-                        (isAuthenticated
-                          ? '요약 내용이 없습니다.'
-                          : '로그인하면 새 요약을 생성할 수 있습니다.')}
+                        (post.analysisStatus === 'pending' || post.analysisStatus === 'processing'
+                          ? '자동 요약을 생성하고 있습니다.'
+                          : '요약 내용이 없습니다.')}
                     </Typography>
                   )}
 
@@ -1190,10 +1157,6 @@ function getCrawledContentPreview(post: BoardPost) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function shouldAnalyzePost(post: BoardPost) {
-  return Boolean(post.Id) && !getPostSummary(post);
 }
 
 function createPendingAnalysisJob(boardId: string): BoardAnalysisJobStatus {

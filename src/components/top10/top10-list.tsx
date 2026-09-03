@@ -191,12 +191,12 @@ type Top10PageRowProps = {
   rank: number;
   expanded: boolean;
   isToday: boolean;
-  isAuthenticated: boolean;
+  isAdminUser: boolean;
   analysisJob?: BoardAnalysisJobStatus;
   analysisError?: string;
   onExpand: (post: BoardPost) => void;
   onClose: () => void;
-  onRequestAnalysis: (post: BoardPost) => void;
+  onReanalyze: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
 };
 
@@ -205,12 +205,12 @@ function Top10PageRow({
   rank,
   expanded,
   isToday,
-  isAuthenticated,
+  isAdminUser,
   analysisJob,
   analysisError,
   onExpand,
   onClose,
-  onRequestAnalysis,
+  onReanalyze,
   onCommentOpen,
 }: Top10PageRowProps) {
   const detailsId = useId();
@@ -335,21 +335,33 @@ function Top10PageRow({
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
               요약
             </Typography>
-            <Tooltip title="닫기">
-              <IconButton
-                size="small"
-                onClick={onClose}
-                aria-label={`${rank}위 항목 닫기`}
-                sx={{
-                  width: 28,
-                  height: 28,
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'background.subtle', color: 'secondary.main' },
-                }}
-              >
-                <CloseRoundedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+              {isToday && isAdminUser && (
+                <Button
+                  size="small"
+                  variant="text"
+                  disabled={Boolean(analysisJob)}
+                  onClick={() => onReanalyze(post)}
+                >
+                  {analysisJob ? '요약 중' : '재요약'}
+                </Button>
+              )}
+              <Tooltip title="닫기">
+                <IconButton
+                  size="small"
+                  onClick={onClose}
+                  aria-label={`${rank}위 항목 닫기`}
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    color: 'text.secondary',
+                    '&:hover': { bgcolor: 'background.subtle', color: 'secondary.main' },
+                  }}
+                >
+                  <CloseRoundedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </Stack>
 
           <Stack
@@ -358,7 +370,7 @@ function Top10PageRow({
             sx={{ alignItems: { xs: 'stretch', sm: 'flex-start' } }}
           >
             <Box sx={{ minWidth: 0, flex: 1 }}>
-              {analysisJob && !summary ? (
+              {analysisJob ? (
                 <Stack
                   role="status"
                   aria-live="polite"
@@ -375,13 +387,15 @@ function Top10PageRow({
                     요약 생성 중 {analysisJob.progressPercent}%
                   </Typography>
                 </Stack>
-              ) : analysisError && !summary ? (
+              ) : analysisError ? (
                 <Alert
                   severity="warning"
                   action={
-                    <Button color="inherit" size="small" onClick={() => onRequestAnalysis(post)}>
-                      다시 시도
-                    </Button>
+                    isAdminUser ? (
+                      <Button color="inherit" size="small" onClick={() => onReanalyze(post)}>
+                        다시 시도
+                      </Button>
+                    ) : undefined
                   }
                 >
                   요약을 만들지 못했습니다.
@@ -393,8 +407,8 @@ function Top10PageRow({
                   sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}
                 >
                   {summary ||
-                    (isToday && !isAuthenticated
-                      ? '로그인하면 새 요약을 생성할 수 있습니다.'
+                    (post.analysisStatus === 'pending' || post.analysisStatus === 'processing'
+                      ? '자동 요약을 생성하고 있습니다.'
                       : '요약 내용이 없습니다.')}
                 </Typography>
               )}
@@ -492,7 +506,7 @@ export function Top10List({
   const [commentTarget, setCommentTarget] = useState<Top10CommentTarget>(null);
   const appliedInitialRankRef = useRef<number | null>(null);
   const { data: posts = [], isError, isPending, isFetching, refetch } = useTopBoards(selectedDate);
-  const { analysisJobs, analysisErrors, isAuthenticated, requestAnalysis } =
+  const { analysisJobs, analysisErrors, isAdminUser, requestReanalysis } =
     useTopBoardAnalysis(selectedDate);
   const expandedPostKey = expandedItem?.date === selectedDate ? expandedItem.postKey : null;
   const heading =
@@ -517,8 +531,7 @@ export function Top10List({
 
     appliedInitialRankRef.current = initialExpandedRank;
     setExpandedItem({ date: selectedDate, postKey: postKey(post) });
-    requestAnalysis(post).catch(() => undefined);
-  }, [initialExpandedRank, isToday, posts, requestAnalysis, selectedDate, variant]);
+  }, [initialExpandedRank, isToday, posts, selectedDate, variant]);
 
   return (
     <>
@@ -610,16 +623,15 @@ export function Top10List({
                     rank={rank}
                     expanded={expandedPostKey === key}
                     isToday={isToday}
-                    isAuthenticated={isAuthenticated}
+                    isAdminUser={isAdminUser}
                     analysisJob={isToday && post.Id ? analysisJobs[post.Id] : undefined}
                     analysisError={isToday && post.Id ? analysisErrors[post.Id] : undefined}
-                    onExpand={(selectedPost) => {
+                    onExpand={() => {
                       setExpandedItem({ date: selectedDate, postKey: key });
-                      requestAnalysis(selectedPost).catch(() => undefined);
                     }}
                     onClose={() => setExpandedItem(null)}
-                    onRequestAnalysis={(selectedPost) => {
-                      requestAnalysis(selectedPost).catch(() => undefined);
+                    onReanalyze={(selectedPost) => {
+                      requestReanalysis(selectedPost).catch(() => undefined);
                     }}
                     onCommentOpen={(selectedPost) => {
                       if (onCommentOpen) {

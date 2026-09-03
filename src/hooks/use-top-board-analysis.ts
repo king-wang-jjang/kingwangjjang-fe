@@ -4,9 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import { useAuthStore } from 'src/store/auth-store';
-import { analyzeBoardPost, getBoardAnalysisJob } from 'src/api/board-api';
+import { reanalyzeBoardPost, getBoardAnalysisJob } from 'src/api/board-api';
 
-import { getPostSummary } from 'src/components/board-post/board-post-utils';
+import { isAdmin } from 'src/auth/permissions';
 
 import { TOP_BOARDS_TODAY, TOP_BOARDS_QUERY_KEY } from './use-top-boards';
 
@@ -18,7 +18,8 @@ type AnalysisErrors = Record<string, string>;
 
 export function useTopBoardAnalysis(selectedDate: string) {
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
+  const isAdminUser = isAdmin(user);
   const requestsRef = useRef(new Set<string>());
   const [analysisJobs, setAnalysisJobs] = useState<AnalysisJobs>({});
   const [analysisErrors, setAnalysisErrors] = useState<AnalysisErrors>({});
@@ -53,14 +54,13 @@ export function useTopBoardAnalysis(selectedDate: string) {
     [queryClient, selectedDate]
   );
 
-  const requestAnalysis = useCallback(
+  const requestReanalysis = useCallback(
     async (post: BoardPost) => {
       const boardId = post.Id;
       if (
         selectedDate !== TOP_BOARDS_TODAY ||
-        !isAuthenticated ||
+        !isAdminUser ||
         !boardId ||
-        getPostSummary(post) ||
         requestsRef.current.has(boardId)
       ) {
         return;
@@ -78,7 +78,7 @@ export function useTopBoardAnalysis(selectedDate: string) {
       }));
 
       try {
-        const initialJob = await analyzeBoardPost(boardId);
+        const initialJob = await reanalyzeBoardPost(boardId);
         setAnalysisJobs((current) => ({ ...current, [boardId]: initialJob }));
         const finishedJob = isActiveAnalysisJob(initialJob)
           ? await pollBoardAnalysisJob(initialJob.jobId, (latestJob) => {
@@ -106,14 +106,14 @@ export function useTopBoardAnalysis(selectedDate: string) {
         });
       }
     },
-    [isAuthenticated, selectedDate, updateCachedSummary]
+    [isAdminUser, selectedDate, updateCachedSummary]
   );
 
   return {
     analysisJobs,
     analysisErrors,
-    isAuthenticated,
-    requestAnalysis,
+    isAdminUser,
+    requestReanalysis,
   };
 }
 
