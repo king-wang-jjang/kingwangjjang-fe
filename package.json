@@ -21,7 +21,7 @@
     "ts:watch": "yarn ts --watch",
     "start:out": "npx serve@latest out -p 8083",
     "test": "vitest run",
-    "check": "yarn test && yarn ts && yarn lint && node scripts/verify-theme-ui.mjs && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs && node scripts/verify-board-ui.mjs && node scripts/verify-admin-shorts-ui.mjs"
+    "check": "npm run test && npm run ts && npm run lint && node scripts/verify-theme-ui.mjs && node scripts/verify-auth-profile-ui.mjs && node scripts/verify-top10-ui.mjs && node scripts/verify-board-ui.mjs && node scripts/verify-admin-shorts-ui.mjs"
   },
   "engines": {
     "node": "24.x"
@@ -37,6 +37,8 @@
     "@mui/material": "9.0.1",
     "@mui/material-nextjs": "9.0.1",
     "@tanstack/react-query": "5.100.14",
+    "animejs": "4.5.0",
+    "d3-force": "3.0.0",
     "d3-hierarchy": "3.1.2",
     "d3-scale": "4.0.2",
     "next": "16.3.3",
@@ -49,6 +51,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/d3-force": "3.0.10",
     "@types/d3-hierarchy": "3.1.7",
     "@types/d3-scale": "4.0.9",
     "@types/node": "25.9.1",

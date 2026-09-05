@@ -10,7 +10,7 @@ export type ConfigValue = {
 };
 
 export const CONFIG: ConfigValue = {
-  appName: 'Kingwangjjang',
+  appName: '마약',
   appVersion: packageJson.version,
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL || 'https://api.마약.kr',
   localServerUrl: process.env.NEXT_PUBLIC_LOCAL_SERVER_URL || 'http://localhost:33330',

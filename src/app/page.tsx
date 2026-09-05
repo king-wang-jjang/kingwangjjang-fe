@@ -6,8 +6,8 @@ import { HomeView } from 'src/sections/home/view/home-view';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: `AI 태그로 읽는 커뮤니티 - ${CONFIG.appName}`,
-  description: 'AI가 분석한 커뮤니티 태그 흐름과 오늘의 인기 글을 한눈에 확인하세요.',
+  title: `최근 24시간 커뮤니티 동향 - ${CONFIG.appName}`,
+  description: '여러 커뮤니티에서 수집한 게시글의 24시간 AI 태그 통계와 일간 Top 10을 제공합니다.',
 };
 
 export default function Page() {

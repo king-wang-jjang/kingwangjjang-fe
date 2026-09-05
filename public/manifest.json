@@ -1,6 +1,6 @@
 {
-  "short_name": "KWJ",
-  "name": "Kingwangjjang",
+  "short_name": "마약",
+  "name": "마약.kr",
   "icons": [
     {
       "src": "/logo/logo-single.svg",
@@ -8,9 +8,9 @@
       "type": "image/svg+xml"
     }
   ],
-  "start_url": "/board",
-  "background_color": "#ffffff",
+  "start_url": "/",
+  "background_color": "#0d0f0d",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#00A76F"
+  "theme_color": "#0d0f0d"
 }

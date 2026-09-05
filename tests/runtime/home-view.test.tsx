@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { render, fireEvent } from '@testing-library/react';
+import { vi, test, expect, describe, afterEach } from 'vitest';
 
 import { HomeView } from 'src/sections/home/view/home-view';
 
@@ -78,11 +78,12 @@ describe('HomeView', () => {
     push.mockReset();
   });
 
-  test('opens the board with the selected AI tag', async () => {
-    const user = userEvent.setup();
+  test('opens the board with the selected AI tag', () => {
+    const { container } = render(<HomeView />);
+    const topicNode = container.querySelector('[data-topic-node="topic:%EC%9C%A0%EB%A8%B8"]');
 
-    const { getByRole } = render(<HomeView />);
-    await user.click(getByRole('button', { name: /#유머/ }));
+    expect(topicNode).toBeTruthy();
+    fireEvent.click(topicNode!);
 
     expect(push).toHaveBeenCalledWith('/board?tag=%EC%9C%A0%EB%A8%B8');
   });
@@ -94,10 +95,10 @@ describe('HomeView', () => {
 
     expect(getByRole('heading', { name: '첫 번째 인기 이야기' })).toBeTruthy();
 
-    await user.click(getByRole('tab', { name: /두 번째 인기 이야기/ }));
+    await user.click(getByRole('button', { name: /2위.*두 번째 인기 이야기/ }));
 
     expect(getByRole('heading', { name: '두 번째 인기 이야기' })).toBeTruthy();
-    expect(getByRole('link', { name: '2위 이야기 자세히 보기' }).getAttribute('href')).toBe(
+    expect(getByRole('link', { name: '2위 글 자세히 보기' }).getAttribute('href')).toBe(
       '/top10?rank=2'
     );
   });

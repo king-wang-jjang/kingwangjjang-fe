@@ -58,6 +58,7 @@ type Props = {
   title?: string;
   initialCategory?: string;
   initialTag?: string;
+  initialSites?: string[];
 };
 
 type SelectedPost = {
@@ -69,7 +70,12 @@ const workbenchSideColumnWidth = 320;
 const analysisPollIntervalMs = 1500;
 const analysisPollLimit = 80;
 
-export function BoardView({ title = '실시간 게시판', initialCategory, initialTag }: Props) {
+export function BoardView({
+  title = '실시간 게시판',
+  initialCategory,
+  initialTag,
+  initialSites = [],
+}: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
   const isTabletContentViewport = useMediaQuery(
@@ -78,7 +84,7 @@ export function BoardView({ title = '실시간 게시판', initialCategory, init
   const isContentFirstLayout = isMobile || isTabletContentViewport;
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
-  const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [selectedSites, setSelectedSites] = useState<string[]>(initialSites);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(initialCategory);
   const [selectedTag, setSelectedTag] = useState<string | undefined>(initialTag);
   const [selectedPost, setSelectedPost] = useState<SelectedPost>(null);

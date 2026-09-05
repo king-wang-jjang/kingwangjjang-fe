@@ -50,7 +50,7 @@ type AuthenticatedUser = NonNullable<UserType>;
 
 const navItems = [
   {
-    label: 'AI 태그 브리핑',
+    label: '커뮤니티 동향',
     href: '/',
     icon: <InsightsOutlinedIcon fontSize="small" />,
   },
@@ -297,10 +297,10 @@ export function AppShell({ children }: Props) {
         elevation={0}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          color: 'text.primary',
-          bgcolor: 'background.default',
+          color: isHomeRoute ? '#f3f1e9' : 'text.primary',
+          bgcolor: isHomeRoute ? '#0d0f0d' : 'background.default',
           borderBottom: 1,
-          borderColor: 'divider',
+          borderColor: isHomeRoute ? 'rgba(243, 241, 233, 0.14)' : 'divider',
           boxShadow: 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
           '&:focus-within': {
@@ -318,8 +318,10 @@ export function AppShell({ children }: Props) {
         <Toolbar
           sx={{
             minHeight: isHomeRoute ? { xs: 64, md: 72 } : headerHeight,
-            width: isHomeRoute ? 'min(calc(100% - 40px), 1280px)' : '100%',
-            maxWidth: isHomeRoute ? 1280 : 'none',
+            width: isHomeRoute
+              ? { xs: 'calc(100% - 40px)', md: 'min(calc(100% - 96px), 1480px)' }
+              : '100%',
+            maxWidth: isHomeRoute ? 1480 : 'none',
             mx: isHomeRoute ? 'auto' : 0,
             mt: 0,
             px: isHomeRoute ? 0 : { xs: 1.5, md: 3 },
@@ -345,7 +347,7 @@ export function AppShell({ children }: Props) {
                 <Box
                   component="img"
                   src="/logo/logo-single.svg"
-                  alt="Kingwangjjang"
+                  alt="마약"
                   sx={{ width: 40, height: 40, display: 'block' }}
                 />
                 <Typography
@@ -357,14 +359,14 @@ export function AppShell({ children }: Props) {
                     letterSpacing: '-0.035em',
                   }}
                 >
-                  kingwangjjang
+                  마약
                 </Typography>
               </>
             ) : (
               <Box
                 component="img"
                 src="/logo/logo-single.svg"
-                alt="Kingwangjjang"
+                alt="마약"
                 sx={{ width: '100%', height: '100%', display: 'block' }}
               />
             )}
@@ -384,8 +386,9 @@ export function AppShell({ children }: Props) {
               }}
             >
               {[
-                { label: 'AI 태그', href: '#tag-index' },
-                { label: 'TOP 10', href: '#top-stories' },
+                { label: '동향', href: '#community-pulse' },
+                { label: '출처별', href: '#cross-community' },
+                { label: '인기글', href: '#popular-feed' },
                 { label: '게시판', href: '/board' },
               ].map((item) => (
                 <Box
@@ -429,7 +432,7 @@ export function AppShell({ children }: Props) {
                   height: 40,
                   bgcolor: 'transparent',
                   border: 1,
-                  borderColor: 'divider',
+                  borderColor: 'rgba(243, 241, 233, 0.18)',
                   borderRadius: 0,
                 },
                 '& .kakao-login-button': {

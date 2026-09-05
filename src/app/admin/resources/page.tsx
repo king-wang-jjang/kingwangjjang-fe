@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { ResourcesView } from 'src/sections/admin/resources/view/resources-view';
 
 export const metadata: Metadata = {
-  title: 'AI Resource | Kingwangjjang',
+  title: 'AI Resource | 마약',
   robots: { index: false, follow: false },
 };
 

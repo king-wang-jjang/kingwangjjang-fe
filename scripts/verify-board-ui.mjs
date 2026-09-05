@@ -9,6 +9,9 @@ const rootLayout = read('src/app/layout.tsx');
 const rootPage = read('src/app/page.tsx');
 const appLoading = read('src/app/loading.tsx');
 const appShell = read('src/layouts/app-shell.tsx');
+const appConfig = read('src/config-global.ts');
+const manifest = read('public/manifest.json');
+const favicon = read('public/favicon.svg');
 const hideHeaderHook = fs.existsSync('src/hooks/use-hide-header-on-scroll.ts')
   ? read('src/hooks/use-hide-header-on-scroll.ts')
   : '';
@@ -22,6 +25,17 @@ const boardPage = read('src/app/board/page.tsx');
 const boardView = read('src/sections/board/view/board-view.tsx');
 const homeView = read('src/sections/home/view/home-view.tsx');
 const homeStyles = read('src/sections/home/view/home-view.module.css');
+const activityData = read('src/sections/home/activity/activity-data.ts');
+const activityScore = read('src/sections/home/activity/activity-score.ts');
+const activityLayout = read('src/sections/home/activity/activity-layout.ts');
+const activityStory = read('src/sections/home/activity/activity-story.tsx');
+const activityStoryStyles = read('src/sections/home/activity/activity-story.module.css');
+const crossCommunityStory = read('src/sections/home/activity/cross-community-story.tsx');
+const crossCommunityStoryStyles = read(
+  'src/sections/home/activity/cross-community-story.module.css'
+);
+const trendingPostFeed = read('src/sections/home/activity/trending-post-feed.tsx');
+const trendingPostFeedStyles = read('src/sections/home/activity/trending-post-feed.module.css');
 const themeProvider = read('src/theme/app-theme-provider.tsx');
 const oauthForm = read('src/auth/components/form-oauth.tsx');
 const commentSidebar = read('src/components/comment/comment-sidebar.tsx');
@@ -53,6 +67,15 @@ const redesignedFiles = [
   appShell,
   homeView,
   homeStyles,
+  activityData,
+  activityScore,
+  activityLayout,
+  activityStory,
+  activityStoryStyles,
+  crossCommunityStory,
+  crossCommunityStoryStyles,
+  trendingPostFeed,
+  trendingPostFeedStyles,
   boardView,
   issuePulseField,
   issuePulseStyles,
@@ -178,6 +201,12 @@ assert.doesNotMatch(
   'app initial loading should not show the old loading text or spinner'
 );
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
+assert.match(appShell, />\s*마약\s*</, 'the home header should show the 마약 product name');
+assert.doesNotMatch(
+  [appShell, appConfig, manifest, favicon].join('\n'),
+  /kingwangjjang/i,
+  'user-facing product metadata should not restore the former Kingwangjjang name'
+);
 assert.match(appShell, /secondary\.main/i, 'app shell hover states should use the orange accent');
 assert.match(appShell, /borderColor:\s*'divider'/i, 'app shell should use themed borders');
 assert.match(appShell, /background\.default/, 'app shell should use themed app background');
@@ -517,24 +546,9 @@ assert.match(
   'issue overview should refresh the 24-hour visualization in the selected site scope'
 );
 assert.match(
-  issuePulseField,
-  /overview\?\.tags\.slice[\s\S]*tag\.impactScore/,
-  'tag briefing should render the AI tag impact ranking'
-);
-assert.match(
-  issuePulseField,
-  /onTagSelect\(selected \? undefined : tag\.tag\)/,
-  'tag rows should toggle tag selection'
-);
-assert.match(
-  issuePulseStyles,
-  /\.impactTrack[\s\S]*--tag-impact/,
-  'tag briefing should visualize relative impact without animated bubbles'
-);
-assert.match(
   rootPage,
   /<AppShell>[\s\S]*<HomeView/,
-  'the root route should render the issue overview home page'
+  'the root route should render the community activity home page'
 );
 assert.doesNotMatch(
   rootPage,
@@ -542,34 +556,189 @@ assert.doesNotMatch(
   'the root route should not redirect to the board'
 );
 assert.match(
-  homeView,
-  /useIssueOverview\(\)[\s\S]*<TagBriefing/,
-  'the AI tag briefing should load on the root home view'
+  packageJson,
+  /"animejs":\s*"4\.5\.0"/,
+  'the activity stories should install Anime.js for scroll-linked motion'
+);
+assert.match(
+  packageJson,
+  /"d3-force":\s*"3\.0\.0"/,
+  'the activity story should install d3-force for topic geometry'
 );
 assert.match(
   homeView,
-  /useTopBoards\(\)[\s\S]*onRankSelect=\{setSelectedRank\}[\s\S]*role="tablist"/,
-  'the home page should let visitors preview live Top 10 stories'
+  /const activityData = useMemo\([\s\S]*adaptActivityData\(issueOverviewQuery\.data, topBoards\)[\s\S]*\[issueOverviewQuery\.data, topBoards\]/,
+  'the home page should adapt the issue overview and Top 10 data once per response'
 );
 assert.match(
   homeView,
-  /href=\{`\/top10\?rank=\$\{activeRank \+ 1\}`\}/,
-  'the selected home story should retain a rank-aware Top 10 deep link'
+  /<ActivityStory[\s\S]*data=\{activityData\}[\s\S]*isLoading=\{issueOverviewQuery\.isPending\}[\s\S]*isError=\{issueOverviewQuery\.isError\}[\s\S]*onTopicSelect=\{handleTopicSelect\}/,
+  'the home page should render the activity story from adapted overview data'
 );
 assert.match(
   homeView,
-  /<TagBriefing[\s\S]*onTagSelect=\{handleTagSelect\}/,
-  'the home tag index should open boards through AI tag selection'
+  /<CrossCommunityStory[\s\S]*topic=\{issueOverviewQuery\.isPending \? undefined : \(activityData\?\.topics\[0\] \?\? null\)\}[\s\S]*windowHours=\{activityData\?\.windowHours\}[\s\S]*generatedAt=\{activityData\?\.generatedAt\}/,
+  'the home page should distinguish loading, empty, and populated source stories'
 );
 assert.match(
-  homeStyles,
-  /\.hero[\s\S]*\.statsBand[\s\S]*\.methodNote[\s\S]*\.storiesGrid/,
-  'the home experience should use an editorial data-first layout'
+  homeView,
+  /id="popular-feed"[\s\S]*<TrendingPostFeed[\s\S]*posts=\{topBoards\}[\s\S]*isLoading=\{topBoardsQuery\.isPending\}[\s\S]*isError=\{topBoardsQuery\.isError\}[\s\S]*featuredTag=\{activityData\?\.topics\[0\]\?\.label\}/,
+  'the home page should render the real Top 10 feed with the leading activity topic'
 );
 assert.match(
   homeView,
   /router\.push\(`\/board\?\$\{query\.toString\(\)\}`\)/,
-  'selecting a home AI tag should open the filtered board'
+  'selecting a home activity topic should open the filtered board'
+);
+assert.doesNotMatch(
+  homeView,
+  /<TagBriefing|onRankSelect=\{setSelectedRank\}|role="tablist"/,
+  'the home page should not retain the superseded tag briefing and inline Top 10 implementation'
+);
+assert.doesNotMatch(
+  [homeView, activityStory, crossCommunityStory, trendingPostFeed].join('\n'),
+  /여러 커뮤니티에서 반복된 말|지금 사람들이|같이 말하는 것/,
+  'the redesigned home should not restore the rejected generic hero copy'
+);
+assert.match(
+  activityData,
+  /export function adaptActivityData\([\s\S]*overview: IssueOverview,[\s\S]*posts: readonly BoardPost\[\]/,
+  'the activity adapter should accept the existing issue overview and ranked BoardPost data'
+);
+assert.match(
+  activityData,
+  /const relatedTopicIds = Array\.from\([\s\S]*new Set\([\s\S]*tag\.relatedTags[\s\S]*\.map\(toActivityTopicId\)/,
+  'the activity adapter should derive de-duplicated connections only from relatedTags'
+);
+assert.match(
+  activityData,
+  /const representativePost = posts\.find\([\s\S]*normalizeIdentity\(post\.site\) === normalizeIdentity\(source\.site\) &&[\s\S]*post\.tags\?\.some\([\s\S]*normalizeIdentity\(postTag\) === normalizeIdentity\(tag\.tag\)/,
+  'the activity adapter should attach representative posts only when both source and tag match'
+);
+assert.match(
+  activityData,
+  /contributionRatio: volume > 0 \? Math\.min\(1, contribution \/ volume\) : 0/,
+  'source card size should be backed by the API contribution ratio'
+);
+assert.match(
+  activityData,
+  /const \[sourceId, targetId\] = \[id, relatedId\]\.sort\(\)[\s\S]*connectionById\.set\(edgeId, \{ id: edgeId, sourceId, targetId \}\)/,
+  'the activity adapter should canonicalize and de-duplicate known topic edges'
+);
+assert.match(
+  activityData,
+  /calculateRelativeActivityScores\(topicDrafts, scoreOptions\)[\s\S]*activityScore: scores\[index\][\s\S]*sourceCount: sourceIds\.size[\s\S]*knownEdgeCount: connections\.length/,
+  'the adapter should score its real topic drafts and expose counts derived from adapted data'
+);
+assert.match(
+  activityData,
+  /\.normalize\('NFKC'\)[\s\S]*\.replace\(\/\^#\+\\s\*\/, ''\)[\s\S]*\.toLocaleLowerCase\('en-US'\)/,
+  'activity IDs should normalize harmless tag and source formatting differences'
+);
+assert.match(
+  activityScore,
+  /DEFAULT_ACTIVITY_SCORE_WEIGHTS[\s\S]*volume: 0\.4[\s\S]*growthRate: 0\.25[\s\S]*sourceDiversity: 0\.2[\s\S]*connectivity: 0\.15/,
+  'the relative activity score should publish its real weighted inputs'
+);
+assert.match(
+  activityScore,
+  /DEFAULT_ACTIVITY_SCORE_GROWTH_CAP = 300[\s\S]*Math\.min\(toNonNegativeNumber\(topic\.growthRate\), growthRateCap\)/,
+  'activity scores should cap positive growth outliers before normalization'
+);
+assert.match(
+  activityScore,
+  /Math\.min\(100, Math\.max\(0, weightedScore\)\)[\s\S]*Math\.log1p\(value\) \/ Math\.log1p\(maximum\)/,
+  'activity scores should normalize volume logarithmically and remain bounded from 0 to 100'
+);
+assert.match(
+  activityStory,
+  /const \{ animate, stagger, utils, createTimeline \} = await import\('animejs'\)/,
+  'the activity story should load Anime.js only when its enhanced motion is initialized'
+);
+assert.match(
+  activityLayout,
+  /import type \{[^}]*Simulation[^}]*SimulationNodeDatum[^}]*SimulationLinkDatum[^}]*\} from 'd3-force'[\s\S]*await import\('d3-force'\)/,
+  'the activity layout should keep d3-force as a lazy runtime dependency'
+);
+assert.match(
+  activityStory,
+  /typeof IntersectionObserver !== 'undefined'[\s\S]*new IntersectionObserver\([\s\S]*calculate\(\)\.catch\(handleCalculationError\)/,
+  'the force layout should wait until the activity story approaches the viewport'
+);
+assert.match(
+  activityStory,
+  /const staticLayout = usePrefersStaticActivity\(\)[\s\S]*if \(staticLayout \|\| motionUnavailable\) \{[\s\S]*<ReducedActivityStory/,
+  'the activity story should render a static semantic alternative for reduced motion, short viewports, and motion setup failure'
+);
+assert.match(
+  activityStoryStyles,
+  /\.stage\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*72px;/,
+  'the activity story should keep its animated stage pinned while the story scrolls'
+);
+assert.match(
+  activityStoryStyles,
+  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.stage\s*\{[\s\S]*position:\s*relative;[\s\S]*animation:\s*none !important;/,
+  'the activity story stylesheet should release sticky motion and animations when requested'
+);
+assert.match(
+  crossCommunityStory,
+  /const sources = topic\.sources\.slice\(0, MAX_SOURCE_CARDS\)[\s\S]*source\.contributionRatio[\s\S]*source\.contribution[\s\S]*source\.representativePost/,
+  'the cross-community story should render its cards only from adapted source data'
+);
+assert.match(
+  crossCommunityStory,
+  /const \{ createTimeline \} = await import\('animejs'\)/,
+  'the cross-community story should lazy-load its Anime.js timeline'
+);
+assert.match(
+  crossCommunityStory,
+  /window\.matchMedia\([\s\S]*'\(prefers-reduced-motion: reduce\), \(max-height: 700px\)'[\s\S]*staticLayoutQuery\.matches[\s\S]*story\.dataset\.motion = 'reduced'[\s\S]*return undefined/,
+  'the cross-community story should skip its timeline for reduced motion and short viewports'
+);
+assert.match(
+  crossCommunityStoryStyles,
+  /\.stage\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*72px;/,
+  'the source distribution stage should stay pinned during its scroll story'
+);
+assert.match(
+  crossCommunityStoryStyles,
+  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.stage\s*\{[\s\S]*position:\s*relative;[\s\S]*\.sourceCard\s*\{[\s\S]*transition:\s*none;/,
+  'the source distribution stylesheet should provide a non-sticky reduced-motion layout'
+);
+assert.match(
+  trendingPostFeed,
+  /posts\.slice\(0, 10\)\.map\([\s\S]*originalRank: index \+ 1[\s\S]*href=\{`\/top10\?rank=\$\{originalRank\}`\}/,
+  'the trending feed should preserve the API rank through preview selection and deep links'
+);
+assert.match(
+  trendingPostFeed,
+  /if \(mode === 'popular'\) \{\s*return \[\.\.\.posts\];[\s\S]*return toFiniteMetric\(post\.dailyScore\) \?\? toFiniteMetric\(post\.hotScore\)/,
+  'the trending feed should keep API order by default and use only real reaction scores'
+);
+assert.match(
+  trendingPostFeed,
+  /const viewCount = toFiniteMetric\(post\.nativeViewCount\)[\s\S]*const likeCount = toFiniteMetric\(post\.nativeLikeCount\) \?\? toFiniteMetric\(post\.likeCount\)[\s\S]*const commentCount = toFiniteMetric\(post\.nativeCommentCount\) \?\?[\s\S]*typeof value === 'number' && Number\.isFinite\(value\) \? value : null/,
+  'the trending feed should omit unavailable metrics while preserving real zero values'
+);
+assert.match(
+  trendingPostFeed,
+  /const reducedMotion = window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches[\s\S]*behavior: reducedMotion \? 'auto' : 'smooth'/,
+  'mobile preview scrolling should respect the reduced-motion preference'
+);
+assert.match(
+  trendingPostFeedStyles,
+  /\.preview\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*100px;/,
+  'the desktop trending preview should remain visible beside the ranked list'
+);
+assert.match(
+  trendingPostFeedStyles,
+  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.postItem\s*\{[\s\S]*animation:\s*none;[\s\S]*\.postButton:hover\s*\{[\s\S]*transform:\s*none;/,
+  'the trending feed stylesheet should disable decorative motion when requested'
+);
+assert.match(
+  crossCommunityStory,
+  /const query = new URLSearchParams\(\{ tag, sites: site \}\)[\s\S]*return `\/board\?\$\{query\.toString\(\)\}`/,
+  'source cards should deep-link to a board filtered by both tag and site'
 );
 assert.doesNotMatch(
   boardView,
@@ -580,6 +749,16 @@ assert.match(
   boardPage,
   /initialCategory=\{parseFilter\(category\)\}[\s\S]*initialTag=\{parseFilter\(tag\)\}/,
   'the board page should apply category and AI tag filters from the URL'
+);
+assert.match(
+  boardPage,
+  /sites\?: string \| string\[\][\s\S]*const \{ category, tag, sites \} = await searchParams[\s\S]*initialSites=\{parseFilters\(sites\)\}/,
+  'the board page should parse repeated source filters from activity-story deep links'
+);
+assert.match(
+  boardView,
+  /initialSites = \[\][\s\S]*useState<string\[\]>\(initialSites\)/,
+  'the board view should initialize its selected sites from the URL filter'
 );
 assert.doesNotMatch(
   boardView,
