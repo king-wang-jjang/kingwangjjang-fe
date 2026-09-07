@@ -1,11 +1,11 @@
 'use client';
 
-import type { CSSProperties } from 'react';
 import type { BoardPost } from 'src/api/board-api';
 
 import Link from 'next/link';
 import { useRef, useMemo, useState } from 'react';
 
+import { useTheme } from '@mui/material/styles';
 import EastRoundedIcon from '@mui/icons-material/EastRounded';
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import { Box, Alert, Button, Skeleton, ButtonBase, Typography } from '@mui/material';
@@ -29,6 +29,7 @@ export type TrendingPostFeedProps = {
   isLoading: boolean;
   isError: boolean;
   featuredTag?: string;
+  isRefreshing?: boolean;
 };
 
 const FEED_MODES: ReadonlyArray<{ id: FeedMode; label: string }> = [
@@ -53,7 +54,9 @@ export function TrendingPostFeed({
   isLoading,
   isError,
   featuredTag,
+  isRefreshing,
 }: TrendingPostFeedProps) {
+  const theme = useTheme();
   const [mode, setMode] = useState<FeedMode>('popular');
   const [selectedPostKey, setSelectedPostKey] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -74,7 +77,10 @@ export function TrendingPostFeed({
   const handlePostSelect = (postKey: string, revealOnMobile: boolean) => {
     setSelectedPostKey(postKey);
 
-    if (!revealOnMobile || !window.matchMedia('(max-width: 760px)').matches) {
+    if (
+      !revealOnMobile ||
+      !window.matchMedia(theme.breakpoints.down('lg').replace('@media ', '')).matches
+    ) {
       return;
     }
 
@@ -95,6 +101,7 @@ export function TrendingPostFeed({
     return (
       <Alert severity="warning" className={styles.stateMessage}>
         인기글을 불러오지 못했습니다. 실시간 게시판에서 최신 글을 계속 확인할 수 있습니다.
+        <Link href="/board">실시간 게시판 보기</Link>
       </Alert>
     );
   }
@@ -113,17 +120,17 @@ export function TrendingPostFeed({
 
   return (
     <Box component="section" className={styles.feed} aria-labelledby="trending-post-feed-title">
-      <Box className={styles.inner} aria-busy={isLoading}>
+      <Box className={styles.inner} aria-busy={isLoading || isRefreshing}>
         <Box className={styles.heading}>
           <Box>
             <Typography component="p" className={styles.eyebrow}>
-              DAILY TOP 10
+              <span>04</span> 인기 게시글
             </Typography>
             <Typography component="h2" id="trending-post-feed-title">
               오늘의 인기글
             </Typography>
             <Typography component="p" className={styles.description}>
-              Top 10 순위와 게시글별 AI 요약·태그를 표시합니다.
+              게시글을 선택하면 요약과 원문을 확인할 수 있습니다.
             </Typography>
           </Box>
 
@@ -138,6 +145,11 @@ export function TrendingPostFeed({
           <Alert severity="warning" className={styles.inlineAlert}>
             최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.
           </Alert>
+        )}
+        {isRefreshing && !isError && (
+          <p className={styles.modeNote} role="status">
+            인기글을 갱신하고 있습니다.
+          </p>
         )}
 
         <Box className={styles.toolbar}>
@@ -178,12 +190,7 @@ export function TrendingPostFeed({
                 : false;
 
               return (
-                <Box
-                  component="li"
-                  key={entry.key}
-                  className={styles.postItem}
-                  style={{ '--feed-index': index } as CSSProperties}
-                >
+                <Box component="li" key={entry.key} className={styles.postItem}>
                   <ButtonBase
                     type="button"
                     aria-pressed={selected}
@@ -231,7 +238,7 @@ export function TrendingPostFeed({
                     </Box>
 
                     <Typography component="span" className={styles.rowIndicator} aria-hidden="true">
-                      ──
+                      <EastRoundedIcon fontSize="small" />
                     </Typography>
                   </ButtonBase>
                 </Box>
@@ -295,7 +302,7 @@ function PostPreview({
         ) : (
           <Box className={styles.thumbnailFallback} aria-hidden="true">
             <Typography component="span">{getSourceLabel(post).slice(0, 1)}</Typography>
-            <Typography component="small">IMAGE NOT PROVIDED</Typography>
+            <Typography component="small">{getSourceLabel(post)}</Typography>
           </Box>
         )}
 
@@ -332,12 +339,10 @@ function PostPreview({
           </Box>
         )}
 
-        {summary && (
-          <Box className={styles.summary}>
-            <Typography component="span">AI SUMMARY</Typography>
-            <Typography component="p">{summary}</Typography>
-          </Box>
-        )}
+        <Box className={styles.summary}>
+          <Typography component="span">AI 요약</Typography>
+          <Typography component="p">{summary || '아직 제공된 요약이 없습니다.'}</Typography>
+        </Box>
 
         {metrics.length > 0 && (
           <Box className={styles.metrics} aria-label="실제 게시글 지표">
@@ -540,10 +545,10 @@ function getModeLabel(mode: FeedMode) {
 
 function getModeDescription(mode: FeedMode) {
   if (mode === 'reaction') {
-    return '실제 일간·반응 점수가 있는 글부터 정렬';
+    return '현재 Top 10 내 일간·반응 점수순';
   }
   if (mode === 'latest') {
-    return '실제 게시 시각이 최근인 글부터 정렬';
+    return '현재 Top 10 내 게시 시각순';
   }
-  return 'Top 10 API가 제공한 순서';
+  return '오늘의 Top 10 순위순';
 }

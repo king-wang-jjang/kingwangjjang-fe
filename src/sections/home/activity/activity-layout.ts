@@ -2,223 +2,89 @@ import type { Simulation, SimulationNodeDatum, SimulationLinkDatum } from 'd3-fo
 
 import type { ActivityTopic, ActivityConnection } from './activity-data';
 
-export type TopicLayout = {
-  id: string;
-  x: number;
-  y: number;
-  radius: number;
-  rankingX: number;
-  rankingY: number;
-};
-
-type LayoutNode = SimulationNodeDatum & {
-  id: string;
-  radius: number;
-  activityScore: number;
-  clusterIndex: number;
-};
-
+export type TopicLayout = { id: string; x: number; y: number; radius: number };
+type LayoutNode = SimulationNodeDatum &
+  TopicLayout & { activityScore: number; clusterIndex: number };
 type LayoutLink = SimulationLinkDatum<LayoutNode>;
+type LayoutResult = { simulation: Simulation<LayoutNode, LayoutLink>; layouts: TopicLayout[] };
 
-export type ActivityLayoutController = {
-  simulation: Simulation<LayoutNode, LayoutLink>;
-  layouts: TopicLayout[];
-};
-
-const MIN_DESKTOP_RADIUS = 18;
-const MAX_DESKTOP_RADIUS = 54;
-const MIN_COMPACT_RADIUS = 14;
-const MAX_COMPACT_RADIUS = 38;
-const COMPACT_LAYOUT_BREAKPOINT = 900;
-
-/**
- * D3 owns only the target geometry. React keeps ownership of the SVG DOM and
- * Anime.js interpolates between these coordinates during scroll.
- */
+/** D3 calculates bounded target coordinates only; it never writes to the SVG DOM. */
 export async function calculateActivityLayout(
   topics: readonly ActivityTopic[],
   connections: readonly ActivityConnection[],
   width: number,
   height: number
-): Promise<ActivityLayoutController> {
+): Promise<LayoutResult> {
   const { forceX, forceY, forceLink, forceManyBody, forceSimulation, forceCollide, forceRadial } =
     await import('d3-force');
-  const compact = width < COMPACT_LAYOUT_BREAKPOINT;
-  const safeWidth = Math.max(width, 280);
-  const safeHeight = Math.max(height, compact ? 560 : 620);
-  const centerX = safeWidth / 2;
-  const centerY = safeHeight * (compact ? 0.49 : 0.52);
+  const compact = width < 600;
   const maxVolume = Math.max(...topics.map((topic) => topic.volume), 1);
-  const sourceIds = Array.from(
-    new Set(topics.map((topic) => topic.sources[0]?.id ?? 'source:unknown'))
+  const maxRadius = Math.min(
+    compact ? 51 : 62,
+    Math.sqrt((width * height) / Math.max(topics.length, 1)) * 0.32
   );
-  const minRadius = compact ? MIN_COMPACT_RADIUS : MIN_DESKTOP_RADIUS;
-  const maxRadius = compact ? MAX_COMPACT_RADIUS : MAX_DESKTOP_RADIUS;
-  const radiusRange = maxRadius - minRadius;
-  const horizontalPadding = compact
-    ? Math.min(58, safeWidth * 0.15)
-    : Math.min(92, safeWidth * 0.12);
-  const verticalPadding = compact ? 108 : 112;
-
+  const minRadius = Math.min(30, maxRadius * 0.7);
+  const sources = Array.from(new Set(topics.map((topic) => topic.sources[0]?.id ?? 'unknown')));
   const nodes: LayoutNode[] = topics.map((topic, index) => {
-    const angle = (Math.PI * 2 * index) / Math.max(topics.length, 1) - Math.PI / 2;
-    const initialOrbit = Math.min(safeWidth, safeHeight) * (compact ? 0.24 : 0.29);
-    const volumeRatio = Math.log1p(topic.volume) / Math.log1p(maxVolume);
-
+    const angle = index * 2.399963;
+    const distance = Math.sqrt(index / Math.max(topics.length, 1)) * Math.min(width, height) * 0.38;
     return {
       id: topic.id,
-      radius: minRadius + radiusRange * Math.sqrt(volumeRatio),
       activityScore: topic.activityScore,
-      clusterIndex: sourceIds.indexOf(topic.sources[0]?.id ?? 'source:unknown'),
-      x: centerX + Math.cos(angle) * initialOrbit,
-      y: centerY + Math.sin(angle) * initialOrbit,
-      vx: 0,
-      vy: 0,
+      clusterIndex: sources.indexOf(topic.sources[0]?.id ?? 'unknown'),
+      radius:
+        minRadius +
+        (maxRadius - minRadius) * Math.sqrt(Math.log1p(topic.volume) / Math.log1p(maxVolume)),
+      x: width / 2 + Math.cos(angle) * distance,
+      y: height / 2 + Math.sin(angle) * distance,
     };
   });
-  const nodeIds = new Set(nodes.map((node) => node.id));
+  const ids = new Set(nodes.map((node) => node.id));
   const links: LayoutLink[] = connections
-    .filter((connection) => nodeIds.has(connection.sourceId) && nodeIds.has(connection.targetId))
-    .map((connection) => ({ source: connection.sourceId, target: connection.targetId }));
-  const clusterSpan = compact ? safeWidth * 0.42 : safeWidth * 0.62;
-
-  const simulation = forceSimulation<LayoutNode>(nodes)
+    .filter((link) => ids.has(link.sourceId) && ids.has(link.targetId))
+    .map((link) => ({ source: link.sourceId, target: link.targetId }));
+  const simulation = forceSimulation(nodes)
     .force(
       'link',
       forceLink<LayoutNode, LayoutLink>(links)
         .id((node) => node.id)
-        .distance((link) => {
-          const source = link.source as LayoutNode;
-          const target = link.target as LayoutNode;
-          return source.radius + target.radius + (compact ? 44 : 68);
-        })
-        .strength(0.085)
+        .distance(
+          (link) => (link.source as LayoutNode).radius + (link.target as LayoutNode).radius + 26
+        )
+        .strength(0.06)
     )
-    .force('charge', forceManyBody<LayoutNode>().strength(compact ? -48 : -82))
+    .force('charge', forceManyBody().strength(-36))
     .force(
       'collision',
       forceCollide<LayoutNode>()
-        .radius((node) => node.radius + (compact ? 12 : 20))
-        .strength(0.96)
-        .iterations(2)
+        .radius((node) => node.radius + 7)
+        .strength(1)
+        .iterations(3)
     )
     .force(
-      'cluster-x',
-      forceX<LayoutNode>((node) => {
-        const divisor = sourceIds.length - 1;
-        const clusterOffset = divisor > 0 ? (node.clusterIndex / divisor - 0.5) * clusterSpan : 0;
-        const activityPull = 1 - node.activityScore / 100;
-        return centerX + clusterOffset * (0.34 + activityPull * 0.66);
-      }).strength(0.085)
+      'x',
+      forceX<LayoutNode>(
+        (node) =>
+          width / 2 +
+          (sources.length > 1 ? (node.clusterIndex / (sources.length - 1) - 0.5) * width * 0.36 : 0)
+      ).strength(0.035)
     )
+    .force('y', forceY(height / 2).strength(0.035))
     .force(
-      'cluster-y',
-      forceY<LayoutNode>((node) => {
-        const wave =
-          sourceIds.length > 1 ? Math.sin((node.clusterIndex + 1) * 1.9) * safeHeight * 0.08 : 0;
-        return centerY + wave;
-      }).strength(0.08)
-    )
-    .force(
-      'activity-center',
+      'activity',
       forceRadial<LayoutNode>(
-        (node) => (1 - node.activityScore / 100) * Math.min(safeWidth, safeHeight) * 0.32,
-        centerX,
-        centerY
-      ).strength(0.12)
+        (node) => (1 - node.activityScore / 100) * Math.min(width, height) * 0.4,
+        width / 2,
+        height / 2
+      ).strength(0.1)
     )
     .stop();
-
-  for (let tick = 0; tick < 220; tick += 1) {
+  for (let tick = 0; tick < (compact ? 120 : 180); tick += 1) {
     simulation.tick();
     nodes.forEach((node) => {
-      node.x = clamp(
-        node.x ?? centerX,
-        horizontalPadding + node.radius,
-        safeWidth - horizontalPadding - node.radius
-      );
-      node.y = clamp(
-        node.y ?? centerY,
-        verticalPadding + node.radius,
-        safeHeight - verticalPadding - node.radius
-      );
+      node.x = Math.min(width - node.radius - 8, Math.max(node.radius + 8, node.x));
+      node.y = Math.min(height - node.radius - 8, Math.max(node.radius + 8, node.y));
     });
   }
-
-  const rankingStartY = compact ? 205 : 202;
-  const visibleRankCount = Math.min(topics.length, compact ? 5 : 7);
-  const availableRankingHeight = Math.max(safeHeight - rankingStartY - 72, 48);
-  const rankingGap = Math.min(
-    compact ? 66 : 72,
-    availableRankingHeight / Math.max(visibleRankCount - 1, 1)
-  );
-  const rankingX = compact ? Math.max(36, safeWidth * 0.12) : Math.max(72, safeWidth * 0.12);
-  const layouts = nodes.map((node, index) => ({
-    id: node.id,
-    x: clamp(
-      node.x ?? centerX,
-      horizontalPadding + node.radius,
-      safeWidth - horizontalPadding - node.radius
-    ),
-    y: clamp(
-      node.y ?? centerY,
-      verticalPadding + node.radius,
-      safeHeight - verticalPadding - node.radius
-    ),
-    radius: node.radius,
-    rankingX,
-    rankingY: rankingStartY + index * rankingGap,
-  }));
-
-  return { simulation, layouts };
-}
-
-export function getFallbackActivityLayout(
-  topics: readonly ActivityTopic[],
-  width: number,
-  height: number
-) {
-  const safeWidth = Math.max(width, 280);
-  const safeHeight = Math.max(height, 560);
-  const maxVolume = Math.max(...topics.map((topic) => topic.volume), 1);
-  const compact = width < COMPACT_LAYOUT_BREAKPOINT;
-  const rankingStartY = compact ? 205 : 202;
-  const visibleRankCount = Math.min(topics.length, compact ? 5 : 7);
-  const availableRankingHeight = Math.max(safeHeight - rankingStartY - 72, 48);
-  const rankingGap = Math.min(
-    compact ? 66 : 72,
-    availableRankingHeight / Math.max(visibleRankCount - 1, 1)
-  );
-  const columns = Math.max(
-    1,
-    Math.min(compact ? 3 : 5, Math.ceil(Math.sqrt(topics.length * (compact ? 0.8 : 1.4))))
-  );
-  const rows = Math.max(1, Math.ceil(topics.length / columns));
-  const horizontalPadding = compact ? Math.min(42, safeWidth * 0.13) : 80;
-  const verticalPadding = compact ? 108 : 112;
-  const cellWidth = (safeWidth - horizontalPadding * 2) / columns;
-  const cellHeight = (safeHeight - verticalPadding * 2) / rows;
-  const minRadius = compact ? MIN_COMPACT_RADIUS : MIN_DESKTOP_RADIUS;
-  const maxRadius = compact ? MAX_COMPACT_RADIUS : MAX_DESKTOP_RADIUS;
-
-  return topics.map<TopicLayout>((topic, index) => {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    const volumeRatio = Math.log1p(topic.volume) / Math.log1p(maxVolume);
-    const desiredRadius = minRadius + Math.sqrt(volumeRatio) * (maxRadius - minRadius);
-    const radius = Math.max(10, Math.min(desiredRadius, cellWidth * 0.34, cellHeight * 0.34));
-
-    return {
-      id: topic.id,
-      x: horizontalPadding + cellWidth * (column + 0.5),
-      y: verticalPadding + cellHeight * (row + 0.5),
-      radius,
-      rankingX: compact ? Math.max(36, safeWidth * 0.12) : Math.max(72, safeWidth * 0.12),
-      rankingY: rankingStartY + index * rankingGap,
-    };
-  });
-}
-
-function clamp(value: number, minimum: number, maximum: number) {
-  return Math.min(maximum, Math.max(minimum, value));
+  return { simulation, layouts: nodes.map(({ id, x, y, radius }) => ({ id, x, y, radius })) };
 }

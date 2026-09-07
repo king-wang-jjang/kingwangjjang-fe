@@ -652,8 +652,8 @@ assert.match(
 );
 assert.match(
   activityStory,
-  /const \{ animate, stagger, utils, createTimeline \} = await import\('animejs'\)/,
-  'the activity story should load Anime.js only when its enhanced motion is initialized'
+  /import\('animejs'\)/,
+  'the tag field should load Anime.js only for its optional visual transition'
 );
 assert.match(
   activityLayout,
@@ -662,48 +662,38 @@ assert.match(
 );
 assert.match(
   activityStory,
-  /typeof IntersectionObserver !== 'undefined'[\s\S]*new IntersectionObserver\([\s\S]*calculate\(\)\.catch\(handleCalculationError\)/,
-  'the force layout should wait until the activity story approaches the viewport'
+  /new IntersectionObserver\([\s\S]*if \(nearViewport\) schedule\(\)/,
+  'the force layout should wait until the tag field approaches the viewport'
 );
 assert.match(
   activityStory,
-  /const staticLayout = usePrefersStaticActivity\(\)[\s\S]*if \(staticLayout \|\| motionUnavailable\) \{[\s\S]*<ReducedActivityStory/,
-  'the activity story should render a static semantic alternative for reduced motion, short viewports, and motion setup failure'
+  /const staticLayout = useMediaQuery\('\(prefers-reduced-motion: reduce\), \(max-height: 700px\)'\)[\s\S]*<ul className=\{styles\.staticTags\}/,
+  'the tag field should retain a semantic alternative for reduced motion, short viewports, and loading failure'
+);
+assert.doesNotMatch(
+  activityStoryStyles,
+  /position:\s*sticky|(?:min-)?height:\s*[2-9]\d{2}(?:s|d)?vh/,
+  'the home report should not delay ranking access with a pinned scroll story'
 );
 assert.match(
   activityStoryStyles,
-  /\.stage\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*72px;/,
-  'the activity story should keep its animated stage pinned while the story scrolls'
-);
-assert.match(
-  activityStoryStyles,
-  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.stage\s*\{[\s\S]*position:\s*relative;[\s\S]*animation:\s*none !important;/,
-  'the activity story stylesheet should release sticky motion and animations when requested'
+  /@media \(prefers-reduced-motion: reduce\)/,
+  'the report stylesheet should respect reduced motion'
 );
 assert.match(
   crossCommunityStory,
   /const sources = topic\.sources\.slice\(0, MAX_SOURCE_CARDS\)[\s\S]*source\.contributionRatio[\s\S]*source\.contribution[\s\S]*source\.representativePost/,
   'the cross-community story should render its cards only from adapted source data'
 );
-assert.match(
-  crossCommunityStory,
-  /const \{ createTimeline \} = await import\('animejs'\)/,
-  'the cross-community story should lazy-load its Anime.js timeline'
-);
-assert.match(
-  crossCommunityStory,
-  /window\.matchMedia\([\s\S]*'\(prefers-reduced-motion: reduce\), \(max-height: 700px\)'[\s\S]*staticLayoutQuery\.matches[\s\S]*story\.dataset\.motion = 'reduced'[\s\S]*return undefined/,
-  'the cross-community story should skip its timeline for reduced motion and short viewports'
+assert.doesNotMatch(
+  crossCommunityStoryStyles,
+  /position:\s*sticky|(?:min-)?height:\s*[2-9]\d{2}(?:s|d)?vh/,
+  'source distribution should remain in the normal document flow'
 );
 assert.match(
   crossCommunityStoryStyles,
-  /\.stage\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*72px;/,
-  'the source distribution stage should stay pinned during its scroll story'
-);
-assert.match(
-  crossCommunityStoryStyles,
-  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.stage\s*\{[\s\S]*position:\s*relative;[\s\S]*\.sourceCard\s*\{[\s\S]*transition:\s*none;/,
-  'the source distribution stylesheet should provide a non-sticky reduced-motion layout'
+  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.sourceCard\s*\{[\s\S]*transition:\s*none;/,
+  'source distribution should disable decorative transitions when requested'
 );
 assert.match(
   trendingPostFeed,

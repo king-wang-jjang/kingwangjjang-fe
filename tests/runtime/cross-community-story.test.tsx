@@ -58,4 +58,25 @@ describe('CrossCommunityStory', () => {
     expect(screen.getAllByText('연결된 Top 10 글 없음')).toHaveLength(2);
     expect(screen.queryByText('대표 게시글 집계 중')).toBeNull();
   });
+
+  test('keeps all six returned sources and their whole-topic shares accessible', () => {
+    const topic = {
+      ...TOPIC,
+      sourceCount: 6,
+      sources: Array.from({ length: 6 }, (_, index) => ({
+        id: `source:${index}`,
+        site: `community-${index}`,
+        name: `커뮤니티 ${index + 1}`,
+        contribution: 1,
+        contributionRatio: 0.1,
+      })),
+    };
+    const screen = render(<CrossCommunityStory topic={topic} />);
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(6);
+    expect(screen.getAllByText('10%')).toHaveLength(6);
+    expect(screen.getByRole('link', { name: /커뮤니티 6에서/ }).getAttribute('href')).toContain(
+      'sites=community-5'
+    );
+  });
 });

@@ -42,12 +42,14 @@ export function HomeView() {
         isLoading={issueOverviewQuery.isPending}
         isError={issueOverviewQuery.isError}
         onTopicSelect={handleTopicSelect}
+        isRefreshing={issueOverviewQuery.isFetching && !issueOverviewQuery.isPending}
       />
 
       <CrossCommunityStory
         topic={issueOverviewQuery.isPending ? undefined : (activityData?.topics[0] ?? null)}
         windowHours={activityData?.windowHours}
         generatedAt={activityData?.generatedAt}
+        isError={issueOverviewQuery.isError}
       />
 
       <Box id="popular-feed" className={styles.feedAnchor}>
@@ -56,16 +58,14 @@ export function HomeView() {
           isLoading={topBoardsQuery.isPending}
           isError={topBoardsQuery.isError}
           featuredTag={activityData?.topics[0]?.label}
+          isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
         />
       </Box>
 
       <Box component="footer" className={styles.footer}>
         <Box>
-          <Typography component="p">마약.kr / COMMUNITY DATA</Typography>
-          <Typography component="h2">
-            커뮤니티 게시글
-            <br /> 수집·요약·태그 통계
-          </Typography>
+          <Typography component="p">마약.kr</Typography>
+          <Typography component="h2">커뮤니티 게시글 수집·요약·태그 통계</Typography>
         </Box>
         <Box className={styles.footerMeta}>
           <Typography component="p">

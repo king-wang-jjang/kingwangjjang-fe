@@ -1,77 +1,62 @@
 .home {
   min-width: 0;
-  overflow: clip;
-  background: var(--mui-palette-background-default);
+  color: var(--home-ink);
+  background: var(--home-canvas);
 }
-
 .feedAnchor {
-  scroll-margin-top: 72px;
+  scroll-margin-top: 100px;
 }
-
 .footer {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-  width: min(calc(100% - 96px), 1480px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 72px;
-  align-items: end;
+  width: min(calc(100% - var(--home-gutter) * 2), 1536px);
   margin: 0 auto;
-  padding: 104px 0 88px;
-  border-top: 1px solid var(--mui-palette-divider);
+  padding: 48px 0 56px;
+  border-top: 1px solid var(--home-rule);
 }
-
 .footer > div:first-child > p {
-  margin: 0 0 24px;
-  color: var(--mui-palette-secondary-main);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  margin: 0 0 16px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
-
 .footer h2 {
   margin: 0;
-  font-size: clamp(2.2rem, 4.8vw, 5.4rem);
-  font-weight: 690;
-  line-height: 0.98;
-  letter-spacing: -0.065em;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--home-muted);
 }
-
 .footerMeta {
   display: grid;
+  gap: 14px;
   justify-items: start;
-  gap: 26px;
 }
-
 .footerMeta p {
-  max-width: 500px;
   margin: 0;
-  color: var(--mui-palette-text-secondary);
-  font-size: 0.8rem;
+  max-width: 510px;
+  font-size: 12px;
   line-height: 1.7;
+  color: var(--home-muted);
   word-break: keep-all;
 }
-
 .footerMeta a {
-  min-height: 42px;
-  padding: 0 0 3px;
-  color: var(--mui-palette-text-primary);
-  border-bottom: 1px solid currentcolor;
-  border-radius: 0;
+  min-height: 44px;
+  padding: 0;
+  color: var(--home-ink);
+  font-size: 13px;
 }
-
-@media (max-width: 780px) {
-  .feedAnchor {
-    scroll-margin-top: 64px;
-  }
-
+.footerMeta a:hover {
+  color: var(--home-ink);
+  text-decoration: underline;
+}
+@media (max-width: 899.95px) {
   .footer {
     grid-template-columns: 1fr;
-    width: calc(100% - 40px);
-    gap: 36px;
-    padding: 72px 0 64px;
+    gap: 24px;
+    padding: 32px 0 40px;
   }
-
-  .footer h2 {
-    font-size: clamp(2.35rem, 12vw, 4.2rem);
+  .feedAnchor {
+    scroll-margin-top: 88px;
   }
 }

@@ -39,6 +39,10 @@ import { ColorModeToggle } from 'src/theme/color-mode-toggle';
 import { isAdmin } from 'src/auth/permissions';
 import SocialLoginButtons from 'src/auth/components/form-oauth';
 
+// Home tokens intentionally do not change the shared application theme.
+// eslint-disable-next-line perfectionist/sort-imports
+import homeDesign from 'src/sections/home/home-design.module.css';
+
 const drawerWidth = 236;
 const headerHeight = 58;
 
@@ -283,24 +287,26 @@ export function AppShell({ children }: Props) {
 
   return (
     <Box
+      className={isHomeRoute ? homeDesign.theme : undefined}
       sx={{
         '--board-sticky-top': headerHidden ? '12px' : '78px',
         width: '100%',
         minHeight: '100vh',
-        bgcolor: 'background.default',
-        color: 'text.primary',
+        bgcolor: isHomeRoute ? 'var(--home-canvas)' : 'background.default',
+        color: isHomeRoute ? 'var(--home-ink)' : 'text.primary',
       }}
     >
       <AppBar
         className="app-header"
         position="fixed"
+        enableColorOnDark={isHomeRoute}
         elevation={0}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          color: isHomeRoute ? '#f3f1e9' : 'text.primary',
-          bgcolor: isHomeRoute ? '#0d0f0d' : 'background.default',
-          borderBottom: 1,
-          borderColor: isHomeRoute ? 'rgba(243, 241, 233, 0.14)' : 'divider',
+          color: isHomeRoute ? 'var(--home-ink)' : 'text.primary',
+          bgcolor: isHomeRoute ? 'var(--home-canvas)' : 'background.default',
+          borderBottom: isHomeRoute ? 0 : 1,
+          borderColor: 'divider',
           boxShadow: 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
           '&:focus-within': {
@@ -317,11 +323,9 @@ export function AppShell({ children }: Props) {
       >
         <Toolbar
           sx={{
-            minHeight: isHomeRoute ? { xs: 64, md: 72 } : headerHeight,
-            width: isHomeRoute
-              ? { xs: 'calc(100% - 40px)', md: 'min(calc(100% - 96px), 1480px)' }
-              : '100%',
-            maxWidth: isHomeRoute ? 1480 : 'none',
+            minHeight: isHomeRoute ? { xs: 72, md: 96 } : headerHeight,
+            width: isHomeRoute ? 'min(calc(100% - var(--home-gutter) * 2), 1536px)' : '100%',
+            maxWidth: isHomeRoute ? 1536 : 'none',
             mx: isHomeRoute ? 'auto' : 0,
             mt: 0,
             px: isHomeRoute ? 0 : { xs: 1.5, md: 3 },
@@ -334,11 +338,12 @@ export function AppShell({ children }: Props) {
             href="/"
             aria-label="홈으로 이동"
             sx={{
-              width: isHomeRoute ? { xs: 40, sm: 152 } : 40,
+              width: isHomeRoute ? 'auto' : 40,
               height: 40,
               display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: isHomeRoute ? 'flex-start' : 'center',
+              gap: isHomeRoute ? 1.5 : 0,
               flexShrink: 0,
             }}
           >
@@ -354,8 +359,8 @@ export function AppShell({ children }: Props) {
                   component="span"
                   sx={{
                     display: { xs: 'none', sm: 'block' },
-                    fontSize: '1.05rem',
-                    fontWeight: 750,
+                    fontSize: '1.4rem',
+                    fontWeight: 600,
                     letterSpacing: '-0.035em',
                   }}
                 >
@@ -381,7 +386,10 @@ export function AppShell({ children }: Props) {
                 left: '50%',
                 display: { xs: 'none', md: 'inline-flex' },
                 alignItems: 'center',
-                gap: 2.5,
+                gap: 0.5,
+                p: 0.75,
+                borderRadius: '999px',
+                bgcolor: 'var(--home-paper)',
                 transform: 'translateX(-50%)',
               }}
             >
@@ -396,20 +404,18 @@ export function AppShell({ children }: Props) {
                   component={Link}
                   href={item.href}
                   sx={{
-                    minHeight: 71,
-                    px: 0,
+                    minHeight: 44,
+                    px: 2.5,
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'inherit',
-                    borderBottom: 2,
-                    borderColor: 'transparent',
-                    fontSize: '0.82rem',
-                    fontWeight: 650,
-                    transition: 'color 160ms ease, border-color 160ms ease',
+                    borderRadius: '999px',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    transition: 'background-color 150ms ease',
                     '&:hover': {
-                      color: 'secondary.main',
-                      borderColor: 'secondary.main',
+                      bgcolor: 'var(--home-subtle)',
                     },
                   }}
                 >
@@ -428,17 +434,20 @@ export function AppShell({ children }: Props) {
               flexShrink: 0,
               ...(isHomeRoute && {
                 '& > .MuiIconButton-root': {
-                  width: 40,
-                  height: 40,
-                  bgcolor: 'transparent',
-                  border: 1,
-                  borderColor: 'rgba(243, 241, 233, 0.18)',
-                  borderRadius: 0,
+                  width: { xs: 44, md: 48 },
+                  height: { xs: 44, md: 48 },
+                  color: 'var(--home-ink)',
+                  bgcolor: 'var(--home-paper)',
+                  border: 0,
+                  borderRadius: '50%',
                 },
                 '& .kakao-login-button': {
-                  minHeight: 40,
-                  px: 1.5,
-                  borderRadius: 0,
+                  minHeight: { xs: 44, md: 48 },
+                  px: 2,
+                  borderRadius: '999px',
+                  bgcolor: 'var(--home-primary)',
+                  color: 'var(--home-primary-ink)',
+                  borderColor: 'transparent',
                   '&:hover': {
                     filter: 'brightness(0.96)',
                   },
@@ -472,13 +481,24 @@ export function AppShell({ children }: Props) {
         open={mobileOpen}
         onClose={toggleMobileNav}
         ModalProps={{ keepMounted: true }}
+        anchor={isHomeRoute ? 'right' : 'left'}
+        slotProps={{ paper: { className: isHomeRoute ? homeDesign.theme : undefined } }}
         sx={{
           display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            bgcolor: 'background.default',
-            borderColor: 'divider',
+            bgcolor: isHomeRoute ? 'var(--home-paper)' : 'background.default',
+            borderColor: isHomeRoute ? 'var(--home-rule)' : 'divider',
+            ...(isHomeRoute && {
+              borderRadius: '24px 0 0 24px',
+              '& .MuiListItemButton-root': {
+                minHeight: 48,
+                borderRadius: '999px',
+                color: 'var(--home-ink)',
+              },
+              '& .MuiListItemButton-root.Mui-selected': { bgcolor: 'var(--home-subtle)' },
+            }),
           },
         }}
       >
@@ -494,7 +514,7 @@ export function AppShell({ children }: Props) {
           px: isHomeRoute ? 0 : { xs: 1.5, sm: 2, md: 3 },
           py: isHomeRoute ? 0 : { xs: 1.5, md: 2 },
           pt: isHomeRoute
-            ? { xs: '64px', md: '72px' }
+            ? { xs: '72px', md: '96px' }
             : {
                 xs: `${headerHeight + 16}px`,
                 md: `${headerHeight + 20}px`,
