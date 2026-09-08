@@ -576,9 +576,9 @@ assert.match(
   'the home page should render the activity story from adapted overview data'
 );
 assert.match(
-  homeView,
-  /<CrossCommunityStory[\s\S]*topic=\{issueOverviewQuery\.isPending \? undefined : \(activityData\?\.topics\[0\] \?\? null\)\}[\s\S]*windowHours=\{activityData\?\.windowHours\}[\s\S]*generatedAt=\{activityData\?\.generatedAt\}/,
-  'the home page should distinguish loading, empty, and populated source stories'
+  activityStory,
+  /<CrossCommunityStage[\s\S]*<CrossCommunityStory/,
+  'the shared story should include animated sources and an ordinary-flow fallback'
 );
 assert.match(
   homeView,
@@ -662,23 +662,28 @@ assert.match(
 );
 assert.match(
   activityStory,
-  /new IntersectionObserver\([\s\S]*if \(nearViewport\) schedule\(\)/,
-  'the force layout should wait until the tag field approaches the viewport'
+  /IntersectionObserver/,
+  'story work should be scoped to the visible viewport'
 );
 assert.match(
   activityStory,
-  /const staticLayout = useMediaQuery\('\(prefers-reduced-motion: reduce\), \(max-height: 700px\)'\)[\s\S]*<ul className=\{styles\.staticTags\}/,
-  'the tag field should retain a semantic alternative for reduced motion, short viewports, and loading failure'
+  /prefers-reduced-motion: reduce[\s\S]*all-topic-rankings/,
+  'motion must retain accessible static rankings'
 );
-assert.doesNotMatch(
+assert.match(
   activityStoryStyles,
-  /position:\s*sticky|(?:min-)?height:\s*[2-9]\d{2}(?:s|d)?vh/,
-  'the home report should not delay ranking access with a pinned scroll story'
+  /position:\s*sticky/,
+  'the activity and cross scenes should share a sticky stage'
 );
 assert.match(
   activityStoryStyles,
   /@media \(prefers-reduced-motion: reduce\)/,
-  'the report stylesheet should respect reduced motion'
+  'the stage must release motion when requested'
+);
+assert.match(
+  activityStory,
+  /key=\{topic.id\}[\s\S]*data-node-core[\s\S]*data-rank-label[\s\S]*data-featured-label/,
+  'one stable topic node should become the ranking bullet and featured card'
 );
 assert.match(
   crossCommunityStory,
@@ -717,7 +722,7 @@ assert.match(
 );
 assert.match(
   trendingPostFeedStyles,
-  /\.preview\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*100px;/,
+  /\.preview\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*calc\(var\(--home-header-height\)\s*\+\s*24px\);/,
   'the desktop trending preview should remain visible beside the ranked list'
 );
 assert.match(
@@ -727,8 +732,8 @@ assert.match(
 );
 assert.match(
   crossCommunityStory,
-  /const query = new URLSearchParams\(\{ tag, sites: site \}\)[\s\S]*return `\/board\?\$\{query\.toString\(\)\}`/,
-  'source cards should deep-link to a board filtered by both tag and site'
+  /new URLSearchParams\(\{ tag, sites: site \}\)/,
+  'source links must encode both real tag and source filters'
 );
 assert.doesNotMatch(
   boardView,

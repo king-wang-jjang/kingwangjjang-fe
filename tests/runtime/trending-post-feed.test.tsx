@@ -95,6 +95,23 @@ describe('TrendingPostFeed', () => {
     );
   });
 
+  test('keeps every post directly navigable at its original rank after sorting', async () => {
+    const user = userEvent.setup();
+    const screen = renderFeed();
+
+    await user.click(screen.getByRole('button', { name: '반응' }));
+
+    POSTS.forEach((post, index) => {
+      const detailLink = screen.getByRole('link', {
+        name: `${post.title} 상세 페이지로 이동`,
+      });
+      expect(detailLink.getAttribute('href')).toBe(`/top10?rank=${index + 1}`);
+      expect(detailLink.closest('button')).toBeNull();
+    });
+
+    expect(screen.getByRole('heading', { name: '반응 점수가 가장 높은 글' })).toBeTruthy();
+  });
+
   test('omits missing nullable metrics while preserving a real zero', async () => {
     const user = userEvent.setup();
     const screen = renderFeed();

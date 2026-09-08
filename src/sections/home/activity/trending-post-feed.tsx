@@ -236,11 +236,14 @@ export function TrendingPostFeed({
                         </Box>
                       )}
                     </Box>
-
-                    <Typography component="span" className={styles.rowIndicator} aria-hidden="true">
-                      <EastRoundedIcon fontSize="small" />
-                    </Typography>
                   </ButtonBase>
+                  <Link
+                    href={`/top10?rank=${entry.originalRank}`}
+                    className={styles.directLink}
+                    aria-label={`${entry.post.title} 상세 페이지로 이동`}
+                  >
+                    <EastRoundedIcon fontSize="small" aria-hidden="true" />
+                  </Link>
                 </Box>
               );
             })}

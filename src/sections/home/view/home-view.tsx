@@ -13,7 +13,6 @@ import { useIssueOverview } from 'src/hooks/use-issue-overview';
 import { ActivityStory } from '../activity/activity-story';
 import { adaptActivityData } from '../activity/activity-data';
 import { TrendingPostFeed } from '../activity/trending-post-feed';
-import { CrossCommunityStory } from '../activity/cross-community-story';
 
 // CSS modules stay after application imports to satisfy the repository import groups.
 // eslint-disable-next-line perfectionist/sort-imports
@@ -43,13 +42,6 @@ export function HomeView() {
         isError={issueOverviewQuery.isError}
         onTopicSelect={handleTopicSelect}
         isRefreshing={issueOverviewQuery.isFetching && !issueOverviewQuery.isPending}
-      />
-
-      <CrossCommunityStory
-        topic={issueOverviewQuery.isPending ? undefined : (activityData?.topics[0] ?? null)}
-        windowHours={activityData?.windowHours}
-        generatedAt={activityData?.generatedAt}
-        isError={issueOverviewQuery.isError}
       />
 
       <Box id="popular-feed" className={styles.feedAnchor}>

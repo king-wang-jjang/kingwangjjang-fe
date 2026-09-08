@@ -4,7 +4,9 @@
   background: var(--home-canvas);
 }
 .feedAnchor {
-  scroll-margin-top: 100px;
+  position: relative;
+  scroll-margin-top: calc(var(--home-header-height) + 20px);
+  background: var(--home-canvas);
 }
 .footer {
   display: grid;
@@ -57,6 +59,6 @@
     padding: 32px 0 40px;
   }
   .feedAnchor {
-    scroll-margin-top: 88px;
+    scroll-margin-top: calc(var(--home-header-height) + 16px);
   }
 }

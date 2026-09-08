@@ -303,11 +303,11 @@ export function AppShell({ children }: Props) {
         elevation={0}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          color: isHomeRoute ? 'var(--home-ink)' : 'text.primary',
-          bgcolor: isHomeRoute ? 'var(--home-canvas)' : 'background.default',
+          color: isHomeRoute ? 'var(--home-stage-ink)' : 'text.primary',
+          bgcolor: isHomeRoute ? 'var(--home-stage-bg)' : 'background.default',
           borderBottom: isHomeRoute ? 0 : 1,
-          borderColor: 'divider',
-          boxShadow: 'none',
+          borderColor: isHomeRoute ? 'var(--home-stage-rule)' : 'divider',
+          boxShadow: isHomeRoute ? 'inset 0 -1px 0 var(--home-stage-rule)' : 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
           '&:focus-within': {
             transform: 'translateY(0)',
@@ -323,7 +323,10 @@ export function AppShell({ children }: Props) {
       >
         <Toolbar
           sx={{
-            minHeight: isHomeRoute ? { xs: 72, md: 96 } : headerHeight,
+            minHeight: isHomeRoute ? 'var(--home-header-height)' : headerHeight,
+            ...(isHomeRoute && {
+              '@media (min-width: 0px)': { minHeight: 'var(--home-header-height)' },
+            }),
             width: isHomeRoute ? 'min(calc(100% - var(--home-gutter) * 2), 1536px)' : '100%',
             maxWidth: isHomeRoute ? 1536 : 'none',
             mx: isHomeRoute ? 'auto' : 0,
@@ -389,7 +392,7 @@ export function AppShell({ children }: Props) {
                 gap: 0.5,
                 p: 0.75,
                 borderRadius: '999px',
-                bgcolor: 'var(--home-paper)',
+                bgcolor: 'transparent',
                 transform: 'translateX(-50%)',
               }}
             >
@@ -415,7 +418,7 @@ export function AppShell({ children }: Props) {
                     fontWeight: 500,
                     transition: 'background-color 150ms ease',
                     '&:hover': {
-                      bgcolor: 'var(--home-subtle)',
+                      bgcolor: 'var(--home-stage-accent-soft)',
                     },
                   }}
                 >
@@ -434,18 +437,18 @@ export function AppShell({ children }: Props) {
               flexShrink: 0,
               ...(isHomeRoute && {
                 '& > .MuiIconButton-root': {
-                  width: { xs: 44, md: 48 },
-                  height: { xs: 44, md: 48 },
-                  color: 'var(--home-ink)',
-                  bgcolor: 'var(--home-paper)',
+                  width: 44,
+                  height: 44,
+                  color: 'var(--home-stage-ink)',
+                  bgcolor: 'var(--home-stage-accent-soft)',
                   border: 0,
                   borderRadius: '50%',
                 },
                 '& .kakao-login-button': {
-                  minHeight: { xs: 44, md: 48 },
+                  minHeight: 44,
                   px: 2,
                   borderRadius: '999px',
-                  bgcolor: 'var(--home-primary)',
+                  bgcolor: 'var(--home-stage-accent)',
                   color: 'var(--home-primary-ink)',
                   borderColor: 'transparent',
                   '&:hover': {
@@ -514,7 +517,7 @@ export function AppShell({ children }: Props) {
           px: isHomeRoute ? 0 : { xs: 1.5, sm: 2, md: 3 },
           py: isHomeRoute ? 0 : { xs: 1.5, md: 2 },
           pt: isHomeRoute
-            ? { xs: '72px', md: '96px' }
+            ? 'var(--home-header-height)'
             : {
                 xs: `${headerHeight + 16}px`,
                 md: `${headerHeight + 20}px`,

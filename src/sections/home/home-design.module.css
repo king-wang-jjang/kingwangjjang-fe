@@ -1,4 +1,12 @@
 .theme {
+  --home-header-height: 60px;
+  --home-stage-bg: #14121b;
+  --home-stage-ink: #f7f5fb;
+  --home-stage-muted: #aaa6b5;
+  --home-stage-rule: rgba(247, 245, 251, 0.16);
+  --home-stage-accent: #b8a4f4;
+  --home-stage-accent-soft: #30273f;
+  --home-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   --home-canvas: #f5f2ff;
   --home-paper: #fffdf8;
   --home-raised: #ffffff;
@@ -61,8 +69,9 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 900px) {
   .theme {
+    --home-header-height: 76px;
     --home-gutter: 48px;
   }
 }

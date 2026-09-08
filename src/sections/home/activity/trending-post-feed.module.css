@@ -1,7 +1,8 @@
 .feed {
   position: relative;
-  padding: 88px var(--home-gutter) 64px;
+  padding: 104px var(--home-gutter) 80px;
   color: var(--home-ink);
+  background: var(--home-canvas);
 }
 .inner {
   width: min(100%, 1536px);
@@ -126,11 +127,17 @@
   background: var(--home-paper);
   border-radius: 24px;
 }
+.postItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .postItem + .postItem {
   border-top: 1px solid var(--home-rule);
 }
 .postButton {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   min-height: 120px;
   justify-content: flex-start;
   align-items: flex-start;
@@ -139,7 +146,9 @@
   border-radius: 16px;
   color: var(--home-ink);
   text-align: left;
-  transition: background-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    transform 180ms ease;
 }
 .postButton:hover {
   background: var(--home-canvas);
@@ -156,6 +165,7 @@
   font-weight: 500;
   color: var(--home-muted);
   padding-top: 1px;
+  font-family: var(--home-mono);
 }
 .postButtonSelected .rank {
   color: var(--home-ink);
@@ -209,23 +219,32 @@
   color: var(--home-muted);
   font-size: 12px;
 }
-.rowIndicator {
-  display: flex;
-  align-self: center;
+.directLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
   color: var(--home-muted);
-  opacity: 0;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
 }
-.postButtonSelected .rowIndicator {
-  opacity: 1;
+.directLink:hover {
+  color: var(--home-ink);
+  background: var(--home-subtle);
 }
 .previewSlot {
   min-width: 0;
   align-self: stretch;
-  scroll-margin-top: 104px;
+  scroll-margin-top: calc(var(--home-header-height) + 24px);
 }
 .preview {
   position: sticky;
-  top: 100px;
+  top: calc(var(--home-header-height) + 24px);
   overflow: hidden;
   border-radius: 24px;
   background: var(--home-paper);
@@ -276,6 +295,7 @@
 }
 .mediaLabel strong {
   font-weight: 600;
+  font-family: var(--home-mono);
 }
 .previewBody {
   padding: 32px;
@@ -354,6 +374,7 @@
 .metrics strong {
   font-size: 17px;
   font-weight: 500;
+  font-family: var(--home-mono);
 }
 .previewActions {
   display: flex;
@@ -492,8 +513,8 @@
   .postMeta {
     font-size: 11px;
   }
-  .rowIndicator {
-    display: none;
+  .directLink {
+    margin-right: 0;
   }
   .previewMedia {
     height: 240px;
@@ -515,7 +536,12 @@
     gap: 20px;
   }
   .previewSlot {
-    scroll-margin-top: 84px;
+    scroll-margin-top: calc(var(--home-header-height) + 20px);
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .postButton:hover {
+    transform: translateY(-2px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -523,7 +549,8 @@
     animation: none;
   }
   .postButton,
-  .modeTab {
+  .modeTab,
+  .directLink {
     transition: none;
   }
   .postButton:hover {
