@@ -102,10 +102,11 @@ const check = (condition, message) => {
   if (!condition) failures.push(message);
 };
 
-async function makePage(viewport, mode = 'normal', sourceCount = 3) {
+async function makePage(viewport, mode = 'normal', sourceCount = 3, recordMotion = false) {
   const context = await browser.newContext({
     viewport,
     reducedMotion: mode === 'reduced' ? 'reduce' : 'no-preference',
+    ...(recordMotion ? { recordVideo: { dir: artifacts, size: viewport } } : {}),
   });
   const page = await context.newPage();
   page.on('pageerror', (error) => report.errors.push(error.message));
@@ -170,11 +171,13 @@ async function makePage(viewport, mode = 'normal', sourceCount = 3) {
   return { page, context };
 }
 async function screenshot(page, name) {
+  const scrollPosition = await page.evaluate(() => ({ x: scrollX, y: scrollY }));
   await page.screenshot({ path: path.join(artifacts, name + '.png') });
   await page.screenshot({ path: path.join(artifacts, name + '-full.png'), fullPage: true });
   await page
     .locator('#popular-feed')
     .screenshot({ path: path.join(artifacts, name + '-feed.png') });
+  await page.evaluate(({ x, y }) => scrollTo(x, y), scrollPosition);
 }
 async function inspect(page, label) {
   const result = await page.evaluate(() => {
@@ -236,6 +239,7 @@ async function inspectMotion(page, label, shouldMove) {
           hidden: flow.getAttribute('aria-hidden') === 'true',
           pointerEvents: getComputedStyle(flow).pointerEvents,
         })),
+        liveFrame: document.querySelector('[data-ascii-live]')?.textContent ?? '',
         overflow: document.documentElement.scrollWidth > innerWidth,
       };
     });
@@ -247,7 +251,10 @@ async function inspectMotion(page, label, shouldMove) {
   const moved = after.tracks.filter(
     (track, index) => track.transform !== before.tracks[index]?.transform
   );
+  const charactersChanged = before.liveFrame !== after.liveFrame;
   check(after.tracks.length > 0, label + ' missing ASCII motion tracks');
+  check(after.liveFrame.trim().length > 0, label + ' missing live ASCII sculpture');
+  check(/^[\x20-\x7e\n]+$/.test(after.liveFrame), label + ' non-ASCII sculpture characters');
   check(
     after.tracks
       .filter((track) => track.flow === 'ambient')
@@ -268,9 +275,11 @@ async function inspectMotion(page, label, shouldMove) {
       label + ' ambient flow did not move'
     );
     check(after.running > 0, label + ' missing running animation');
+    check(charactersChanged, label + ' live ASCII characters did not animate');
   } else {
     check(moved.length === 0, label + ' ASCII tracks continued moving');
     check(after.running === 0, label + ' home animations continued running');
+    check(!charactersChanged, label + ' live ASCII characters continued animating');
   }
   check(!before.overflow && !after.overflow, label + ' motion caused horizontal overflow');
   report.motion.push({
@@ -278,7 +287,50 @@ async function inspectMotion(page, label, shouldMove) {
     tracks: after.tracks.length,
     moved: moved.length,
     running: after.running,
+    charactersChanged,
   });
+}
+
+async function inspectOffscreenMotion(page) {
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+  check(
+    await page.locator('[data-ascii-flow="signal"]').evaluate((signal) => {
+      const bounds = signal.getBoundingClientRect();
+      return bounds.bottom <= 0 || bounds.top >= innerHeight;
+    }),
+    'live ASCII signal did not leave the viewport for the offscreen check'
+  );
+  // Allow the intersection observer to cancel an already scheduled animation frame.
+  await page.waitForTimeout(100);
+  const before = await page.locator('[data-ascii-live]').textContent();
+  await page.waitForTimeout(450);
+  const after = await page.locator('[data-ascii-live]').textContent();
+  check(before === after, 'offscreen live ASCII characters continued animating');
+  report.motion.push({ label: 'offscreen sculpture', charactersChanged: before !== after });
+  await page.evaluate(() => scrollTo(0, 0));
+  await inspectMotion(page, 'sculpture returned to viewport', true);
+}
+
+async function recordMotionPreview() {
+  const viewport = { width: 1440, height: 900 };
+  const { page, context } = await makePage(viewport, 'normal', 3, true);
+  const video = page.video();
+  const header = page.locator('[data-ascii-flow="signal"]').locator('..');
+  const bounds = await header.boundingBox();
+  await page.waitForTimeout(1500);
+  if (bounds) {
+    await page.mouse.move(bounds.x + bounds.width * 0.2, bounds.y + bounds.height * 0.45);
+    await page.mouse.move(bounds.x + bounds.width * 0.8, bounds.y + bounds.height * 0.65, {
+      steps: 36,
+    });
+  }
+  await page.waitForTimeout(2500);
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(1500);
+  await context.close();
+  await video.saveAs(path.join(artifacts, 'animation.webm'));
+  await video.delete();
+  report.animation = path.join(artifacts, 'animation.webm');
 }
 
 try {
@@ -346,10 +398,12 @@ try {
         'motion control did not indicate resumed'
       );
       await inspectMotion(page, 'user resumed', true);
+      await inspectOffscreenMotion(page);
     }
     if (viewport.width === 2560) await inspectMotion(page, 'ultrawide motion', true);
     await context.close();
   }
+  if (process.env.PULSE_RECORD_MOTION === '1') await recordMotionPreview();
   for (const mode of ['empty', 'error', 'long', 'reduced']) {
     const { page, context } = await makePage({ width: 390, height: 650 }, mode, 6);
     await inspect(page, mode);
@@ -406,6 +460,7 @@ console.log(
       artifacts,
       checks: report.viewports.length,
       motion: report.motion,
+      animation: report.animation,
       errors: report.errors,
       api: report.api,
       failures,

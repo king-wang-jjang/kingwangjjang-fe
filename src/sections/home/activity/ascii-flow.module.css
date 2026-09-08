@@ -14,7 +14,7 @@
   display: grid;
   gap: 160px;
   padding-top: 48px;
-  opacity: 0.24;
+  opacity: 0.34;
   /* Each 288-character tile covers even an ultrawide viewport while drifting. */
   font-size: max(12px, 0.75vw);
   line-height: 1.8;
@@ -22,26 +22,32 @@
 }
 
 .signal {
-  font-size: 10px;
-  line-height: 13px;
-  opacity: 0.72;
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  container-type: inline-size;
+}
+
+.liveFrame {
+  width: fit-content;
+  margin: 0 auto;
+  font-family: var(--home-mono);
+  font-size: min(10px, 2.2cqi);
+  line-height: 1.08;
+  white-space: pre;
 }
 
 .track {
   display: flex;
   width: max-content;
-  animation: flow 48s linear infinite;
+  animation: flow 20s linear infinite;
 }
 
 .track:nth-child(2) {
-  animation-duration: 64s;
+  animation-duration: 28s;
   animation-direction: reverse;
   animation-delay: -24s;
 }
 
 .track:nth-child(3) {
-  animation-duration: 56s;
+  animation-duration: 24s;
   animation-delay: -18s;
 }
 
@@ -50,11 +56,6 @@
   margin: 0;
   font: inherit;
   white-space: pre;
-}
-
-.signal .track {
-  animation-duration: 26s;
-  animation-delay: -8s;
 }
 
 @keyframes flow {
@@ -66,13 +67,13 @@
 @media (max-width: 599.95px) {
   .ambient {
     gap: 200px;
-    opacity: 0.1;
+    opacity: 0.12;
     mask-image: linear-gradient(180deg, #000, transparent 85%);
   }
 
-  .signal {
-    font-size: 9px;
-    line-height: 10px;
+  .liveFrame {
+    font-size: min(7.5px, 2.2cqi);
+    line-height: 1.1;
   }
 }
 

@@ -1,3 +1,6 @@
+import { AsciiSignal } from './ascii-signal';
+
+// eslint-disable-next-line perfectionist/sort-imports
 import styles from './ascii-flow.module.css';
 
 // Periodic, deterministic text tiles keep server/client output identical and the
@@ -25,12 +28,18 @@ const ambientWaves = waves.map((wave) =>
     .join('\n')
 );
 
-export function AsciiFlow({ variant }: { variant: 'ambient' | 'signal' }) {
-  const tracks = variant === 'ambient' ? ambientWaves : waves.slice(0, 1);
+export function AsciiFlow({
+  variant,
+  motionEnabled = true,
+}: {
+  variant: 'ambient' | 'signal';
+  motionEnabled?: boolean;
+}) {
+  if (variant === 'signal') return <AsciiSignal motionEnabled={motionEnabled} />;
 
   return (
     <div className={styles[variant]} data-ascii-flow={variant} aria-hidden="true">
-      {tracks.map((wave, index) => (
+      {ambientWaves.map((wave, index) => (
         <div key={index} className={styles.track} data-ascii-track>
           <pre>{wave}</pre>
           <pre>{wave}</pre>

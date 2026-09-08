@@ -74,6 +74,23 @@
   color: var(--home-muted);
   letter-spacing: 0.04em;
 }
+.touchHint {
+  display: none;
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .pointerHint {
+    display: none;
+  }
+  .touchHint {
+    display: inline;
+  }
+}
+:global([data-home-motion='paused']) .pointerHint {
+  display: none;
+}
+:global([data-home-motion='paused']) .touchHint {
+  display: inline;
+}
 .story .feedLink {
   margin-top: 8px;
   color: var(--home-accent);
@@ -297,5 +314,85 @@
   }
   .topicList li {
     gap: 12px;
+  }
+}
+
+.intro {
+  padding: 24px;
+  border: 1px solid var(--home-rule);
+  border-top: 3px solid var(--home-accent);
+  background: var(--home-accent-wash);
+}
+.story h1 {
+  font-size: clamp(20px, 3vw, 28px);
+  line-height: 1.5;
+}
+.sectionNav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0 40px;
+}
+.sectionNav a {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 14px 16px;
+  border: 1px solid var(--home-rule);
+  background: var(--home-canvas);
+  text-decoration: none;
+}
+.sectionNav a:hover {
+  border-color: var(--home-accent);
+  background: var(--home-accent-wash);
+}
+.sectionNav span {
+  font-size: 11px;
+  color: var(--home-muted);
+}
+.rankings {
+  padding: 24px;
+  border: 1px solid var(--home-rule);
+  border-top: 3px solid var(--home-accent);
+  background: var(--home-canvas);
+  scroll-margin-top: 24px;
+}
+.rankings h2 {
+  font-size: 20px;
+}
+.rankings .rank {
+  color: var(--home-accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+.rankings .meter {
+  color: var(--home-accent);
+}
+.rankings .topicLine button {
+  font-weight: 700;
+}
+@media (max-width: 599.95px) {
+  .intro,
+  .rankings {
+    padding: 16px;
+  }
+  .sectionNav {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .sectionNav a {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .sectionNav strong {
+    font-size: 12px;
+  }
+  .sectionNav span {
+    text-align: right;
   }
 }
