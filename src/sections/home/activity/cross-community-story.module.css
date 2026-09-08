@@ -1,439 +1,77 @@
-.stage {
-  position: absolute;
-  inset: 0;
-  z-index: auto;
-  pointer-events: none;
-  color: var(--home-stage-ink);
-}
-.stageHeading {
-  position: absolute;
-  z-index: 3;
-  top: 30px;
-  left: var(--home-gutter);
-  right: var(--home-gutter);
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  opacity: 0;
-}
-.eyebrow {
-  margin: 0 0 12px;
-  font: 10px var(--home-mono);
-  letter-spacing: 0.12em;
-  color: var(--home-stage-accent);
-}
-.stageHeading h2 {
-  margin: 0;
-  font-weight: 450;
-  font-size: clamp(24px, 3vw, 40px);
-  letter-spacing: -0.04em;
-}
-.timeNote {
-  margin: 4px 0 0;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--home-muted);
-}
-.stage .timeNote {
-  color: var(--home-stage-muted);
-}
-.connectors {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  fill: none;
-  pointer-events: none;
-}
-.connectors path {
-  stroke: var(--home-stage-accent);
-  stroke-width: 1;
-  opacity: 0;
-  vector-effect: non-scaling-stroke;
-}
-.stageSources {
-  margin: 0;
+.sources {
+  width: min(calc(100% - var(--home-gutter) * 2), 960px);
+  margin: 0 auto;
   padding: 0;
-  list-style: none;
+  scroll-margin-top: 16px;
 }
-.sourceSlot {
-  position: absolute;
-  z-index: 3;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
-  transform-origin: center center;
-  border-radius: 24px;
-}
-.sourceCard {
-  display: block;
-  height: 100%;
-  min-height: 44px;
-  padding: 20px;
-  border-radius: 24px;
-  background: var(--home-paper);
-  color: var(--home-ink);
-  text-decoration: none;
-  border: 1px solid var(--home-rule);
-  pointer-events: auto;
-  box-sizing: border-box;
-  transition:
-    border-color 180ms ease,
-    background-color 180ms ease;
-}
-.sourceCard:hover {
-  color: var(--home-ink);
-  border-color: var(--home-primary);
-  background: var(--home-raised);
-}
-.stage .sourceCard {
-  padding: 15px 20px;
-  background: var(--home-stage-accent-soft);
-  color: var(--home-stage-ink);
-  border-color: var(--home-stage-rule);
-}
-.stage .sourceCard:hover {
-  border-color: var(--home-stage-accent);
-  background: #3b304b;
-  color: var(--home-stage-ink);
-}
-.sourceContent {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  min-width: 0;
-}
-.sourceTopline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font: 10px var(--home-mono);
-  color: var(--home-muted);
-}
-.stage .sourceTopline {
-  color: var(--home-stage-accent);
-  font-size: 9px;
-}
-.sourceContent h3 {
-  margin: 12px 0 8px;
-  font-size: 22px;
-  line-height: 1.25;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  word-break: keep-all;
+.sources h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
   overflow-wrap: anywhere;
 }
-.stage .sourceContent h3 {
-  margin: 6px 0 5px;
-  font-size: 19px;
-}
-.sourceValues {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0;
-}
-.sourceValues strong {
-  font: 28px var(--home-mono);
-  letter-spacing: -0.05em;
-}
-.sourceValues > span {
-  font-size: 11px;
-  color: var(--home-muted);
-}
-.stage .sourceValues strong {
-  font-size: 22px;
-}
-.stage .sourceValues > span {
-  font-size: 9px;
-  color: var(--home-stage-muted);
-}
-.asciiMeter {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin: 12px 0;
-  color: var(--home-primary-ink);
-}
-.asciiMeter > span {
-  font: 12px var(--home-mono);
-  letter-spacing: -1px;
-}
-.asciiMeter small {
-  font: 8px var(--home-mono);
-}
-.stage .asciiMeter {
+.sources p {
   margin: 8px 0;
-  color: var(--home-stage-accent);
 }
-.stage .asciiMeter > span {
-  font-size: 10px;
-}
-.representativePost {
-  margin: 0;
+.sources .note {
   color: var(--home-muted);
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.8;
+}
+.rule {
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.stage .representativePost {
-  color: var(--home-stage-muted);
-  font-size: 10px;
-  -webkit-line-clamp: 1;
-}
-.cardAction {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 12px;
-  font-size: 11px;
-}
-.stage .cardAction {
-  padding-top: 6px;
-  font-size: 10px;
-}
-.stage .cardAction svg {
-  font-size: 13px;
-}
-.stageNote {
-  position: absolute;
-  z-index: 3;
-  bottom: 8px;
-  left: var(--home-gutter);
-  right: var(--home-gutter);
-  margin: 0;
-  text-align: center;
-  opacity: 0;
-  font-size: 10px;
-  color: var(--home-stage-muted);
-  line-height: 1.5;
-}
-.stage[data-dense='true'] .cardAction {
-  display: none;
-}
-.stage[data-dense='true'] .sourceCard {
-  padding: 12px 16px;
-}
-.stage[data-dense='true'] .sourceContent h3 {
-  font-size: 16px;
-  margin: 5px 0;
-}
-.stage[data-dense='true'] .sourceValues strong {
-  font-size: 19px;
-}
-.stage[data-dense='true'] .asciiMeter {
-  margin: 6px 0 0;
-}
-.story {
-  width: min(calc(100% - var(--home-gutter) * 2), 1440px);
-  margin: 0 auto;
-  padding: 48px 0 72px;
-  scroll-margin-top: calc(var(--home-header-height) + 20px);
-}
-.distribution {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-  gap: 40px;
-  align-items: start;
-}
-.intro h2 {
-  margin: 0 0 20px;
-  font-weight: 450;
-  font-size: clamp(26px, 3vw, 40px);
-  letter-spacing: -0.04em;
-  word-break: keep-all;
-}
-.story .eyebrow {
-  color: var(--home-primary-ink);
-}
-.topicCard {
-  background: var(--home-subtle);
-  border-radius: 24px;
-  padding: 24px;
-  margin: 24px 0 16px;
-}
-.topicTopline {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  gap: 14px;
-}
-.topicCard h3 {
-  font-weight: 500;
-  font-size: 28px;
-  margin: 28px 0 16px;
-  word-break: keep-all;
-}
-.topicVolume {
-  font: 36px var(--home-mono);
-  margin: 0 0 20px;
-}
-.topicVolume > span {
-  font-size: 12px;
-  margin-left: 8px;
-}
-.topicMeta {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 11px;
-}
-.scopeNote {
-  font-size: 12px;
-  line-height: 1.7;
+  white-space: nowrap;
   color: var(--home-muted);
+  user-select: none;
+}
+.sources .rule {
+  margin: 24px 0;
 }
 .sourceList {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 16px 0;
+  list-style: none;
 }
-.sourceList > li {
-  min-width: 0;
+.sourceList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0 0 12px;
 }
-.sourceList .sourceCard {
-  min-height: 240px;
-}
-.empty {
-  padding: 40px;
-  border: 1px solid var(--home-rule);
-  border-radius: 24px;
-}
-.empty h2 {
-  font-size: 28px;
-  font-weight: 500;
-  margin: 0 0 18px;
-}
-.empty > p {
-  line-height: 1.7;
+.rank {
+  min-width: 2ch;
+  padding-top: 9px;
   color: var(--home-muted);
 }
-.empty a {
+.content {
+  flex: 1;
+  min-width: 0;
+}
+.sourceLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+}
+.sourceLine a {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
   min-height: 44px;
-  color: var(--home-ink);
+  overflow-wrap: anywhere;
 }
-.error {
-  color: var(--home-error);
+.meter {
+  white-space: nowrap;
   font-size: 12px;
-  line-height: 1.6;
 }
-@media (max-width: 899.95px) {
-  .stageHeading {
-    top: 20px;
-    flex-direction: column;
-    gap: 4px;
+.content .note {
+  margin: 0;
+}
+@media (max-width: 599.95px) {
+  .sourceLine {
+    justify-content: flex-start;
+    gap: 0 16px;
   }
-  .stageHeading h2 {
-    font-size: 22px;
-  }
-  .stageHeading .eyebrow {
-    margin-bottom: 10px;
-    font-size: 8px;
-  }
-  .stageHeading .timeNote {
-    font-size: 9px;
-  }
-  .stage .sourceCard {
-    padding: 12px 14px;
-    border-radius: 20px;
-  }
-  .stage .sourceContent h3 {
-    font-size: 16px;
-    margin: 5px 0;
-  }
-  .stage .sourceValues strong {
-    font-size: 20px;
-  }
-  .stage .sourceValues > span {
-    font-size: 8px;
-  }
-  .stage .asciiMeter {
-    gap: 6px;
-    margin: 7px 0;
-  }
-  .stage .asciiMeter small {
-    font-size: 7px;
-  }
-  .stage .representativePost {
-    font-size: 9px;
-  }
-  .stage .cardAction {
-    font-size: 9px;
-  }
-  .stageNote {
-    font-size: 8px;
-    bottom: 7px;
-  }
-  .distribution {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .sourceList {
+  .sourceList li {
     gap: 12px;
   }
-  .sourceList .sourceCard {
-    min-height: 240px;
-    padding: 16px;
-  }
-  .sourceContent h3 {
-    font-size: 20px;
-  }
-  .empty {
-    padding: 24px;
-  }
-}
-@media (max-width: 420px) {
-  .sourceList {
-    grid-template-columns: 1fr;
-  }
-  .sourceList .sourceCard {
-    min-height: 220px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .sourceCard {
-    transition: none;
-  }
-}
-
-.stage[data-tight='true'] .sourceCard {
-  padding: 8px 12px;
-}
-.stage[data-tight='true'] .sourceTopline {
-  font-size: 8px;
-  line-height: 1;
-}
-.stage[data-tight='true'] .sourceContent h3 {
-  font-size: 14px;
-  line-height: 1.2;
-  margin: 4px 0;
-}
-.stage[data-tight='true'] .sourceValues strong {
-  font-size: 16px;
-  line-height: 1.2;
-}
-.stage[data-tight='true'] .asciiMeter {
-  margin: 4px 0 0;
-}
-
-.stage[data-dense='true'] .representativePost {
-  margin-top: 8px;
-}
-.stage[data-tight='true'] .representativePost {
-  display: none;
 }

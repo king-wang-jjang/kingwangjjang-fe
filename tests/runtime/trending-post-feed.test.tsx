@@ -2,7 +2,7 @@ import type { BoardPost } from 'src/api/board-api';
 
 import { test, expect, describe } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, within, fireEvent } from '@testing-library/react';
+import { render, within } from '@testing-library/react';
 
 import { TrendingPostFeed } from 'src/sections/home/activity/trending-post-feed';
 
@@ -154,15 +154,11 @@ describe('TrendingPostFeed', () => {
     expect(screen.getByRole('heading', { name: 'API 첫 번째 글' })).toBeTruthy();
   });
 
-  test('keeps a readable preview and detail link when the image and summary are unavailable', () => {
+  test('uses a text-only preview even when a thumbnail is available', () => {
     const { container, getByText, getByRole } = renderFeed([
       { ...POSTS[2], thumbnail: 'https://example.com/missing.jpg' },
     ]);
-    const image = container.querySelector('#trending-post-preview img');
-    expect(image).toBeTruthy();
-    fireEvent.error(image!);
-
-    expect(container.querySelector('#trending-post-preview img')).toBeNull();
+    expect(container.querySelector('img, svg, canvas, video')).toBeNull();
     expect(getByText('아직 제공된 요약이 없습니다.')).toBeTruthy();
     expect(getByRole('link', { name: '1위 글 자세히 보기' }).getAttribute('href')).toBe(
       '/top10?rank=1'

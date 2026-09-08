@@ -27,7 +27,8 @@ const homeView = read('src/sections/home/view/home-view.tsx');
 const homeStyles = read('src/sections/home/view/home-view.module.css');
 const activityData = read('src/sections/home/activity/activity-data.ts');
 const activityScore = read('src/sections/home/activity/activity-score.ts');
-const activityLayout = read('src/sections/home/activity/activity-layout.ts');
+const homeTextHeader = read('src/layouts/home-text-header.tsx');
+const activityFormat = read('src/sections/home/activity/activity-format.ts');
 const activityStory = read('src/sections/home/activity/activity-story.tsx');
 const activityStoryStyles = read('src/sections/home/activity/activity-story.module.css');
 const crossCommunityStory = read('src/sections/home/activity/cross-community-story.tsx');
@@ -69,7 +70,6 @@ const redesignedFiles = [
   homeStyles,
   activityData,
   activityScore,
-  activityLayout,
   activityStory,
   activityStoryStyles,
   crossCommunityStory,
@@ -106,6 +106,29 @@ const mojibakePattern = new RegExp(
     '\\ufffd',
   ].join('|')
 );
+
+assert.match(activityStory, /<CrossCommunityStory/, 'home should expose its text source breakdown');
+assert.match(
+  activityStory,
+  /<ol[\s\S]*all-topic-rankings[\s\S]*<button/,
+  'tag rankings must be real text and keyboard controls'
+);
+assert.doesNotMatch(
+  [homeView, homeTextHeader, activityStory, crossCommunityStory, trendingPostFeed].join('\n'),
+  /<svg|<canvas|<img|component="img"|RoundedIcon|import\('animejs'\)|import\('d3-force'\)/,
+  'home must contain text controls without graphic assets or animation engines'
+);
+assert.doesNotMatch(
+  [homeStyles, activityStoryStyles, crossCommunityStoryStyles, trendingPostFeedStyles].join('\n'),
+  /position:\s*(?:sticky|fixed)|border-radius:\s*(?!0\b)\d|(?:min-)?height:\s*[2-9]\d{2}(?:s|d)?vh/,
+  'ASCII home should stay in ordinary document flow without rounded cards or long scroll stages'
+);
+assert.match(
+  activityFormat,
+  /'#'\.repeat\(filled\)[\s\S]*'\.'\.repeat/,
+  'activity meters should use ASCII hash and period characters'
+);
+assert.match(homeTextHeader, /<header/, 'home should use its own text header');
 
 console.log('Verifying Board workbench redesign contract...');
 
@@ -201,7 +224,7 @@ assert.doesNotMatch(
   'app initial loading should not show the old loading text or spinner'
 );
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
-assert.match(appShell, />\s*마약\s*</, 'the home header should show the 마약 product name');
+assert.match(homeTextHeader, />\s*마약\.kr\s*</, 'the home header should show the product name as text');
 assert.doesNotMatch(
   [appShell, appConfig, manifest, favicon].join('\n'),
   /kingwangjjang/i,
@@ -555,16 +578,7 @@ assert.doesNotMatch(
   /redirect\(['"]\/board['"]\)/,
   'the root route should not redirect to the board'
 );
-assert.match(
-  packageJson,
-  /"animejs":\s*"4\.5\.0"/,
-  'the activity stories should install Anime.js for scroll-linked motion'
-);
-assert.match(
-  packageJson,
-  /"d3-force":\s*"3\.0\.0"/,
-  'the activity story should install d3-force for topic geometry'
-);
+
 assert.match(
   homeView,
   /const activityData = useMemo\([\s\S]*adaptActivityData\(issueOverviewQuery\.data, topBoards\)[\s\S]*\[issueOverviewQuery\.data, topBoards\]/,
@@ -575,11 +589,7 @@ assert.match(
   /<ActivityStory[\s\S]*data=\{activityData\}[\s\S]*isLoading=\{issueOverviewQuery\.isPending\}[\s\S]*isError=\{issueOverviewQuery\.isError\}[\s\S]*onTopicSelect=\{handleTopicSelect\}/,
   'the home page should render the activity story from adapted overview data'
 );
-assert.match(
-  activityStory,
-  /<CrossCommunityStage[\s\S]*<CrossCommunityStory/,
-  'the shared story should include animated sources and an ordinary-flow fallback'
-);
+
 assert.match(
   homeView,
   /id="popular-feed"[\s\S]*<TrendingPostFeed[\s\S]*posts=\{topBoards\}[\s\S]*isLoading=\{topBoardsQuery\.isPending\}[\s\S]*isError=\{topBoardsQuery\.isError\}[\s\S]*featuredTag=\{activityData\?\.topics\[0\]\?\.label\}/,
@@ -650,56 +660,13 @@ assert.match(
   /Math\.min\(100, Math\.max\(0, weightedScore\)\)[\s\S]*Math\.log1p\(value\) \/ Math\.log1p\(maximum\)/,
   'activity scores should normalize volume logarithmically and remain bounded from 0 to 100'
 );
-assert.match(
-  activityStory,
-  /import\('animejs'\)/,
-  'the tag field should load Anime.js only for its optional visual transition'
-);
-assert.match(
-  activityLayout,
-  /import type \{[^}]*Simulation[^}]*SimulationNodeDatum[^}]*SimulationLinkDatum[^}]*\} from 'd3-force'[\s\S]*await import\('d3-force'\)/,
-  'the activity layout should keep d3-force as a lazy runtime dependency'
-);
-assert.match(
-  activityStory,
-  /IntersectionObserver/,
-  'story work should be scoped to the visible viewport'
-);
-assert.match(
-  activityStory,
-  /prefers-reduced-motion: reduce[\s\S]*all-topic-rankings/,
-  'motion must retain accessible static rankings'
-);
-assert.match(
-  activityStoryStyles,
-  /position:\s*sticky/,
-  'the activity and cross scenes should share a sticky stage'
-);
-assert.match(
-  activityStoryStyles,
-  /@media \(prefers-reduced-motion: reduce\)/,
-  'the stage must release motion when requested'
-);
-assert.match(
-  activityStory,
-  /key=\{topic.id\}[\s\S]*data-node-core[\s\S]*data-rank-label[\s\S]*data-featured-label/,
-  'one stable topic node should become the ranking bullet and featured card'
-);
-assert.match(
-  crossCommunityStory,
-  /const sources = topic\.sources\.slice\(0, MAX_SOURCE_CARDS\)[\s\S]*source\.contributionRatio[\s\S]*source\.contribution[\s\S]*source\.representativePost/,
-  'the cross-community story should render its cards only from adapted source data'
-);
+
 assert.doesNotMatch(
   crossCommunityStoryStyles,
   /position:\s*sticky|(?:min-)?height:\s*[2-9]\d{2}(?:s|d)?vh/,
   'source distribution should remain in the normal document flow'
 );
-assert.match(
-  crossCommunityStoryStyles,
-  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.sourceCard\s*\{[\s\S]*transition:\s*none;/,
-  'source distribution should disable decorative transitions when requested'
-);
+
 assert.match(
   trendingPostFeed,
   /posts\.slice\(0, 10\)\.map\([\s\S]*originalRank: index \+ 1[\s\S]*href=\{`\/top10\?rank=\$\{originalRank\}`\}/,
@@ -715,21 +682,7 @@ assert.match(
   /const viewCount = toFiniteMetric\(post\.nativeViewCount\)[\s\S]*const likeCount = toFiniteMetric\(post\.nativeLikeCount\) \?\? toFiniteMetric\(post\.likeCount\)[\s\S]*const commentCount = toFiniteMetric\(post\.nativeCommentCount\) \?\?[\s\S]*typeof value === 'number' && Number\.isFinite\(value\) \? value : null/,
   'the trending feed should omit unavailable metrics while preserving real zero values'
 );
-assert.match(
-  trendingPostFeed,
-  /const reducedMotion = window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches[\s\S]*behavior: reducedMotion \? 'auto' : 'smooth'/,
-  'mobile preview scrolling should respect the reduced-motion preference'
-);
-assert.match(
-  trendingPostFeedStyles,
-  /\.preview\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*calc\(var\(--home-header-height\)\s*\+\s*24px\);/,
-  'the desktop trending preview should remain visible beside the ranked list'
-);
-assert.match(
-  trendingPostFeedStyles,
-  /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.postItem\s*\{[\s\S]*animation:\s*none;[\s\S]*\.postButton:hover\s*\{[\s\S]*transform:\s*none;/,
-  'the trending feed stylesheet should disable decorative motion when requested'
-);
+
 assert.match(
   crossCommunityStory,
   /new URLSearchParams\(\{ tag, sites: site \}\)/,

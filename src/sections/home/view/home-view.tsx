@@ -4,9 +4,6 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Box, Button, Typography } from '@mui/material';
-import EastRoundedIcon from '@mui/icons-material/EastRounded';
-
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
@@ -35,7 +32,7 @@ export function HomeView() {
   };
 
   return (
-    <Box className={styles.home}>
+    <div className={styles.home}>
       <ActivityStory
         data={activityData}
         isLoading={issueOverviewQuery.isPending}
@@ -44,7 +41,7 @@ export function HomeView() {
         isRefreshing={issueOverviewQuery.isFetching && !issueOverviewQuery.isPending}
       />
 
-      <Box id="popular-feed" className={styles.feedAnchor}>
+      <div id="popular-feed" className={styles.feedAnchor}>
         <TrendingPostFeed
           posts={topBoards}
           isLoading={topBoardsQuery.isPending}
@@ -52,23 +49,16 @@ export function HomeView() {
           featuredTag={activityData?.topics[0]?.label}
           isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
         />
-      </Box>
+      </div>
 
-      <Box component="footer" className={styles.footer}>
-        <Box>
-          <Typography component="p">마약.kr</Typography>
-          <Typography component="h2">커뮤니티 게시글 수집·요약·태그 통계</Typography>
-        </Box>
-        <Box className={styles.footerMeta}>
-          <Typography component="p">
-            화면의 Activity Score는 최근 응답 안에서 비교한 상대 지표입니다. 사회적 중요도나 여론
-            전체를 의미하지 않습니다.
-          </Typography>
-          <Button component={Link} href="/board" endIcon={<EastRoundedIcon />}>
-            실시간 게시판으로
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+      <footer className={styles.footer}>
+        <p className={styles.rule} aria-hidden="true">
+          {'-'.repeat(110)}
+        </p>
+        <p>마약.kr / 커뮤니티 게시글 수집, 요약, 태그 통계</p>
+        <p>Activity는 현재 집계 안의 상대 지표이며 사회적 중요도나 전체 여론을 뜻하지 않습니다.</p>
+        <Link href="/board">[실시간 게시판 &gt;]</Link>
+      </footer>
+    </div>
   );
 }

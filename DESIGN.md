@@ -1,6 +1,8 @@
 # Kingwangjjang Design System
 
-> Phantom-inspired editorial dashboard · v2.3 · 2026-09-08
+> ASCII / Plain Text home · v3.0 · 2026-09-08
+
+홈 `/`는 텍스트와 ASCII 기호로만 구성한다. 아래의 기존 공통 색상·카드·모션 규칙과 충돌하면 `8. Page Blueprints`의 ASCII / Plain Text 홈 절을 우선한다.
 
 이 문서는 Kingwangjjang 프론트엔드의 시각 언어와 화면 구성 원칙을 정의한다. 기준 레퍼런스는 [Phantom 공식 홈페이지](https://phantom.com/)의 2026-08-31 상태다. 레퍼런스의 로고, 고유 서체, 일러스트, 영상, 카피를 복제하지 않고 다음 특징을 Kingwangjjang의 게시판 경험에 맞게 번역한다.
 
@@ -15,7 +17,7 @@
 
 이 문서는 목표 상태를 설명하는 단일 기준이다. 현재 구현과 충돌하면 신규 작업은 이 문서를 따르되, 아래의 제품 계약은 반드시 보존한다.
 
-**1차 적용 페이지는 `/` 홈이다.** 홈의 레퍼런스·화면 배치·반응형 동작은 아래 `8. Page Blueprints`의 `/ — Community Pulse / ASCII Design · 인터랙션 설계` 절을 우선 기준으로 사용한다. 공통 토큰은 홈에 한정해 적용하며, 다른 페이지는 별도 적용 단계로 둔다.
+**1차 적용 페이지는 `/` 홈이다.** 홈의 레퍼런스·화면 배치·반응형 동작은 아래 `8. Page Blueprints`의 `/ — ASCII / Plain Text 홈` 절을 우선 기준으로 사용한다. 공통 토큰은 홈에 한정해 적용하며, 다른 페이지는 별도 적용 단계로 둔다.
 
 ---
 
@@ -312,240 +314,129 @@ CSS와 JavaScript의 breakpoint가 어긋나지 않도록 모두 MUI theme 값�
 
 ## 8. Page Blueprints
 
-### `/` — Community Pulse / ASCII Design · 인터랙션 설계
+### `/` — ASCII / Plain Text 홈
 
-> 기준: 2026-09-07 사용자 상세 요구사항. 1차 구현 범위는 `/` 홈과 홈 전용 헤더다. 이전의 정적 보고서·출처 행 중심 홈 설계를 이 절로 대체한다.
+> 2026-09-08 사용자 수정: **홈 자체를 ASCII 기호와 단순 텍스트로 구성한다.** 이 절이 이전 Community Pulse 모션 설계를 대체한다.
 
-**“게시글을 움직이지 말고, 커뮤니티의 활동량을 움직여라.”**
+#### 화면 원칙
 
-#### 레퍼런스와 적용 원칙
+한국어 제목과 게시글은 그대로 표시한다. 로고, 메뉴, 목록, 조작 표시, 구분선은 텍스트와 ASCII 기호 `[ ] # + - = > / | .`로 구성한다. 숫자 막대는 `[######....]`이다. Unicode 블록·화살표·그림문자는 장식에 사용하지 않는다.
 
-| 레퍼런스                                                                                                                              | 적용 요소                                                       | 우리 홈에서의 역할                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [Anime.js](https://animejs.com/), [Timeline 공식 문서](https://animejs.com/documentation/timeline/)                                   | 타이포 해체, stagger, 하나의 timeline, scroll-linked transition | 글자에서 출발한 입자가 태그 노드로 조립되고 같은 노드가 순위 bullet과 1위 카드로 변한다. |
-| [Phantom](https://phantom.com/)                                                                                                       | 넓은 여백, 큰 sans-serif 제목, 정돈된 정보 위계, 둥근 카드      | 스토리의 카드·버튼을 20–28px radius로 정돈하고 이후 실제 글 탐색은 조용하게 만든다.      |
-| [D3 force simulation](https://d3js.org/d3-force/simulation), [D3 scales](https://d3js.org/d3-scale)                                   | 충돌·군집·중심 거리·반지름·점수 scale                           | 실제 태그와 출처를 토대로 목표 좌표만 계산한다. D3는 DOM transform을 수정하지 않는다.    |
-| [Google Trends](https://trends.google.com/trending?geo=KR&hl=ko), [Ground News](https://ground.news/)                                 | 기간·증감·출처 비교                                             | 집계 범위와 지표의 의미를 설명하는 보조 참고로 사용한다.                                 |
-| [The Pudding](https://pudding.cool/process/how-to-make-dope-shit-part-3/), [GitHub Trending](https://github.com/trending?since=daily) | 데이터 장면 연결, 제목·메타데이터의 반복 위계                   | 시각화 설명과 후반 인기글 목록의 가독성에 적용한다.                                      |
+고정폭 글꼴, 본문 13–14px, 제목 최대 18px, 행간 1.7–1.9를 사용한다. 최대 폭 960px의 한 열 문서와 모바일 좌우 16px 여백을 기준으로 한다. 긴 글은 자연스럽게 줄바꿈한다. 무채색 밝은/어두운 테마를 제공하고, 강조는 굵기·밑줄·대괄호로 나타낸다.
 
-공식 페이지/API 확인일은 2026-09-07이다. 브랜드 자산·카피·화면을 복제하지 않고 현재 데이터에 적용한다. 어두운 스토리에는 보라색 accent 하나를 사용하고, 본문은 sans-serif, 숫자·ASCII·데이터 라벨은 monospace로 구분한다.
+그래픽 로고, SVG/canvas, 버블, 입자, 이미지 썸네일, 둥근 카드, 채워진 버튼, 색상 배지, 큰 타이포, sticky/fixed stage, 스크롤 애니메이션을 홈에서 사용하지 않는다. 헤더와 요약도 일반 문서 흐름에 놓는다. 로딩과 오류는 텍스트다.
 
-#### 작업 전 확인 및 데이터 계약
+#### 레퍼런스
 
-현재 `src/app/page.tsx`는 App Router Server Component로 `AppShell`과 client `HomeView`를 렌더링한다. 데이터는 기존 React Query hook에서 가져온다. 설치 버전은 Next.js **16.3.3**, React **19.2.6**, MUI **9.0.1**, Anime.js **4.5.0**, d3-force **3.0.0**, d3-scale **4.0.2**다. 이번 작업은 API와 의존성 버전을 교체하지 않는다.
+2026-09-08 확인:
 
-| 화면 값        | 현재 실제 필드 / 계산                                                    | 표시 의미                                                       |
-| -------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| 분석 게시글    | `IssueOverview.totalPosts`                                               | 최근 24시간 분석 완료 및 유효 태그가 있는 게시글                |
-| 고유 AI 태그   | `totalTags`                                                              | 현재 집계의 고유 태그 수                                        |
-| 확인된 연결    | `tags[].relatedTags`의 알려진 연결 중복 제거                             | 응답에 포함된 관계 수. 전체 커뮤니티 연결 수를 뜻하지 않음      |
-| 표시 출처      | `tags[].topSites[].site` 합집합                                          | 응답에서 확인한 출처 수                                         |
-| 태그 언급량    | `tags[].postCount`                                                       | bubble 크기와 게시글 수                                         |
-| 태그 증감      | `tags[].momentumPercent`                                                 | 최근 12시간과 이전 12시간의 +1 보정 비교. 기간 설명을 함께 제공 |
-| 출처별 기여    | `topSites[].postCount`                                                   | 태그 전체 게시글 수를 분모로 비중 계산                          |
-| 연결 관계      | `relatedTags[]`                                                          | 실제 알려진 태그끼리만 연결. 강도 필드가 없어 선 두께는 균일    |
-| 인기글         | `useTopBoards()`의 `BoardPost[]`                                         | 기존 Top 10 응답과 원래 순위 유지                               |
-| 실제 반응      | nullable `nativeViewCount/nativeLikeCount/nativeCommentCount` 및 기존 값 | 없는 지표는 생략, 실제 0은 보존                                 |
-| 갱신 시각·범위 | `generatedAt`, `windowHours`                                             | 서울 시간으로 표시                                              |
+- [Hacker News](https://news.ycombinator.com/): 순위·제목·출처·시각을 짧은 행으로 읽는 정보 구조만 참고한다.
+- [Motherfucking Website](https://motherfuckingwebsite.com/): 기본 문서 흐름과 적은 장식이라는 접근만 참고한다. 문구는 사용하지 않는다.
 
-API는 태그 16개, 태그별 상위 출처·관련 태그를 각각 최대 3개 반환한다. UI는 출처를 최대 6개까지 수용하되 **반환된 카드만** 만든다. 출처별 증가율·관계 강도·시간별 시계열·전파 순서는 없으므로 이를 표현하는 수치나 sparkline을 생성하지 않는다.
+#### Desktop ASCII Design
 
-기존 `activity-data.ts` adapter와 `activity-score.ts`를 재사용한다. 기본 가중치는 언급량 0.40, 증감 0.25, 표시 출처 다양성 0.20, 확인된 태그 연결 0.15다. 언급량은 로그 정규화, 양의 증감은 300 상한을 적용하고 최종 값을 0–100으로 정규화한다. 가중치는 별도 설정으로 유지한다.
-
-#### 보존할 기능
-
-- 태그 선택: `/board?tag=...`; 출처 선택: `/board?tag=...&sites=...`.
-- Top 10 인기·반응·최신 정렬, 선택 미리보기, 실제 이미지/fallback, 요약·태그.
-- `/top10?rank=N`은 재정렬한 행 번호가 아니라 원래 순위를 전달.
-- 원문 새 탭 열기, 게시판 이동, 로그인·프로필·테마·관리자 권한.
-- 독립적인 동향/Top 10 로딩·오류·빈 상태와 갱신 중 기존 콘텐츠.
-- 접근 가능한 실제 제목·순위·버튼·링크를 DOM으로 제공.
-
-#### 최종 Desktop ASCII Wireframe
-
-도식은 ASCII 문자로 작성한다. 실제 UI의 데이터 표현에는 `· • ● ◉ ░ ▒ ▓ █` 등 Unicode glyph도 사용할 수 있다. 아래 값은 모두 실제 응답을 채우는 자리표시자다.
+도식의 영문은 자리표시자다. 화면은 한국어 콘텐츠와 실제 집계 값을 표시한다.
 
 ```text
-+----------------------------------------------------------------------------------+
-| [Logo /]        [Community Pulse] [Sources] [Popular] [Board]     [Theme] [User]   |
-+----------------------------------------------------------------------------------+
-| SHARED STICKY STAGE / dark neutral / one persistent topic layer                   |
-|                                                                                  |
-|  COMMUNITY PULSE                                      Last {hours}h / {updated}  |
-|                                                                                  |
-|                  LAST 24 HOURS                                                   |
-|                  COMMUNITY IN MOTION                                             |
-|                                                                                  |
-|  {posts} ANALYZED POSTS                                      {tags} UNIQUE TAGS  |
-|                                                                                  |
-|           {connections} KNOWN LINKS                 {sources} VISIBLE SOURCES    |
-|                                                  [Skip to popular v] [Scroll v] |
-+----------------------------------------------------------------------------------+
+mayak.kr    [trends] [sources] [popular] [board]    [theme] [login]
+---------------------------------------------------------------
 
-  HERO TYPOGRAPHY -> ASCII PARTICLES -> TOPIC UNIVERSE -> TRENDING RANKING
-  SAME TEXT SEEDS    30-80 POINTS       SAME TAG KEYS     SAME NODE ELEMENTS
+# recent 24h community activity
+updated: {time} / window: {hours}h
+posts: {count} | tags: {count} | sources: {count} | links: {count}
+[popular posts >]
 
-+----------------------------------------------------------------------------------+
-| TOPIC UNIVERSE                         -> TRENDING NOW / Last {hours}h            |
-|                                                                                  |
-|           (Tag B)                        01 o Tag A [########..] {score} {growth} |
-|                                         02 o Tag B [######....] {score} {growth} |
-| (Tag C)----(Tag A)---(Tag D)               03 o Tag C [####......] {score} {growth} |
-|                                         ... up to 7 rows                        |
-|               (Tag E)                                  [All tag rankings v]      |
-+----------------------------------------------------------------------------------+
+---------------------------------------------------------------
+[01] trending tags / top {returned_count}
+01  #tag                             [########..] 75
+    {posts} posts / change -64% / {sources} sources
+02  #tag                             [######....] 62
+    {posts} posts / change +25% / {sources} sources
+[score details]
 
-  CROSS PROGRESS: #1 LEAVES RANKING -> SAME NODE EXPANDS -> SOURCE CARDS SPLIT
+---------------------------------------------------------------
+[02] sources / #top_tag
+01  [source >]                       [########..] 80%
+    {count} posts / representative title when available
+02  [source >]                       [##........] 20%
+    {count} posts / representative title when available
 
-+----------------------------------------------------------------------------------+
-| CROSS COMMUNITY / #{tag}                                    Last {hours}h         |
-|                                                                                  |
-| [Source A / {count} / {share}%]          [Source B / {count} / {share}%]            |
-|       [########....]                             [######......]                  |
-|                                              /                                  |
-|                    +--------------------------+                                  |
-|                    | #1 {tag}                 |                                  |
-|                    | ACTIVITY {score}         |                                  |
-|                    | {posts} / {sources}      |                                  |
-|                    +--------------------------+                                  |
-|                     /                                                           |
-| [Source C / {count} / {share}%]          [More sources only when returned]         |
-| [Representative title / View source ->]                                          |
-+----------------------------------------------------------------------------------+
+---------------------------------------------------------------
+[03] popular posts                   [popular] [reaction] [latest]
+> 01  Post title [details >]
+      source / time / #tag
+  02  Post title [details >]
+      source / time / #tag
 
-  RELEASE TO NORMAL DOCUMENT FLOW / quiet surfaces / no floating posts
+[selected post]
+Post title
+AI summary text.
+views: {count} / likes: {count} / comments: {count}
+[rank details >] [original >]
 
-+----------------------------------------------------------------------------------+
-| TODAY'S POPULAR POSTS                            [Popular *] [Reaction] [Latest] |
-|                                                                                  |
-| > 01 {source} / {time} / {title}          [Image OR site-initial fallback]          |
-|      #tag #tag                          Original rank #{rank}                    |
-|   02 {source} / {time} / {title}         {full_title} / {AI summary} / {metrics}   |
-|   ... up to 10                         [Rank details ->] [Original ->]           |
-|                                                                                  |
-| [View all Top 10 ->]                                           [Open board ->]   |
-+----------------------------------------------------------------------------------+
-| [Brand / collection + summaries + tags]      [Activity explanation] [Board ->]    |
-+----------------------------------------------------------------------------------+
+---------------------------------------------------------------
+mayak.kr / community posts, summaries and tags
+[board >]
 ```
 
-Hero 한국어 제목은 `최근 24시간 / 커뮤니티 동향`을 사용한다. 수집·AI 태그 집계 설명, 실제 갱신 시각, `인기글 바로 보기`를 함께 제공한다. 네 통계는 일반 카드로 나열하지 않고 타이포 주변에 분산 배치한다.
-
-#### 최종 Mobile ASCII Wireframe
+#### Mobile ASCII Design
 
 ```text
-+----------------------------------------+
-| [Logo]     [Theme] [User] [Menu]        |
-+----------------------------------------+
-| COMMUNITY PULSE / Last {hours}h        |
-| {updated}                              |
-|                                        |
-| LAST 24 HOURS                          |
-| COMMUNITY IN MOTION                    |
-|                                        |
-| {posts} POSTS             {tags} TAGS  |
-| {links} LINKS         {sources} SITES  |
-|                   [Skip to popular v] |
-|                                        |
-| TEXT -> PARTICLES -> 8-12 TAG NODES    |
-|           (B)---(A)---(C)              |
-|                  |                     |
-|                 (D)                    |
-|                                        |
-| SAME NODES -> 4-5 RANKING ROWS         |
-| 01 o Tag A [######..] {score} {growth} |
-| 02 o Tag B [####....] {score} {growth} |
-|                                        |
-| #1 -> SAME FEATURED CARD              |
-| [Tag / score / posts / sources]       |
-|                                        |
-| [Source A]         [Source B]          |
-| [count/share]      [count/share]       |
-| [Source C]         [if returned]       |
-+----------------------------------------+
-| TODAY'S POPULAR POSTS                  |
-| [Popular *] [Reaction] [Latest]         |
-| [01 title / source / tags]             |
-| [02 title / source / tags]             |
-| ...                                    |
-| [Selected image / title / summary]    |
-| [Rank details ->] [Original ->]        |
-| [All Top 10 ->]                        |
-| [Open board ->]                        |
-+----------------------------------------+
+mayak.kr  [trends] [sources] [popular] [board]
+[theme] [login]
+--------------------------------
+# recent community activity
+updated: {time}
+posts: {count} / tags: {count}
+sources: {count} / links: {count}
+
+[01] trending tags
+01  #long tag wraps naturally
+    [########..] 75
+    {count} posts / change -64%
+
+[02] sources / #top_tag
+01  [source >] [########..] 80%
+    {count} posts
+
+[03] popular posts
+[popular] [reaction] [latest]
+> 01 Title wraps on small screens
+     source / time / [details >]
+
+[selected post]
+Title and summary in document flow.
+[rank details >] [original >]
+--------------------------------
 ```
 
-모바일 헤더 60px, 데스크톱 76px를 `--home-header-height`로 공유한다. 모바일 타이포는 `clamp(44px,14vw,72px)`, 데스크톱은 `clamp(64px,8vw,144px)`. desktop gutter 48–72px, mobile 20px, 최대 폭 1536px를 사용한다. compact는 MUI md(900px) 기준이며 실제 높이 700px 이하에서는 정적 배치로 전환한다.
+#### 데이터와 기능 계약
 
-#### Scroll progress와 장면 연속성
+- 기존 `useIssueOverview()`, `useTopBoards()`, `activity-data.ts`, `activity-score.ts`를 재사용한다. 숫자·관계·시계열을 임의로 만들지 않는다.
+- 분석 게시글은 최근 24시간의 `totalPosts`, 고유 태그는 `totalTags`다. 표시 순위는 응답에 포함된 최대 16개 태그이며 전체 태그와 구분한다.
+- 표시 출처는 반환된 `topSites`의 합집합, 확인된 연결은 `relatedTags`의 관계 중복 제거 값이다.
+- Activity는 언급량 0.40, 양의 증감 0.25, 출처 다양성 0.20, 확인된 연결 0.15의 기존 상대 점수다. 로그 정규화와 증가율 상한 300을 유지한다.
+- 증감은 최근 12시간과 이전 12시간의 +1 보정 비교다. 출처 비중은 해당 태그 전체 게시글 수를 분모로 계산한다.
+- 태그 클릭은 `/board?tag=...`, 출처 클릭은 `/board?tag=...&sites=...`로 연결한다.
+- 인기·반응·최신 정렬, 선택한 글의 텍스트 요약, 원문 새 탭, 원래 순위 기반 `/top10?rank=N`을 유지한다.
+- 없는 요약·지표는 해당 상태를 표시하고 실제 0은 보존한다. 이미지는 상세 페이지나 원문에서 볼 수 있다.
+- 동향과 인기글의 로딩·빈 결과·오류·갱신 상태를 각 영역의 텍스트로 알린다.
+- 키보드 접근, 자연스러운 줄바꿈, 최소44px 조작 영역을 확보한다. 홈 이외의 화면과 인증·관리자 권한은 유지한다.
 
-Activity와 Cross는 **하나의 sticky host** 안에 있다. 데스크톱 스크롤 분량은 Activity 약 420svh + Cross 약 190svh, 모바일은 합계 약 430svh로 축소한다. stage는 고정 헤더 바로 아래에 위치하고 높이는 `calc(100svh - var(--home-header-height))`다. 전체 합산 progress의 앞 68%는 Activity, 뒤 32%는 Cross에 배정한다.
+#### 구현 및 검증 기준
 
-| 지역 progress    | 장면     | 전환                                                                  |
-| ---------------- | -------- | --------------------------------------------------------------------- |
-| Activity 0–18%   | Hero     | 600–1000ms의 짧은 최초 intro, 이후 주요 동작은 스크롤만 따름          |
-| Activity 18–35%  | Particle | 실제 타이포 위치에서 30–80개 대표 점을 만들고 태그 목표 위치로 모음   |
-| Activity 35–65%  | Universe | 실제 연결선 draw, 16개/10개 태그 탐색, 언급량 크기와 실제 증감 외곽선 |
-| Activity 65–100% | Ranking  | 동일 SVG 노드 이동·축소, 순위·라벨·ASCII 막대·점수 등장               |
-| Cross 0–20%      | #1 분리  | 다른 순위가 내려가며 옅어지고 같은 1위 노드가 중앙 이동               |
-| Cross 20–45%     | Featured | 같은 노드의 둥근 형태가 카드로 확대되고 실제 요약 지표 표시           |
-| Cross 45–80%     | Split    | 카드 조각이 실제 출처 카드 위치로 이동, 이름·수치·비중·연결선 등장    |
-| Cross 80–100%    | 안정화   | 출처 링크로 탐색 가능, 이후 문서 흐름의 인기글로 release              |
+`ActivityStory`는 텍스트 집계와 순위, `CrossCommunityStory`는 텍스트 출처 목록, `TrendingPostFeed`는 정렬 가능한 텍스트 목록과 요약을 담당한다. D3 좌표·Anime timeline·particle 코드를 홈에서 제거한다.
 
-1위 노드는 Hero 이후 universe·ranking·featured·cross 동안 같은 Tag ID와 SVG 요소를 유지한다. Cross의 source layer는 중앙 카드 복사본을 만들지 않는다. 카드의 시작 좌표는 동일 featured 중심을 사용하며 실제 출처 데이터만 생성한다.
+320px 이상 화면에서 가로 넘침 없음, 이미지/SVG/canvas 없음, 고정된 장면 없음, 태그·출처·정렬·요약·원문·테마·로그인 조작을 확인한다. 기존 기능 테스트·타입·lint·프로덕션 빌드와 Chromium 검증을 수행한다.
 
-`All tag rankings`는 같은 페이지에서 API가 반환한 최대 16개 태그의 접근 가능한 목록으로 연결한다. UI는 “표시 태그 순위”로 범위를 명시하고 전체 고유 태그 수와 구분한다. 동향 그래프를 모두 보지 않아도 헤더와 skip 링크로 인기글·게시판에 갈 수 있다. 스크롤 역방향·빠른 점프도 같은 progress에서 같은 상태를 재현해야 한다.
+#### 2026-09-08 검증 기록
 
-#### 역할과 컴포넌트
-
-- `ActivityStory`: 공유 sticky host, HeroScene, ParticleLayer, TopicUniverse/Ranking의 동일 SVG 노드, featured 카드, semantic fallback.
-- `CrossCommunityStage`: 같은 stage 안의 source 카드·관계선·split timeline. root가 imperative `seek(progress)`로 진행률 전달.
-- `CrossCommunityStory`: 정적/모션 감소 상태의 독립 출처 목록, 로딩·오류·빈 상태.
-- `activity-layout.ts`: D3가 좌표·collision·최다 기여 출처 군집·반지름을 계산. 제한된 tick 후 즉시 정지.
-- `activity-motion.ts` 등 motion helper: scene 구간, ranking/featured 좌표, rAF progress와 숫자/glyph 보간.
-- `activity-data.ts / activity-score.ts`: 기존 adapter와 설정 가능한 상대 점수.
-- `TrendingPostFeed`: 기존 정렬·preview·원래 순위 deep link, quiet transitions.
-
-D3는 별도 데이터 객체의 위치만 계산한다. Anime.js는 wrapper transform·opacity·SVG shape·clip과 숫자 변화를 제어한다. hover/focus는 내부 요소의 stroke/scale만 바꿔 scroll transform과 충돌하지 않게 한다.
-
-#### 성능·접근성·상태
-
-- 기본 스크롤 유지. wheel 가로채기, scroll snap 강제, 의미 없는 반복 pulse 없음.
-- progress는 rAF로 DOM/timeline에 전달하며 스크롤마다 React state를 갱신하지 않는다.
-- import는 화면 근처에서 지연 실행. D3는 수동 tick, 화면 밖·unmount·resize 작업은 중지/취소한다.
-- 노드16/10개, 입자56개를 상한으로 사용. 입자 원점은 타이포, 목적지는 실제 태그이며 random 장식을 만들지 않는다.
-- idle은 정지한다. 데이터 갱신은 기존 키를 유지하며 현재 scroll progress의 수치·좌표를 다시 계산하고, hover/focus는 테두리로 표시한다.
-- 초기 콘텐츠는 애니메이션 준비 전에도 보임. 실패하면 정적 통계·태그·전체 순위·출처 링크로 전환.
-- 시각화에서 숨겨진 노드/링크는 tab 순서에서 제외하고 semantic 목록에서 동일 정보를 탐색.
-- reduced motion/높이700px 이하에서는 sticky·particle morph를 해제하고 일반 문서 흐름으로 렌더링.
-- 태그·출처·글의 실제 label, keyboard Enter/Space, focus ring, 최소44px touch target 제공. 순위 행 전체에 투명 hit 영역을 둔다.
-- 버블 라벨 길이는 반지름에 맞추고 보조 지표는 충분히 큰 버블 내부에만 표시한다. 작은 화면·낮은 출처 카드는 대표글과 보조 행동 문구를 축약한다.
-- 모션 감소 설정을 도중에 켜도 Hero opacity·clip·inert를 복원하여 정적 콘텐츠와 링크를 다시 사용할 수 있다.
-- 부분 오류와 갱신 오류는 해당 영역에 표시. 없는 이미지·요약·지표는 명시된 fallback/생략.
-- 출처 비중은 보이는 카드끼리 다시 정규화하지 않는다. 사회적 중요도·전파 순서로 해석시키지 않는다.
-
-#### 구현·검증 순서
-
-1. 이 문서와 실제 필드·유지 기능 확정.
-2. 같은 노드를 쓰는 정적 장면과 source layer 작성.
-3. D3 목표 geometry, Anime timeline, scroll seek 연결.
-4. 공유 featured 카드에서 Cross split까지 연속성 확인.
-5. mobile·reduced motion·오류·키보드·리사이즈 대응.
-6. 실제 API와 mock fixture를 구분해 브라우저에서 scene·역스크롤·overflow·성능 확인.
-7. 관련 runtime 테스트, 전체 `npm run check`, `npm run build` 실행.
-
-#### 구현 확인 기록 · 2026-09-08
-
-- `npm run check`: runtime 테스트 **42개**, 타입 검사, lint 오류 0개, 기존 색상·인증·Top 10·게시판·관리자 화면 계약 검사 통과. 기존 `top10-view.tsx`의 import 순서 경고 1개는 이번 범위 밖이다.
+- `npm run check`: 9개 테스트 파일, 34개 테스트 통과. 타입 검사와 UI 계약 검사 통과. 린트 오류 없음(`/top10`의 기존 import 정렬 경고 1개).
 - `npm run build`: 프로덕션 빌드 통과.
-- Chromium에서 390×844, 768×1024, 1024×768, 1440×900, 1920×1080 화면을 확인했다. 동일 태그 DOM과 core 요소 유지, 정방향·역방향 geometry 복원, 가로 overflow 없음, 출처 카드 내용 영역 초과 없음, 헤더 출처 이동·인기글 skip을 검증했다.
-- 도중 reduced motion 전환, 높이650px 정적 화면, 빈 집계, 오류 응답, 긴 태그명, 첫 진입, 모바일 출처6개를 별도로 검증했다. 브라우저 runtime 오류는 없었다.
-- 공개 IssueOverview 및 Top 10 API를 읽어 실제 응답으로 universe·출처 화면도 확인했다. 재현용 fixture는 검증 파일 안에만 있으며 앱 데이터로 사용하지 않는다.
-- 프레임 측정은 이 Chromium 환경의 99프레임 표본에서 scroll p95 **31.6ms**, idle p95 **31.6ms**였다. 이는 현재 실행 환경의 결과이며 실제 기기에서 60fps를 확인한 결과로 해석하지 않는다.
-
-재검증은 `npm run build` 후 `node tests/runtime/community-pulse.browser.mjs`로 실행한다. Playwright와 Chromium이 필요하며, 검증기는 로컬 서버를 열지 않고 빌드 파일을 브라우저 요청에 연결한다. 필요하면 `PULSE_CHROMIUM_PATH`로 설치된 브라우저 경로를 지정한다. 화면 캡처와 `report.json`은 OS 임시 폴더의 `codex-community-pulse-review`에 저장한다.
-
-이 작업은 홈 전용 CSS token과 AppShell의 `isHomeRoute` 분기에 한정한다. `/board`, `/top10`, 계정·관리 화면의 시각 계약과 API는 유지한다.
+- `node tests/runtime/home-ascii.browser.mjs`: 빌드 결과를 Chromium 요청 가로채기로 열어 확인한다. 별도 개발 서버를 실행하지 않는다. Playwright와 Chromium 설치가 필요하다.
+- 320 / 390 / 768 / 1440px 화면과 다크 모드, 모션 감소 설정, 빈 결과, API 오류, 긴 태그·6개 출처를 확인했다. 가로 넘침, 그래픽 요소, sticky/fixed 요소, 브라우저 오류가 없었다.
+- 실제 API 응답(태그 16개, 인기글 10개)으로도 렌더링을 확인했다. 정렬 후 원래 순위 링크와 선택한 글의 요약 연결을 확인했다.
+- 스크린샷과 `report.json`은 OS 임시 폴더의 `codex-home-ascii-review`에 저장한다. 테스트용 데이터는 애플리케이션에 포함하지 않는다.
 
 ### `/board` — 실시간 게시판
 

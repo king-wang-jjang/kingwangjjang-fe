@@ -3,14 +3,9 @@
 import type { BoardPost } from 'src/api/board-api';
 
 import Link from 'next/link';
-import { useRef, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { useTheme } from '@mui/material/styles';
-import EastRoundedIcon from '@mui/icons-material/EastRounded';
-import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
-import { Box, Alert, Button, Skeleton, ButtonBase, Typography } from '@mui/material';
-
-import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
+import { getPostSummary } from 'src/components/board-post/board-post-utils';
 
 // Keep the local stylesheet after application imports to match the repository import groups.
 // eslint-disable-next-line perfectionist/sort-imports
@@ -56,10 +51,8 @@ export function TrendingPostFeed({
   featuredTag,
   isRefreshing,
 }: TrendingPostFeedProps) {
-  const theme = useTheme();
   const [mode, setMode] = useState<FeedMode>('popular');
   const [selectedPostKey, setSelectedPostKey] = useState<string | null>(null);
-  const previewRef = useRef<HTMLDivElement | null>(null);
 
   const rankedPosts = useMemo(
     () =>
@@ -74,211 +67,139 @@ export function TrendingPostFeed({
   const selectedPost =
     visiblePosts.find((entry) => entry.key === selectedPostKey) ?? visiblePosts[0];
 
-  const handlePostSelect = (postKey: string, revealOnMobile: boolean) => {
-    setSelectedPostKey(postKey);
-
-    if (
-      !revealOnMobile ||
-      !window.matchMedia(theme.breakpoints.down('lg').replace('@media ', '')).matches
-    ) {
-      return;
-    }
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.requestAnimationFrame(() => {
-      previewRef.current?.scrollIntoView({
-        behavior: reducedMotion ? 'auto' : 'smooth',
-        block: 'start',
-      });
-    });
-  };
-
+  let stateMessage;
   if (isLoading && posts.length === 0) {
-    return <TrendingPostFeedSkeleton />;
-  }
-
-  if (isError && posts.length === 0) {
-    return (
-      <Alert severity="warning" className={styles.stateMessage}>
-        인기글을 불러오지 못했습니다. 실시간 게시판에서 최신 글을 계속 확인할 수 있습니다.
-        <Link href="/board">실시간 게시판 보기</Link>
-      </Alert>
+    stateMessage = (
+      <p className={styles.stateMessage} role="status">
+        [불러오는 중] 인기글을 불러오고 있습니다.
+      </p>
     );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <Box className={styles.emptyState}>
-        <Typography component="strong">아직 집계된 인기글이 없습니다.</Typography>
-        <Typography component="p">Top 10 집계 후 게시글이 표시됩니다.</Typography>
-        <Button component={Link} href="/board" endIcon={<EastRoundedIcon />}>
-          실시간 게시판 보기
-        </Button>
-      </Box>
+  } else if (isError && posts.length === 0) {
+    stateMessage = (
+      <div className={styles.stateMessage} role="alert">
+        <p>[오류] 인기글을 불러오지 못했습니다.</p>
+        <Link href="/board">[실시간 게시판 보기]</Link>
+      </div>
+    );
+  } else if (posts.length === 0) {
+    stateMessage = (
+      <div className={styles.stateMessage}>
+        <p>아직 집계된 인기글이 없습니다. Top 10 집계 후 게시글이 표시됩니다.</p>
+        <Link href="/board">[실시간 게시판 보기]</Link>
+      </div>
     );
   }
 
   return (
-    <Box component="section" className={styles.feed} aria-labelledby="trending-post-feed-title">
-      <Box className={styles.inner} aria-busy={isLoading || isRefreshing}>
-        <Box className={styles.heading}>
-          <Box>
-            <Typography component="p" className={styles.eyebrow}>
-              <span>04</span> 인기 게시글
-            </Typography>
-            <Typography component="h2" id="trending-post-feed-title">
-              오늘의 인기글
-            </Typography>
-            <Typography component="p" className={styles.description}>
-              게시글을 선택하면 요약과 원문을 확인할 수 있습니다.
-            </Typography>
-          </Box>
+    <section className={styles.feed} aria-labelledby="trending-post-feed-title">
+      <div className={styles.inner} aria-busy={isLoading || isRefreshing}>
+        <p className={styles.separator} aria-hidden="true">
+          ----------------------------------------
+        </p>
+        <h2 id="trending-post-feed-title">[03] 오늘의 인기글 / Top 10</h2>
+        <p className={styles.description}>제목을 선택하면 목록 아래에서 요약을 읽을 수 있습니다.</p>
+        {featuredTag && <p className={styles.note}>24시간 1위 태그: #{featuredTag}</p>}
 
-          {featuredTag && (
-            <Typography component="p" className={styles.featuredTag}>
-              <span aria-hidden="true">●</span> 24시간 1위 태그&nbsp; #{featuredTag}
-            </Typography>
-          )}
-        </Box>
-
-        {isError && (
-          <Alert severity="warning" className={styles.inlineAlert}>
-            최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.
-          </Alert>
-        )}
-        {isRefreshing && !isError && (
-          <p className={styles.modeNote} role="status">
-            인기글을 갱신하고 있습니다.
-          </p>
-        )}
-
-        <Box className={styles.toolbar}>
-          <Box role="group" aria-label="인기글 정렬 기준" className={styles.modeTabs}>
-            {FEED_MODES.map((item) => (
-              <ButtonBase
-                key={item.id}
-                id={`post-feed-mode-${item.id}`}
-                type="button"
-                aria-pressed={mode === item.id}
-                aria-controls="trending-post-list"
-                onClick={() => setMode(item.id)}
-                className={`${styles.modeTab} ${mode === item.id ? styles.modeTabActive : ''}`}
-              >
-                {item.label}
-              </ButtonBase>
-            ))}
-          </Box>
-
-          <Typography component="p" className={styles.modeNote} aria-live="polite">
-            {getModeDescription(mode)}
-          </Typography>
-        </Box>
-
-        <Box className={styles.contentGrid}>
-          <Box
-            component="ol"
-            id="trending-post-list"
-            aria-labelledby={`post-feed-mode-${mode}`}
-            className={styles.postList}
-          >
-            {visiblePosts.map((entry, index) => {
-              const selected = entry.key === selectedPost?.key;
-              const postTime = formatPostTime(entry.post.createTime);
-              const tags = uniqueTags(entry.post.tags).slice(0, 2);
-              const containsFeaturedTag = featuredTag
-                ? tagsInclude(entry.post.tags, featuredTag)
-                : false;
-
-              return (
-                <Box component="li" key={entry.key} className={styles.postItem}>
-                  <ButtonBase
-                    type="button"
-                    aria-pressed={selected}
-                    aria-controls="trending-post-preview"
-                    aria-label={`${index + 1}위, ${getSourceLabel(entry.post)}, ${entry.post.title} 미리보기`}
-                    onClick={(event) => handlePostSelect(entry.key, event.detail > 0)}
-                    className={`${styles.postButton} ${selected ? styles.postButtonSelected : ''}`}
-                  >
-                    <Typography
-                      component="span"
-                      className={styles.rank}
-                      aria-label={`${index + 1}위`}
-                    >
-                      {String(index + 1).padStart(2, '0')}
-                    </Typography>
-
-                    <Box component="span" className={styles.postCopy}>
-                      <Box component="span" className={styles.postMeta}>
-                        <Typography component="span">{getSourceLabel(entry.post)}</Typography>
-                        {postTime && (
-                          <Typography component="time" dateTime={entry.post.createTime}>
-                            {postTime}
-                          </Typography>
-                        )}
-                        {containsFeaturedTag && (
-                          <Typography component="span" className={styles.topicMatch}>
-                            1위 태그 포함
-                          </Typography>
-                        )}
-                      </Box>
-
-                      <Typography component="strong" className={styles.postTitle}>
-                        {entry.post.title}
-                      </Typography>
-
-                      {tags.length > 0 && (
-                        <Box component="span" className={styles.rowTags} aria-label="AI 태그">
-                          {tags.map((tag) => (
-                            <Typography component="span" key={tag}>
-                              #{tag}
-                            </Typography>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-                  </ButtonBase>
-                  <Link
-                    href={`/top10?rank=${entry.originalRank}`}
-                    className={styles.directLink}
-                    aria-label={`${entry.post.title} 상세 페이지로 이동`}
-                  >
-                    <EastRoundedIcon fontSize="small" aria-hidden="true" />
-                  </Link>
-                </Box>
-              );
-            })}
-          </Box>
-
-          <Box ref={previewRef} className={styles.previewSlot}>
-            {selectedPost && (
-              <PostPreview entry={selectedPost} featuredTag={featuredTag} mode={mode} />
+        {stateMessage ?? (
+          <>
+            {isError && (
+              <p className={styles.stateMessage} role="alert">
+                최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.
+              </p>
             )}
-          </Box>
-        </Box>
+            {isRefreshing && !isError && (
+              <p className={styles.note} role="status">
+                [갱신 중] 인기글을 갱신하고 있습니다.
+              </p>
+            )}
 
-        <Box className={styles.footerLink}>
-          <Button component={Link} href="/top10" endIcon={<EastRoundedIcon />}>
-            전체 Top 10 보기
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+            <div className={styles.toolbar}>
+              <div role="group" aria-label="인기글 정렬 기준" className={styles.modeTabs}>
+                {FEED_MODES.map((item) => (
+                  <button
+                    key={item.id}
+                    id={`post-feed-mode-${item.id}`}
+                    type="button"
+                    aria-label={item.label}
+                    aria-pressed={mode === item.id}
+                    aria-controls="trending-post-list"
+                    onClick={() => setMode(item.id)}
+                    className={styles.modeTab}
+                  >
+                    [{item.label}]
+                  </button>
+                ))}
+              </div>
+              <p className={styles.note} aria-live="polite">
+                {getModeDescription(mode)}
+              </p>
+            </div>
+
+            <ol
+              id="trending-post-list"
+              aria-labelledby={`post-feed-mode-${mode}`}
+              className={styles.postList}
+            >
+              {visiblePosts.map((entry, index) => {
+                const selected = entry.key === selectedPost?.key;
+                const postTime = formatPostTime(entry.post.createTime);
+                const tags = uniqueTags(entry.post.tags).slice(0, 2);
+
+                return (
+                  <li key={entry.key} className={styles.postItem}>
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      aria-controls="trending-post-preview"
+                      aria-label={`${index + 1}위, ${getSourceLabel(entry.post)}, ${entry.post.title} 미리보기`}
+                      onClick={() => setSelectedPostKey(entry.key)}
+                      className={styles.postButton}
+                    >
+                      <span className={styles.rank} aria-hidden="true">
+                        {selected ? '>' : ' '} {String(index + 1).padStart(2, '0')}.
+                      </span>
+                      <span className={styles.postCopy}>
+                        <strong className={styles.postTitle}>{entry.post.title}</strong>
+                        <span className={styles.postMeta}>
+                          <span>{getSourceLabel(entry.post)}</span>
+                          {postTime && (
+                            <>
+                              <span aria-hidden="true"> / </span>
+                              <time dateTime={entry.post.createTime}>{postTime}</time>
+                            </>
+                          )}
+                          {tags.length > 0 && (
+                            <span> / {tags.map((tag) => `#${tag}`).join(' ')}</span>
+                          )}
+                        </span>
+                      </span>
+                    </button>
+                    <Link
+                      href={`/top10?rank=${entry.originalRank}`}
+                      className={styles.directLink}
+                      aria-label={`${entry.post.title} 상세 페이지로 이동`}
+                    >
+                      [상세]
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {selectedPost && <PostPreview entry={selectedPost} mode={mode} />}
+
+            <div className={styles.footerLink}>
+              <Link href="/top10">[전체 Top 10 보기]</Link>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
   );
 }
 
-function PostPreview({
-  entry,
-  featuredTag,
-  mode,
-}: {
-  entry: RankedPost;
-  featuredTag?: string;
-  mode: FeedMode;
-}) {
-  const [failedThumbnail, setFailedThumbnail] = useState('');
+function PostPreview({ entry, mode }: { entry: RankedPost; mode: FeedMode }) {
   const { post, originalRank } = entry;
-  const resolvedThumbnail = resolveThumbnailSrc(post.thumbnail);
-  const thumbnail = resolvedThumbnail === failedThumbnail ? '' : resolvedThumbnail;
   const summary = getPostSummary(post);
   const tags = uniqueTags(post.tags).slice(0, 5);
   const metrics = getPostMetrics(post);
@@ -286,137 +207,63 @@ function PostPreview({
   const sourceUrl = getSafeSourceUrl(post.url);
 
   return (
-    <Box
-      component="article"
+    <article
       id="trending-post-preview"
       className={styles.preview}
       aria-label={`선택한 인기글: ${post.title}`}
       aria-live="polite"
     >
-      <Box className={styles.previewMedia}>
-        {thumbnail ? (
-          <Box
-            component="img"
-            src={thumbnail}
-            alt=""
-            className={styles.previewImage}
-            onError={() => setFailedThumbnail(resolvedThumbnail)}
-          />
-        ) : (
-          <Box className={styles.thumbnailFallback} aria-hidden="true">
-            <Typography component="span">{getSourceLabel(post).slice(0, 1)}</Typography>
-            <Typography component="small">{getSourceLabel(post)}</Typography>
-          </Box>
+      <p className={styles.separator} aria-hidden="true">
+        ----------------------------------------
+      </p>
+      <p className={styles.note}>[선택한 글] / Top 10 #{String(originalRank).padStart(2, '0')}</p>
+      <h3>{post.title}</h3>
+      <p className={styles.note}>
+        {getSourceLabel(post)}
+        {postTime && (
+          <>
+            {' / '}
+            <time dateTime={post.createTime}>{postTime}</time>
+          </>
         )}
-
-        <Box className={styles.mediaLabel}>
-          <Typography component="span">TOP 10</Typography>
-          <Typography component="strong">#{String(originalRank).padStart(2, '0')}</Typography>
-        </Box>
-      </Box>
-
-      <Box className={styles.previewBody}>
-        <Box className={styles.previewByline}>
-          <Typography component="span">{getSourceLabel(post)}</Typography>
-          {postTime && (
-            <Typography component="time" dateTime={post.createTime}>
-              {postTime}
-            </Typography>
-          )}
-          <Typography component="span">{getModeLabel(mode)} 기준</Typography>
-        </Box>
-
-        <Typography component="h3">{post.title}</Typography>
-
-        {tags.length > 0 && (
-          <Box className={styles.previewTags} aria-label="AI가 분석한 태그">
-            {tags.map((tag) => (
-              <Typography
-                component="span"
-                key={tag}
-                className={isSameTag(tag, featuredTag) ? styles.previewTagActive : undefined}
-              >
-                #{tag}
-              </Typography>
-            ))}
-          </Box>
-        )}
-
-        <Box className={styles.summary}>
-          <Typography component="span">AI 요약</Typography>
-          <Typography component="p">{summary || '아직 제공된 요약이 없습니다.'}</Typography>
-        </Box>
-
-        {metrics.length > 0 && (
-          <Box className={styles.metrics} aria-label="실제 게시글 지표">
-            {metrics.map((metric) => (
-              <Box key={metric.label}>
-                <Typography component="span">{metric.label}</Typography>
-                <Typography component="strong">{metric.value}</Typography>
-              </Box>
-            ))}
-          </Box>
-        )}
-
-        <Box className={styles.previewActions}>
-          <Button
-            component={Link}
-            href={`/top10?rank=${originalRank}`}
-            variant="contained"
-            disableElevation
-            endIcon={<EastRoundedIcon />}
+        {' / '}
+        {getModeLabel(mode)} 기준
+      </p>
+      {tags.length > 0 && (
+        <p className={styles.note} aria-label="AI가 분석한 태그">
+          {tags.map((tag) => `#${tag}`).join(' ')}
+        </p>
+      )}
+      <div className={styles.summary}>
+        <p>AI 요약:</p>
+        <p>{summary || '아직 제공된 요약이 없습니다.'}</p>
+      </div>
+      {metrics.length > 0 && (
+        <dl className={styles.metrics} aria-label="실제 게시글 지표">
+          {metrics.map((metric) => (
+            <div key={metric.label}>
+              <dt>{metric.label}</dt>
+              <dd>{metric.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      <div className={styles.previewActions}>
+        <Link href={`/top10?rank=${originalRank}`} aria-label={`${originalRank}위 글 자세히 보기`}>
+          [{originalRank}위 글 자세히 보기]
+        </Link>
+        {sourceUrl && (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="원문 열기, 새 탭"
           >
-            {originalRank}위 글 자세히 보기
-          </Button>
-          {sourceUrl && (
-            <Button
-              component="a"
-              href={sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="원문 열기, 새 탭"
-              endIcon={<OpenInNewRoundedIcon />}
-            >
-              원문 열기
-            </Button>
-          )}
-        </Box>
-      </Box>
-    </Box>
-  );
-}
-
-function TrendingPostFeedSkeleton() {
-  return (
-    <Box
-      component="section"
-      className={`${styles.feed} ${styles.loading}`}
-      aria-label="인기글을 불러오는 중"
-    >
-      <Box className={styles.inner}>
-        <Box className={styles.heading}>
-          <Box>
-            <Skeleton width={140} />
-            <Skeleton width={280} height={58} />
-            <Skeleton width={360} />
-          </Box>
-        </Box>
-        <Box className={styles.contentGrid}>
-          <Box className={styles.postList}>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Box key={index} className={styles.skeletonRow}>
-                <Skeleton width={32} height={32} />
-                <Box>
-                  <Skeleton width={120} />
-                  <Skeleton width={index % 2 ? '72%' : '88%'} height={28} />
-                </Box>
-              </Box>
-            ))}
-          </Box>
-          <Skeleton variant="rounded" className={styles.previewSkeleton} />
-        </Box>
-      </Box>
-    </Box>
+            [원문 열기]
+          </a>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -429,14 +276,12 @@ function sortPosts(posts: readonly RankedPost[], mode: FeedMode) {
     if (mode === 'latest') {
       const leftTime = getTimestamp(left.post.createTime);
       const rightTime = getTimestamp(right.post.createTime);
-
       if (leftTime !== rightTime) {
         return rightTime - leftTime;
       }
     } else {
       const leftScore = getReactionScore(left.post);
       const rightScore = getReactionScore(right.post);
-
       if (leftScore != null && rightScore == null) {
         return -1;
       }
@@ -447,7 +292,6 @@ function sortPosts(posts: readonly RankedPost[], mode: FeedMode) {
         return rightScore - leftScore;
       }
     }
-
     return left.originalRank - right.originalRank;
   });
 }
@@ -487,7 +331,6 @@ function getPostMetrics(post: BoardPost) {
       value: SCORE_FORMATTER.format(reactionScore),
     });
   }
-
   return metrics;
 }
 
@@ -497,35 +340,13 @@ function toFiniteMetric(value?: number | null) {
 
 function uniqueTags(tags?: string[]) {
   const labels = new Map<string, string>();
-
   tags?.forEach((tag) => {
     const trimmed = tag.trim().replace(/^#+\s*/, '');
     if (trimmed) {
       labels.set(trimmed.normalize('NFKC').toLocaleLowerCase('ko-KR'), trimmed);
     }
   });
-
   return Array.from(labels.values());
-}
-
-function tagsInclude(tags: string[] | undefined, featuredTag: string) {
-  return uniqueTags(tags).some((tag) => isSameTag(tag, featuredTag));
-}
-
-function isSameTag(tag: string, featuredTag?: string) {
-  if (!featuredTag) {
-    return false;
-  }
-
-  return normalizeTag(tag) === normalizeTag(featuredTag);
-}
-
-function normalizeTag(tag: string) {
-  return tag
-    .normalize('NFKC')
-    .trim()
-    .replace(/^#+\s*/, '')
-    .toLocaleLowerCase('ko-KR');
 }
 
 function getSourceLabel(post: BoardPost) {
@@ -548,7 +369,7 @@ function getModeLabel(mode: FeedMode) {
 
 function getModeDescription(mode: FeedMode) {
   if (mode === 'reaction') {
-    return '현재 Top 10 내 일간·반응 점수순';
+    return '현재 Top 10 내 일간 / 반응 점수순';
   }
   if (mode === 'latest') {
     return '현재 Top 10 내 게시 시각순';

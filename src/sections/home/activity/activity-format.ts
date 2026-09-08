@@ -9,7 +9,7 @@ const TIME_FORMATTER = new Intl.DateTimeFormat('ko-KR', {
 });
 
 export function formatActivityCount(value: number) {
-  return Number.isFinite(value) ? COUNT_FORMATTER.format(value) : '—';
+  return Number.isFinite(value) ? COUNT_FORMATTER.format(value) : '-';
 }
 
 export function formatActivityGrowth(value: number) {
@@ -19,4 +19,11 @@ export function formatActivityGrowth(value: number) {
 export function formatActivityTime(value?: string) {
   if (!value || !Number.isFinite(Date.parse(value))) return '';
   return TIME_FORMATTER.format(new Date(value));
+}
+
+export function asciiMeter(percent: number) {
+  const filled = Math.round(
+    Math.min(100, Math.max(0, Number.isFinite(percent) ? percent : 0)) / 10
+  );
+  return `[${'#'.repeat(filled)}${'.'.repeat(10 - filled)}]`;
 }

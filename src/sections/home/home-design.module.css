@@ -1,87 +1,50 @@
 .theme {
-  --home-header-height: 60px;
-  --home-stage-bg: #14121b;
-  --home-stage-ink: #f7f5fb;
-  --home-stage-muted: #aaa6b5;
-  --home-stage-rule: rgba(247, 245, 251, 0.16);
-  --home-stage-accent: #b8a4f4;
-  --home-stage-accent-soft: #30273f;
-  --home-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  --home-canvas: #f5f2ff;
-  --home-paper: #fffdf8;
-  --home-raised: #ffffff;
-  --home-subtle: #e2dffe;
-  --home-muted-surface: #f4f2f4;
-  --home-ink: #3c315b;
-  --home-muted: #6e6e6e;
-  --home-primary: #ab9ff2;
-  --home-primary-ink: #3c315b;
-  --home-featured-node: #3c315b;
-  --home-featured-node-ink: #fffdf8;
-  --home-rule: rgba(60, 49, 91, 0.14);
-  --home-focus: #4a87f2;
-  --home-positive: #197653;
-  --home-negative: #3565b8;
-  --home-green: #2ec08b;
-  --home-error: #ff7243;
-  --home-error-surface: #fff0e9;
-  --home-gutter: 20px;
+  --home-header-height: 0px;
+  --home-gutter: 16px;
+  --home-mono: 'D2Coding', 'Sarasa Mono K', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --home-canvas: #fafafa;
+  --home-ink: #222222;
+  --home-muted: #666666;
+  --home-rule: #cccccc;
+  --home-focus: #222222;
+  --home-paper: var(--home-canvas);
+  --home-subtle: var(--home-canvas);
+  --home-primary: var(--home-canvas);
+  --home-primary-ink: var(--home-ink);
+  --home-error-surface: var(--home-canvas);
   color: var(--home-ink);
   background: var(--home-canvas);
-  font-family:
-    'IBM Plex Sans Variable',
-    'Pretendard Variable',
-    Pretendard,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--home-mono);
+  font-size: 14px;
+  line-height: 1.8;
   font-variant-numeric: tabular-nums;
 }
-
 :global([data-dark]) .theme {
-  --home-canvas: #0d0621;
-  --home-paper: #171126;
-  --home-raised: #221a38;
-  --home-subtle: #3c315b;
-  --home-muted-surface: #282233;
-  --home-ink: #fffdf8;
-  --home-muted: #b4b4b4;
-  --home-rule: rgba(226, 223, 254, 0.18);
-  --home-focus: #6ca0fb;
-  --home-positive: #6cd9ad;
-  --home-negative: #a3bfff;
-  --home-featured-node: #fffdf8;
-  --home-featured-node-ink: #3c315b;
-  --home-error-surface: #3b211e;
+  --home-canvas: #111111;
+  --home-ink: #dddddd;
+  --home-muted: #aaaaaa;
+  --home-rule: #444444;
+  --home-focus: #dddddd;
 }
-
+.theme a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.theme button,
+.theme input,
+.theme select,
+.theme textarea {
+  font: inherit;
+}
 .theme a:focus-visible,
 .theme button:focus-visible,
-.theme [role='button']:focus-visible {
-  outline: 3px solid var(--home-focus);
+.theme summary:focus-visible {
+  outline: 1px dashed var(--home-focus);
   outline-offset: 3px;
 }
-
 @media (min-width: 600px) {
   .theme {
     --home-gutter: 24px;
-  }
-}
-
-@media (min-width: 900px) {
-  .theme {
-    --home-header-height: 76px;
-    --home-gutter: 48px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .theme *,
-  .theme *::before,
-  .theme *::after {
-    scroll-behavior: auto !important;
-    animation: none !important;
-    transition: none !important;
   }
 }

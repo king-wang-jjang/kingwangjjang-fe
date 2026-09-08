@@ -43,6 +43,8 @@ import SocialLoginButtons from 'src/auth/components/form-oauth';
 // eslint-disable-next-line perfectionist/sort-imports
 import homeDesign from 'src/sections/home/home-design.module.css';
 
+import { HomeTextHeader } from './home-text-header';
+
 const drawerWidth = 236;
 const headerHeight = 58;
 
@@ -285,29 +287,46 @@ export function AppShell({ children }: Props) {
     setMobileOpen((open) => !open);
   };
 
+  if (isHomeRoute) {
+    return (
+      <Box
+        className={homeDesign.theme}
+        sx={{
+          width: '100%',
+          minHeight: '100vh',
+          bgcolor: 'var(--home-canvas)',
+          color: 'var(--home-ink)',
+        }}
+      >
+        <HomeTextHeader />
+        <Box component="main" sx={{ width: '100%', boxSizing: 'border-box', p: 0 }}>
+          {children}
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
-      className={isHomeRoute ? homeDesign.theme : undefined}
       sx={{
         '--board-sticky-top': headerHidden ? '12px' : '78px',
         width: '100%',
         minHeight: '100vh',
-        bgcolor: isHomeRoute ? 'var(--home-canvas)' : 'background.default',
-        color: isHomeRoute ? 'var(--home-ink)' : 'text.primary',
+        bgcolor: 'background.default',
+        color: 'text.primary',
       }}
     >
       <AppBar
         className="app-header"
         position="fixed"
-        enableColorOnDark={isHomeRoute}
         elevation={0}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          color: isHomeRoute ? 'var(--home-stage-ink)' : 'text.primary',
-          bgcolor: isHomeRoute ? 'var(--home-stage-bg)' : 'background.default',
-          borderBottom: isHomeRoute ? 0 : 1,
-          borderColor: isHomeRoute ? 'var(--home-stage-rule)' : 'divider',
-          boxShadow: isHomeRoute ? 'inset 0 -1px 0 var(--home-stage-rule)' : 'none',
+          color: 'text.primary',
+          bgcolor: 'background.default',
+          borderBottom: 1,
+          borderColor: 'divider',
+          boxShadow: 'none',
           transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
           '&:focus-within': {
             transform: 'translateY(0)',
@@ -323,15 +342,12 @@ export function AppShell({ children }: Props) {
       >
         <Toolbar
           sx={{
-            minHeight: isHomeRoute ? 'var(--home-header-height)' : headerHeight,
-            ...(isHomeRoute && {
-              '@media (min-width: 0px)': { minHeight: 'var(--home-header-height)' },
-            }),
-            width: isHomeRoute ? 'min(calc(100% - var(--home-gutter) * 2), 1536px)' : '100%',
-            maxWidth: isHomeRoute ? 1536 : 'none',
-            mx: isHomeRoute ? 'auto' : 0,
+            minHeight: headerHeight,
+            width: '100%',
+            maxWidth: 'none',
+            mx: 0,
             mt: 0,
-            px: isHomeRoute ? 0 : { xs: 1.5, md: 3 },
+            px: { xs: 1.5, md: 3 },
             position: 'relative',
             justifyContent: 'space-between',
           }}
@@ -341,92 +357,22 @@ export function AppShell({ children }: Props) {
             href="/"
             aria-label="홈으로 이동"
             sx={{
-              width: isHomeRoute ? 'auto' : 40,
+              width: 40,
               height: 40,
               display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: isHomeRoute ? 'flex-start' : 'center',
-              gap: isHomeRoute ? 1.5 : 0,
+              justifyContent: 'center',
+              gap: 0,
               flexShrink: 0,
             }}
           >
-            {isHomeRoute ? (
-              <>
-                <Box
-                  component="img"
-                  src="/logo/logo-single.svg"
-                  alt="마약"
-                  sx={{ width: 40, height: 40, display: 'block' }}
-                />
-                <Typography
-                  component="span"
-                  sx={{
-                    display: { xs: 'none', sm: 'block' },
-                    fontSize: '1.4rem',
-                    fontWeight: 600,
-                    letterSpacing: '-0.035em',
-                  }}
-                >
-                  마약
-                </Typography>
-              </>
-            ) : (
-              <Box
-                component="img"
-                src="/logo/logo-single.svg"
-                alt="마약"
-                sx={{ width: '100%', height: '100%', display: 'block' }}
-              />
-            )}
-          </Box>
-
-          {isHomeRoute && (
             <Box
-              component="nav"
-              aria-label="홈 주요 메뉴"
-              sx={{
-                position: 'absolute',
-                left: '50%',
-                display: { xs: 'none', md: 'inline-flex' },
-                alignItems: 'center',
-                gap: 0.5,
-                p: 0.75,
-                borderRadius: '999px',
-                bgcolor: 'transparent',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              {[
-                { label: '동향', href: '#community-pulse' },
-                { label: '출처별', href: '#cross-community' },
-                { label: '인기글', href: '#popular-feed' },
-                { label: '게시판', href: '/board' },
-              ].map((item) => (
-                <Box
-                  key={item.href}
-                  component={Link}
-                  href={item.href}
-                  sx={{
-                    minHeight: 44,
-                    px: 2.5,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'inherit',
-                    borderRadius: '999px',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    transition: 'background-color 150ms ease',
-                    '&:hover': {
-                      bgcolor: 'var(--home-stage-accent-soft)',
-                    },
-                  }}
-                >
-                  {item.label}
-                </Box>
-              ))}
-            </Box>
-          )}
+              component="img"
+              src="/logo/logo-single.svg"
+              alt="마약"
+              sx={{ width: '100%', height: '100%', display: 'block' }}
+            />
+          </Box>
 
           <Box
             className="header-login-actions"
@@ -435,27 +381,6 @@ export function AppShell({ children }: Props) {
               alignItems: 'center',
               gap: 1,
               flexShrink: 0,
-              ...(isHomeRoute && {
-                '& > .MuiIconButton-root': {
-                  width: 44,
-                  height: 44,
-                  color: 'var(--home-stage-ink)',
-                  bgcolor: 'var(--home-stage-accent-soft)',
-                  border: 0,
-                  borderRadius: '50%',
-                },
-                '& .kakao-login-button': {
-                  minHeight: 44,
-                  px: 2,
-                  borderRadius: '999px',
-                  bgcolor: 'var(--home-stage-accent)',
-                  color: 'var(--home-primary-ink)',
-                  borderColor: 'transparent',
-                  '&:hover': {
-                    filter: 'brightness(0.96)',
-                  },
-                },
-              }),
             }}
           >
             <ColorModeToggle />
@@ -484,24 +409,14 @@ export function AppShell({ children }: Props) {
         open={mobileOpen}
         onClose={toggleMobileNav}
         ModalProps={{ keepMounted: true }}
-        anchor={isHomeRoute ? 'right' : 'left'}
-        slotProps={{ paper: { className: isHomeRoute ? homeDesign.theme : undefined } }}
+        anchor="left"
         sx={{
           display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            bgcolor: isHomeRoute ? 'var(--home-paper)' : 'background.default',
-            borderColor: isHomeRoute ? 'var(--home-rule)' : 'divider',
-            ...(isHomeRoute && {
-              borderRadius: '24px 0 0 24px',
-              '& .MuiListItemButton-root': {
-                minHeight: 48,
-                borderRadius: '999px',
-                color: 'var(--home-ink)',
-              },
-              '& .MuiListItemButton-root.Mui-selected': { bgcolor: 'var(--home-subtle)' },
-            }),
+            bgcolor: 'background.default',
+            borderColor: 'divider',
           },
         }}
       >
@@ -514,14 +429,12 @@ export function AppShell({ children }: Props) {
         sx={{
           width: '100%',
           boxSizing: 'border-box',
-          px: isHomeRoute ? 0 : { xs: 1.5, sm: 2, md: 3 },
-          py: isHomeRoute ? 0 : { xs: 1.5, md: 2 },
-          pt: isHomeRoute
-            ? 'var(--home-header-height)'
-            : {
-                xs: `${headerHeight + 16}px`,
-                md: `${headerHeight + 20}px`,
-              },
+          px: { xs: 1.5, sm: 2, md: 3 },
+          py: { xs: 1.5, md: 2 },
+          pt: {
+            xs: `${headerHeight + 16}px`,
+            md: `${headerHeight + 20}px`,
+          },
         }}
       >
         {children}

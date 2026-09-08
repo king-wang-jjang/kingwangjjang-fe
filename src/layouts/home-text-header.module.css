@@ -1,0 +1,115 @@
+.header {
+  position: static;
+  width: min(calc(100% - var(--home-gutter) * 2), 960px);
+  margin: 0 auto;
+  padding: 16px 0 0;
+  color: var(--home-ink);
+  font-family: var(--home-mono);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.row,
+.links,
+.actions,
+.accountContent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+  min-width: 0;
+}
+
+.row {
+  gap: 0 24px;
+}
+
+.brand {
+  font-weight: 700;
+}
+
+.actions {
+  margin-left: auto;
+}
+
+.header a,
+.header button,
+.header summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.header .brand {
+  font-weight: 700;
+}
+
+.header a:hover,
+.header button:hover,
+.header summary:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.header summary {
+  list-style: none;
+}
+
+.header summary::-webkit-details-marker {
+  display: none;
+}
+
+.account {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.accountContent {
+  padding: 0 0 8px;
+}
+
+.identity {
+  width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--home-muted);
+}
+
+.status {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--home-muted);
+}
+
+.rule {
+  overflow: hidden;
+  margin: 5px 0 0;
+  white-space: nowrap;
+  color: var(--home-muted);
+  line-height: 1;
+}
+
+@media (max-width: 599px) {
+  .row {
+    gap: 0 16px;
+  }
+
+  .links {
+    gap: 0 8px;
+  }
+
+  .actions {
+    width: 100%;
+    margin-left: 0;
+  }
+}
