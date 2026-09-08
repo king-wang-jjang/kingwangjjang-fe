@@ -1,8 +1,8 @@
 .header {
   position: static;
-  width: min(calc(100% - var(--home-gutter) * 2), 960px);
+  width: min(calc(100% - var(--home-gutter) * 2), 1680px);
   margin: 0 auto;
-  padding: 16px 0 0;
+  padding: 8px 0 0;
   color: var(--home-ink);
   font-family: var(--home-mono);
   font-size: 13px;

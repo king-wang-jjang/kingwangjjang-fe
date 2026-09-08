@@ -66,7 +66,7 @@ type SelectedPost = {
   site: string;
 } | null;
 
-const workbenchSideColumnWidth = 320;
+const workbenchSideColumnWidth = 280;
 const analysisPollIntervalMs = 1500;
 const analysisPollLimit = 80;
 
@@ -82,6 +82,7 @@ export function BoardView({
     '(any-pointer: coarse) and (min-width: 900px) and (max-width: 1400px)'
   );
   const isContentFirstLayout = isMobile || isTabletContentViewport;
+  const isWideWorkbench = useMediaQuery('(min-width: 1440px)');
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>(initialSites);
@@ -272,21 +273,18 @@ export function BoardView({
 
   const renderFeedHeader = (
     <Card sx={{ bgcolor: 'background.paper', borderColor: 'divider', borderRadius: 1 }}>
-      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Stack spacing={1.25}>
+      <CardContent sx={{ p: 1.25, '&:last-child': { pb: 1.25 } }}>
+        <Stack spacing={1}>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             spacing={1}
             sx={{ alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between' }}
           >
             <Box sx={{ minWidth: 0 }}>
-              <Typography variant="h5">실시간 게시판</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-                수집된 게시글을 빠르게 훑고 댓글 흐름을 확인하세요.
-              </Typography>
+              <Typography variant="h5">{title}</Typography>
             </Box>
             <Stack direction="row" spacing={0.75} useFlexGap sx={{ alignItems: 'center' }}>
-              {isContentFirstLayout && (
+              {(isContentFirstLayout || !isWideWorkbench) && (
                 <Button
                   component={Link}
                   href="/top10/"
@@ -394,11 +392,11 @@ export function BoardView({
 
   const renderCommentEmptyState = (
     <Card
-      sx={{ minHeight: 240, bgcolor: 'background.subtle', borderColor: 'divider', borderRadius: 1 }}
+      sx={{ bgcolor: 'background.subtle', borderColor: 'divider', borderRadius: 1 }}
     >
       <CardContent
         sx={{
-          minHeight: 240,
+          minHeight: 140,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -406,7 +404,7 @@ export function BoardView({
         }}
       >
         <Box>
-          <Typography variant="h6">댓글을 보려면 게시글을 선택하세요.</Typography>
+          <Typography variant="subtitle2">게시글의 댓글을 함께 보세요.</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             게시글을 열면 이 영역에서 댓글을 바로 확인할 수 있습니다.
           </Typography>
@@ -416,7 +414,7 @@ export function BoardView({
   );
 
   const renderPostList = (
-    <Stack spacing={1}>
+    <Stack spacing={0.75}>
       {initialLoading
         ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
         : postData.map((post) => (
@@ -480,7 +478,9 @@ export function BoardView({
           className="BoardWorkbench"
           sx={{
             display: isContentFirstLayout ? 'block' : 'grid',
-            gridTemplateColumns: `${workbenchSideColumnWidth}px minmax(0, 1fr) ${workbenchSideColumnWidth}px`,
+            gridTemplateColumns: isWideWorkbench
+              ? `${workbenchSideColumnWidth}px minmax(0, 1fr) ${workbenchSideColumnWidth}px`
+              : `minmax(0, 1fr) ${workbenchSideColumnWidth}px`,
             gap: 1.5,
             alignItems: 'start',
             width: 'min(100%, 1536px)',
@@ -490,7 +490,7 @@ export function BoardView({
         >
           <Box
             sx={{
-              display: isContentFirstLayout ? 'none' : 'block',
+              display: isContentFirstLayout || !isWideWorkbench ? 'none' : 'block',
               position: 'sticky',
               top: 'var(--board-sticky-top, 78px)',
               maxHeight: 'calc(100vh - var(--board-sticky-top, 78px) - 16px)',
@@ -503,7 +503,7 @@ export function BoardView({
             {renderToolPane}
           </Box>
 
-          <Stack spacing={1.25} sx={{ minWidth: 0 }}>
+          <Stack spacing={1} sx={{ minWidth: 0 }}>
             {renderFeedHeader}
             {renderPostList}
           </Stack>
@@ -523,8 +523,10 @@ export function BoardView({
                 title="댓글"
                 onClose={handleCommentClose}
               />
-            ) : (
+            ) : isWideWorkbench ? (
               renderCommentEmptyState
+            ) : (
+              renderToolPane
             )}
           </Box>
         </Box>
@@ -658,8 +660,8 @@ function BoardPostCard({
       }}
       sx={{
         p: 0,
-        width: { xs: 72, sm: 96 },
-        height: { xs: 72, sm: 96 },
+        width: { xs: 56, sm: 64 },
+        height: { xs: 56, sm: 64 },
         border: 1,
         borderColor: 'divider',
         borderRadius: 1,
@@ -688,8 +690,8 @@ function BoardPostCard({
     <Box
       className="card-side-image-slot compact-site-marker"
       sx={{
-        width: { xs: 72, sm: 96 },
-        height: { xs: 72, sm: 96 },
+        width: { xs: 56, sm: 64 },
+        height: { xs: 56, sm: 64 },
         border: 1,
         borderColor: 'divider',
         borderRadius: 1,
@@ -746,9 +748,9 @@ function BoardPostCard({
               },
             }}
           >
-            <Stack spacing={0.875}>
+            <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'stretch' }}>
-                <Stack spacing={0.875} sx={{ minWidth: 0, flex: 1 }}>
+                <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
                   <Stack spacing={0.5} sx={{ minWidth: 0 }}>
                     <Stack
                       className="metadata-chip-row"

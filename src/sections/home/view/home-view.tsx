@@ -49,17 +49,17 @@ export function HomeView() {
         motionEnabled={motionEnabled}
         isMotionReduced={prefersReducedMotion}
         onMotionToggle={() => setMotionPaused((paused) => !paused)}
-      />
-
-      <div id="popular-feed" className={styles.feedAnchor}>
-        <TrendingPostFeed
-          posts={topBoards}
-          isLoading={topBoardsQuery.isPending}
-          isError={topBoardsQuery.isError}
-          featuredTag={activityData?.topics[0]?.label}
-          isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
-        />
-      </div>
+      >
+        <div id="popular-feed" className={styles.feedAnchor}>
+          <TrendingPostFeed
+            posts={topBoards}
+            isLoading={topBoardsQuery.isPending}
+            isError={topBoardsQuery.isError}
+            featuredTag={activityData?.topics[0]?.label}
+            isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
+          />
+        </div>
+      </ActivityStory>
 
       <footer className={styles.footer}>
         <p className={styles.rule} aria-hidden="true">

@@ -246,7 +246,7 @@ assert.match(
 );
 assert.match(
   boardView,
-  /isContentFirstLayout &&[\s\S]*href="\/top10\/"[\s\S]*TOP 10/,
+  /\(isContentFirstLayout \|\| !isWideWorkbench\) &&[\s\S]*href="\/top10\/"[\s\S]*TOP 10/,
   'content-first layouts should link to the dedicated Top 10 page'
 );
 
@@ -322,7 +322,7 @@ assert.match(
 );
 assert.match(
   top10View,
-  /gridTemplateColumns:\s*'minmax\(0, 760px\) 320px'[\s\S]*<CommentSidebar/,
+  /gridTemplateColumns:\s*\{ xs: 'minmax\(0, 1fr\)', md: 'minmax\(0, 1fr\) 280px' \}[\s\S]*<CommentSidebar/,
   'desktop Top 10 should place comments in a right sidebar'
 );
 assert.match(

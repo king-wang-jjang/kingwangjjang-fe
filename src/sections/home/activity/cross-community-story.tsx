@@ -1,6 +1,5 @@
 'use client';
 
-
 import Link from 'next/link';
 
 import { asciiMeter, formatActivityCount } from './activity-format';
@@ -31,7 +30,12 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
           : '상위 태그의 출처별 분포'}
       </p>
       {sources.length > 0 ? (
-        <ol className={styles.sourceList} aria-label="태그의 출처별 게시글 분포">
+        <ol
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allow keyboard scrolling of the overflow container.
+          tabIndex={0}
+          className={styles.sourceList}
+          aria-label="태그의 출처별 게시글 분포"
+        >
           {sources.map((source, index) => (
             <li key={source.id}>
               <span className={styles.rank} aria-hidden="true">
@@ -39,8 +43,11 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
               </span>
               <div className={styles.content}>
                 <div className={styles.sourceLine}>
-                  <Link href={createSourceHref(topic!.label, source.site)} data-source-link
-                    aria-label={`${source.name.trim() || source.site}에서 ${topic!.label} 태그 게시글 ${formatActivityCount(source.contribution)}개 보기, 비중 ${Math.round(source.contributionRatio * 100)}%`}>
+                  <Link
+                    href={createSourceHref(topic!.label, source.site)}
+                    data-source-link
+                    aria-label={`${source.name.trim() || source.site}에서 ${topic!.label} 태그 게시글 ${formatActivityCount(source.contribution)}개 보기, 비중 ${Math.round(source.contributionRatio * 100)}%`}
+                  >
                     [{source.name.trim() || source.site} &gt;]
                   </Link>
                   <span className={styles.meter}>
@@ -48,8 +55,14 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
                     {Math.round(source.contributionRatio * 100)}%
                   </span>
                 </div>
-                <p className={styles.note}><strong>{formatActivityCount(source.contribution)}</strong>개 게시글</p>
-                <p className={styles.note}>{source.representativePost ? `대표 글: ${source.representativePost.title}` : '연결된 Top 10 글 없음'}</p>
+                <p className={styles.note}>
+                  <strong>{formatActivityCount(source.contribution)}</strong>개 게시글
+                </p>
+                <p className={styles.note}>
+                  {source.representativePost
+                    ? `대표 글: ${source.representativePost.title}`
+                    : '연결된 Top 10 글 없음'}
+                </p>
               </div>
             </li>
           ))}

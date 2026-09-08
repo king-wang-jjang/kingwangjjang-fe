@@ -339,13 +339,13 @@ assert.match(
 );
 assert.match(
   boardView,
-  /const workbenchSideColumnWidth = 320;/,
+  /const workbenchSideColumnWidth = 280;/,
   'desktop board should define one shared side column width'
 );
 assert.match(
   boardView,
-  /gridTemplateColumns:\s*`\$\{workbenchSideColumnWidth\}px minmax\(0, 1fr\) \$\{workbenchSideColumnWidth\}px`/,
-  'desktop board should keep the first and third columns equal so the feed stays centered'
+  /gridTemplateColumns:\s*isWideWorkbench\s*\? `\$\{workbenchSideColumnWidth\}px minmax\(0, 1fr\) \$\{workbenchSideColumnWidth\}px`\s*: `minmax\(0, 1fr\) \$\{workbenchSideColumnWidth\}px`/,
+  'wide desktop boards should use equal side columns and narrower desktops should use two columns'
 );
 assert.match(
   boardView,
@@ -398,7 +398,7 @@ assert.notEqual(
 const sideImageSlotSource = boardView.slice(sideImageSlotStart, postCardReturnStart);
 
 assert.equal(
-  (sideImageSlotSource.match(/height: \{ xs: 72, sm: 96 \}/g) ?? []).length,
+  (sideImageSlotSource.match(/height: \{ xs: 56, sm: 64 \}/g) ?? []).length,
   2,
   'image and fallback slots should use fixed responsive square heights'
 );
@@ -409,7 +409,7 @@ assert.equal(
 );
 assert.doesNotMatch(
   sideImageSlotSource,
-  /minHeight: \{ xs: 72, sm: 96 \}|alignSelf: 'stretch'/,
+  /minHeight: \{ xs: 56, sm: 64 \}|alignSelf: 'stretch'/,
   'side image slots should not use stretchable minimum heights'
 );
 assert.match(
