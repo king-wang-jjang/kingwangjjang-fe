@@ -1,0 +1,83 @@
+.ambient,
+.signal {
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--home-accent);
+}
+
+.ambient {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: min(100%, 1400px);
+  display: grid;
+  gap: 160px;
+  padding-top: 48px;
+  opacity: 0.24;
+  /* Each 288-character tile covers even an ultrawide viewport while drifting. */
+  font-size: max(12px, 0.75vw);
+  line-height: 1.8;
+  mask-image: linear-gradient(90deg, #000, #0001 24%, #0001 76%, #000);
+}
+
+.signal {
+  font-size: 10px;
+  line-height: 13px;
+  opacity: 0.72;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: flow 48s linear infinite;
+}
+
+.track:nth-child(2) {
+  animation-duration: 64s;
+  animation-direction: reverse;
+  animation-delay: -24s;
+}
+
+.track:nth-child(3) {
+  animation-duration: 56s;
+  animation-delay: -18s;
+}
+
+.track pre {
+  flex: none;
+  margin: 0;
+  font: inherit;
+  white-space: pre;
+}
+
+.signal .track {
+  animation-duration: 26s;
+  animation-delay: -8s;
+}
+
+@keyframes flow {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 599.95px) {
+  .ambient {
+    gap: 200px;
+    opacity: 0.1;
+    mask-image: linear-gradient(180deg, #000, transparent 85%);
+  }
+
+  .signal {
+    font-size: 9px;
+    line-height: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

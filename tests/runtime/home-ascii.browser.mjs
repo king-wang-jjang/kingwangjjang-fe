@@ -13,7 +13,10 @@ let playwright;
 try {
   playwright = require('playwright');
 } catch {
-  playwright = require(path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright'));
+  playwright = require(
+    process.env.PULSE_PLAYWRIGHT_PATH ||
+      path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright')
+  );
 }
 const root = process.cwd();
 const artifacts = path.join(tmpdir(), 'codex-home-ascii-review');
@@ -79,7 +82,7 @@ const posts = Array.from({ length: 10 }, (_, index) => ({
 }));
 let liveOverview, livePosts;
 const failures = [];
-const report = { fixture: true, artifacts, viewports: [], errors: [], api: null };
+const report = { fixture: true, artifacts, viewports: [], motion: [], errors: [], api: null };
 const cacheRoot = path.join(process.env.LOCALAPPDATA || path.join(tmpdir(), '..'), 'ms-playwright');
 const cachedChrome =
   process.platform === 'win32' && existsSync(cacheRoot)
@@ -211,12 +214,80 @@ async function inspect(page, label) {
   report.viewports.push({ label, ...result, text: undefined });
   return result;
 }
+
+async function inspectMotion(page, label, shouldMove) {
+  const sample = () =>
+    page.evaluate(() => {
+      const home = document.querySelector('[data-home-motion]');
+      return {
+        tracks: [...document.querySelectorAll('[data-ascii-track]')].map((track) => ({
+          flow: track.closest('[data-ascii-flow]')?.getAttribute('data-ascii-flow'),
+          transform: getComputedStyle(track).transform,
+          tileWidth: track.firstElementChild?.getBoundingClientRect().width ?? 0,
+          containerWidth: track.closest('[data-ascii-flow]')?.getBoundingClientRect().width ?? 0,
+        })),
+        running: home
+          ? home
+              .getAnimations({ subtree: true })
+              .filter((animation) => animation.playState === 'running').length
+          : 0,
+        decorations: [...document.querySelectorAll('[data-ascii-flow]')].map((flow) => ({
+          kind: flow.getAttribute('data-ascii-flow'),
+          hidden: flow.getAttribute('aria-hidden') === 'true',
+          pointerEvents: getComputedStyle(flow).pointerEvents,
+        })),
+        overflow: document.documentElement.scrollWidth > innerWidth,
+      };
+    });
+  // Allow the media query or pause control to settle before comparing frames.
+  await page.waitForTimeout(100);
+  const before = await sample();
+  await page.waitForTimeout(450);
+  const after = await sample();
+  const moved = after.tracks.filter(
+    (track, index) => track.transform !== before.tracks[index]?.transform
+  );
+  check(after.tracks.length > 0, label + ' missing ASCII motion tracks');
+  check(
+    after.tracks
+      .filter((track) => track.flow === 'ambient')
+      .every((track) => track.tileWidth >= track.containerWidth),
+    label + ' ambient tile does not cover the viewport through a full loop'
+  );
+  for (const kind of ['ambient', 'signal']) {
+    const decoration = after.decorations.find((flow) => flow.kind === kind);
+    check(decoration?.hidden, label + ' ' + kind + ' is exposed to assistive technology');
+    check(
+      decoration?.pointerEvents === 'none',
+      label + ' ' + kind + ' may intercept pointer input'
+    );
+  }
+  if (shouldMove) {
+    check(
+      moved.some((track) => track.flow === 'ambient'),
+      label + ' ambient flow did not move'
+    );
+    check(after.running > 0, label + ' missing running animation');
+  } else {
+    check(moved.length === 0, label + ' ASCII tracks continued moving');
+    check(after.running === 0, label + ' home animations continued running');
+  }
+  check(!before.overflow && !after.overflow, label + ' motion caused horizontal overflow');
+  report.motion.push({
+    label,
+    tracks: after.tracks.length,
+    moved: moved.length,
+    running: after.running,
+  });
+}
+
 try {
   for (const viewport of [
     { width: 320, height: 720 },
     { width: 390, height: 844 },
     { width: 768, height: 1024 },
     { width: 1440, height: 900 },
+    { width: 2560, height: 1080 },
   ]) {
     const { page, context } = await makePage(viewport);
     const label = viewport.width + 'x' + viewport.height;
@@ -247,12 +318,42 @@ try {
     if (viewport.width === 390) {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await inspect(page, 'reduced after load');
+      await inspectMotion(page, 'reduced after load', false);
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await inspectMotion(page, 'motion preference restored', true);
     }
+    if (viewport.width === 1440) {
+      const motionToggle = page.getByRole('button', { name: '화면 움직임', exact: true });
+      check(
+        (await motionToggle.getAttribute('aria-pressed')) === 'true' &&
+          (await page.locator('[data-home-motion]').getAttribute('data-home-motion')) === 'running',
+        'motion control should initially indicate running'
+      );
+      await inspectMotion(page, 'normal motion', true);
+      await motionToggle.click();
+      check(
+        (await motionToggle.getAttribute('aria-pressed')) === 'false' &&
+          (await motionToggle.innerText()) === '[움직임 꺼짐]' &&
+          (await page.locator('[data-home-motion]').getAttribute('data-home-motion')) === 'paused',
+        'motion control did not indicate paused'
+      );
+      await inspectMotion(page, 'user paused', false);
+      await motionToggle.click();
+      check(
+        (await motionToggle.getAttribute('aria-pressed')) === 'true' &&
+          (await motionToggle.innerText()) === '[움직임 켜짐]' &&
+          (await page.locator('[data-home-motion]').getAttribute('data-home-motion')) === 'running',
+        'motion control did not indicate resumed'
+      );
+      await inspectMotion(page, 'user resumed', true);
+    }
+    if (viewport.width === 2560) await inspectMotion(page, 'ultrawide motion', true);
     await context.close();
   }
-  for (const mode of ['empty', 'error', 'long']) {
+  for (const mode of ['empty', 'error', 'long', 'reduced']) {
     const { page, context } = await makePage({ width: 390, height: 650 }, mode, 6);
     await inspect(page, mode);
+    if (mode === 'reduced') await inspectMotion(page, 'reduced on initial load', false);
     await screenshot(page, mode);
     await context.close();
   }
@@ -304,6 +405,7 @@ console.log(
     {
       artifacts,
       checks: report.viewports.length,
+      motion: report.motion,
       errors: report.errors,
       api: report.api,
       failures,

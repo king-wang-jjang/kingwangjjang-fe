@@ -1,7 +1,26 @@
 .home {
+  position: relative;
+  isolation: isolate;
   min-width: 0;
   color: var(--home-ink);
   background: var(--home-canvas);
+}
+
+.home[data-home-motion='paused'] *,
+.home[data-home-motion='paused'] *::before,
+.home[data-home-motion='paused'] *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home *,
+  .home *::before,
+  .home *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 .feedAnchor {
   scroll-margin-top: 16px;

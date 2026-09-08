@@ -36,6 +36,17 @@
   align-items: flex-start;
   gap: 16px;
   margin: 0 0 12px;
+  transition: background-color 180ms ease;
+}
+.sourceList li:hover,
+.sourceList li:focus-within {
+  background: var(--home-accent-wash);
+}
+.sourceList li:hover .rank,
+.sourceList li:focus-within .rank,
+.sourceList li:hover .meter,
+.sourceList li:focus-within .meter {
+  color: var(--home-accent);
 }
 .rank {
   min-width: 2ch;

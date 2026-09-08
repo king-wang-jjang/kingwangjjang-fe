@@ -93,6 +93,12 @@
   align-items: flex-start;
   gap: 8px;
   padding: 4px 0;
+  transition: background-color 180ms ease;
+}
+
+.postItem:hover,
+.postItem:focus-within {
+  background: var(--home-accent-wash);
 }
 
 .postButton {
@@ -112,7 +118,7 @@
 }
 
 .postButton[aria-pressed='true'] .rank {
-  color: var(--home-ink);
+  color: var(--home-accent);
 }
 
 .postCopy {

@@ -7,6 +7,8 @@
   --home-muted: #666666;
   --home-rule: #cccccc;
   --home-focus: #222222;
+  --home-accent: #526636;
+  --home-accent-wash: #5266360d;
   --home-paper: var(--home-canvas);
   --home-subtle: var(--home-canvas);
   --home-primary: var(--home-canvas);
@@ -25,6 +27,8 @@
   --home-muted: #aaaaaa;
   --home-rule: #444444;
   --home-focus: #dddddd;
+  --home-accent: #a6bf83;
+  --home-accent-wash: #a6bf8312;
 }
 .theme a {
   color: inherit;

@@ -4,6 +4,80 @@
   padding: 28px 0 0;
   scroll-margin-top: 16px;
 }
+.intro {
+  padding-top: 4px;
+}
+.terminalBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  margin-bottom: 22px;
+  font-size: 11px;
+}
+.eyebrow {
+  color: var(--home-accent);
+  letter-spacing: 0.1em;
+}
+.cursor {
+  display: inline-block;
+  animation: cursor 2.4s ease-in-out infinite;
+}
+.motionToggle {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--home-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.motionToggle:hover:not(:disabled) {
+  color: var(--home-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.motionToggle:disabled {
+  cursor: default;
+}
+.introBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+}
+.introCopy {
+  min-width: 0;
+}
+.story .prompt {
+  margin: 0 0 18px;
+  font-size: 12px;
+  color: var(--home-accent);
+}
+.signalPanel {
+  min-width: 0;
+  padding: 20px 0;
+  color: var(--home-accent);
+}
+.story .signalCaption,
+.story .signalLegend {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.story .signalCaption {
+  margin: 0 0 14px;
+}
+.story .signalLegend {
+  margin: 14px 0 0;
+  color: var(--home-muted);
+  letter-spacing: 0.04em;
+}
+.story .feedLink {
+  margin-top: 8px;
+  color: var(--home-accent);
+}
 .story h1 {
   font-size: 18px;
   line-height: 1.7;
@@ -28,21 +102,31 @@
   line-height: 1.8;
 }
 .metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 22px;
-  margin: 16px 0 8px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 28px 0 8px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--home-rule);
 }
 .metrics > div {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
+}
+.metrics dt {
+  font-size: 11px;
+  color: var(--home-muted);
 }
 .metrics dt,
 .metrics dd {
   margin: 0;
 }
 .metrics dd {
-  font-weight: 700;
+  order: -1;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }
 .story .rule {
   overflow: hidden;
@@ -60,12 +144,40 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin: 0 0 12px;
+  margin: 0 -12px;
+  padding: 10px 12px;
+  border-bottom: 1px dashed var(--home-rule);
+  transition: background-color 180ms ease;
+}
+.topicList li:last-child {
+  border-bottom: 0;
+}
+.topicList li:hover,
+.topicList li:focus-within {
+  background: var(--home-accent-wash);
+}
+.topicList li:hover .rank,
+.topicList li:focus-within .rank,
+.topicList li:hover .meter,
+.topicList li:focus-within .meter {
+  color: var(--home-accent);
 }
 .rank {
+  position: relative;
   padding-top: 9px;
   min-width: 2ch;
   color: var(--home-muted);
+}
+.rank::before {
+  content: '>';
+  position: absolute;
+  left: -1.3ch;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.topicList li:hover .rank::before,
+.topicList li:focus-within .rank::before {
+  opacity: 1;
 }
 .topicContent {
   flex: 1;
@@ -88,9 +200,14 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
   text-underline-offset: 3px;
   overflow-wrap: anywhere;
+}
+.topicLine button:hover,
+.topicLine button:focus-visible {
+  color: var(--home-accent);
+  text-decoration: underline;
 }
 .meter {
   flex-shrink: 0;
@@ -118,6 +235,11 @@
 .scoreNote summary::-webkit-details-marker {
   display: none;
 }
+@keyframes cursor {
+  50% {
+    opacity: 0.3;
+  }
+}
 @media (max-width: 599.95px) {
   .story {
     padding-top: 16px;
@@ -125,8 +247,42 @@
   .story h1 {
     font-size: 16px;
   }
+  .terminalBar {
+    margin-bottom: 14px;
+    font-size: 10px;
+  }
+  .eyebrow {
+    letter-spacing: 0.03em;
+  }
+  .introBody {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .signalPanel {
+    padding: 4px 0;
+  }
+  .story .signalCaption {
+    display: none;
+  }
+  .story .signalLegend {
+    margin-top: 8px;
+    font-size: 9px;
+  }
   .metrics {
-    gap: 4px 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .metrics dd {
+    font-size: 22px;
+  }
+  .topicList li {
+    margin-inline: -6px;
+    padding-inline: 6px;
+  }
+  .rank::before {
+    left: -0.8ch;
   }
   .topicLine {
     flex-wrap: wrap;

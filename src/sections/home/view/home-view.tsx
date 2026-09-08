@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
+import { AsciiFlow } from '../activity/ascii-flow';
 import { ActivityStory } from '../activity/activity-story';
 import { adaptActivityData } from '../activity/activity-data';
 import { TrendingPostFeed } from '../activity/trending-post-feed';
@@ -17,6 +20,9 @@ import styles from './home-view.module.css';
 
 export function HomeView() {
   const router = useRouter();
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const [motionPaused, setMotionPaused] = useState(false);
+  const motionEnabled = !motionPaused && !prefersReducedMotion;
   const issueOverviewQuery = useIssueOverview();
   const topBoardsQuery = useTopBoards();
   const topBoards = useMemo(() => topBoardsQuery.data ?? [], [topBoardsQuery.data]);
@@ -32,13 +38,17 @@ export function HomeView() {
   };
 
   return (
-    <div className={styles.home}>
+    <div className={styles.home} data-home-motion={motionEnabled ? 'running' : 'paused'}>
+      <AsciiFlow variant="ambient" />
       <ActivityStory
         data={activityData}
         isLoading={issueOverviewQuery.isPending}
         isError={issueOverviewQuery.isError}
         onTopicSelect={handleTopicSelect}
         isRefreshing={issueOverviewQuery.isFetching && !issueOverviewQuery.isPending}
+        motionEnabled={motionEnabled}
+        isMotionReduced={prefersReducedMotion}
+        onMotionToggle={() => setMotionPaused((paused) => !paused)}
       />
 
       <div id="popular-feed" className={styles.feedAnchor}>

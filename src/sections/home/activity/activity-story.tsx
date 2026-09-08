@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import { AsciiFlow } from './ascii-flow';
 import { CrossCommunityStory } from './cross-community-story';
 import {
   asciiMeter,
@@ -22,9 +23,21 @@ type Props = {
   isError: boolean;
   isRefreshing?: boolean;
   onTopicSelect: (tag: string) => void;
+  motionEnabled: boolean;
+  isMotionReduced: boolean;
+  onMotionToggle: () => void;
 };
 
-export function ActivityStory({ data, isLoading, isError, isRefreshing, onTopicSelect }: Props) {
+export function ActivityStory({
+  data,
+  isLoading,
+  isError,
+  isRefreshing,
+  onTopicSelect,
+  motionEnabled,
+  isMotionReduced,
+  onMotionToggle,
+}: Props) {
   const hours = data?.windowHours ?? 24;
   const topics = data?.topics ?? [];
   const updated = formatActivityTime(data?.generatedAt);
@@ -36,20 +49,52 @@ export function ActivityStory({ data, isLoading, isError, isRefreshing, onTopicS
         aria-labelledby="pulse-title"
         data-ascii-home
       >
-        <header>
-          <h1 id="pulse-title"># 최근 {hours}시간 커뮤니티 동향</h1>
-          <p>여러 커뮤니티의 게시글, 요약, AI 태그를 모았습니다.</p>
-          <p className={styles.note}>
-            갱신:{' '}
-            {updated ? (
-              <time dateTime={data?.generatedAt}>{updated}</time>
-            ) : isLoading ? (
-              '불러오는 중...'
-            ) : (
-              '집계 시각 없음'
-            )}
-            {' / '}최근 {hours}시간
-          </p>
+        <header className={styles.intro}>
+          <div className={styles.terminalBar}>
+            <span className={styles.eyebrow} aria-hidden="true">
+              <span className={styles.cursor}>*</span> COMMUNITY PULSE / {hours}H
+            </span>
+            <button
+              type="button"
+              className={styles.motionToggle}
+              aria-label="화면 움직임"
+              aria-pressed={motionEnabled}
+              disabled={isMotionReduced}
+              title={isMotionReduced ? '기기의 모션 감소 설정이 적용되어 있습니다.' : undefined}
+              onClick={onMotionToggle}
+            >
+              [{isMotionReduced ? '모션 감소' : motionEnabled ? '움직임 켜짐' : '움직임 꺼짐'}]
+            </button>
+          </div>
+          <div className={styles.introBody}>
+            <div className={styles.introCopy}>
+              <p className={styles.prompt} aria-hidden="true">
+                &gt; reading the room<span className={styles.cursor}>_</span>
+              </p>
+              <h1 id="pulse-title"># 최근 {hours}시간 커뮤니티 동향</h1>
+              <p>흩어진 이야기에서, 지금의 흐름을 읽습니다.</p>
+              <p className={styles.note}>여러 커뮤니티의 게시글, 요약, AI 태그를 한곳에서.</p>
+              <p className={styles.note}>
+                갱신:{' '}
+                {updated ? (
+                  <time dateTime={data?.generatedAt}>{updated}</time>
+                ) : isLoading ? (
+                  '불러오는 중...'
+                ) : (
+                  '집계 시각 없음'
+                )}
+                {' / '}최근 {hours}시간
+              </p>
+              <Link className={styles.feedLink} href="#popular-feed">
+                [인기글 바로 보기 &gt;]
+              </Link>
+            </div>
+            <div className={styles.signalPanel} aria-hidden="true">
+              <p className={styles.signalCaption}>[ COMMUNITY FREQUENCIES ]</p>
+              <AsciiFlow variant="signal" />
+              <p className={styles.signalLegend}>posts --- tags --- connections</p>
+            </div>
+          </div>
           <dl className={styles.metrics} aria-label="최근 커뮤니티 집계">
             {[
               { label: '분석 게시글', value: data?.analyzedPostCount },
@@ -58,14 +103,11 @@ export function ActivityStory({ data, isLoading, isError, isRefreshing, onTopicS
               { label: '확인된 연결', value: data?.knownEdgeCount },
             ].map((metric) => (
               <div key={metric.label}>
-                <dt>{metric.label}:</dt>
+                <dt>{metric.label}</dt>
                 <dd>{metric.value === undefined ? '-' : formatActivityCount(metric.value)}</dd>
               </div>
             ))}
           </dl>
-          <p>
-            <Link href="#popular-feed">[인기글 바로 보기 &gt;]</Link>
-          </p>
         </header>
 
         <p className={styles.rule} aria-hidden="true">
