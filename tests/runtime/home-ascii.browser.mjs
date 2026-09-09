@@ -13,13 +13,10 @@ let playwright;
 try {
   playwright = require('playwright');
 } catch {
-  playwright = require(
-    process.env.PULSE_PLAYWRIGHT_PATH ||
-      path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright')
-  );
+  playwright = require(path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright'));
 }
 const root = process.cwd();
-const artifacts = path.join(tmpdir(), 'codex-home-ascii-review');
+const artifacts = path.join(tmpdir(), 'codex-home-compact-review');
 await mkdir(artifacts, { recursive: true });
 const labels = [
   '인공지능',
@@ -102,11 +99,10 @@ const check = (condition, message) => {
   if (!condition) failures.push(message);
 };
 
-async function makePage(viewport, mode = 'normal', sourceCount = 3, recordMotion = false) {
+async function makePage(viewport, mode = 'normal', sourceCount = 3) {
   const context = await browser.newContext({
     viewport,
     reducedMotion: mode === 'reduced' ? 'reduce' : 'no-preference',
-    ...(recordMotion ? { recordVideo: { dir: artifacts, size: viewport } } : {}),
   });
   const page = await context.newPage();
   page.on('pageerror', (error) => report.errors.push(error.message));
@@ -136,7 +132,10 @@ async function makePage(viewport, mode = 'normal', sourceCount = 3, recordMotion
         }));
       return json(data);
     }
-    if (url.pathname.includes('/boards/daily')) return json(mode === 'actual' ? livePosts : posts);
+    if (url.pathname.includes('/boards/daily')) {
+      if (mode === 'error') return json({ message: 'Fixture API unavailable' }, 500);
+      return json(mode === 'actual' ? livePosts : mode === 'empty' ? [] : posts);
+    }
     if (url.pathname.includes('/boards/filters'))
       return json({ sites: sites.map((value, i) => ({ value, label: names[i] })) });
     if (url.hostname !== 'pulse.invalid') return json(null, 401);
@@ -166,20 +165,24 @@ async function makePage(viewport, mode = 'normal', sourceCount = 3, recordMotion
   });
   await page.goto('http://pulse.invalid/', { waitUntil: 'networkidle' });
 
+  // Streaming HTML can briefly contain a hidden copy before hydration finishes.
+  await page.waitForFunction(() => document.querySelectorAll('[data-ascii-home]').length === 1);
   await page.locator('[data-ascii-home]').waitFor();
   await page.waitForTimeout(mode === 'error' ? 4000 : 200);
   return { page, context };
 }
 async function screenshot(page, name) {
-  const scrollPosition = await page.evaluate(() => ({ x: scrollX, y: scrollY }));
   await page.screenshot({ path: path.join(artifacts, name + '.png') });
   await page.screenshot({ path: path.join(artifacts, name + '-full.png'), fullPage: true });
   await page
+    .locator('#tag-rankings')
+    .screenshot({ path: path.join(artifacts, name + '-tags.png') });
+  await page
     .locator('#popular-feed')
     .screenshot({ path: path.join(artifacts, name + '-feed.png') });
-  await page.evaluate(({ x, y }) => scrollTo(x, y), scrollPosition);
 }
 async function inspect(page, label) {
+  await page.evaluate(() => scrollTo(0, 0));
   const result = await page.evaluate(() => {
     const main = document.querySelector('main');
     const visible = (el) =>
@@ -204,20 +207,53 @@ async function inspect(page, label) {
         x.getAttribute('href')
       ),
       titleSize: parseFloat(getComputedStyle(document.querySelector('h1')).fontSize),
+      headings: [...main.querySelectorAll('h1, h2')].map((el) => ({
+        text: el.textContent,
+        weight: Number(getComputedStyle(el).fontWeight),
+      })),
+      sections: ['tag-rankings', 'cross-community', 'popular-feed'].map((id) => ({
+        id,
+        height: Math.ceil(document.getElementById(id).getBoundingClientRect().height),
+      })),
+      viewportHeight: innerHeight,
+      postRows: document.querySelectorAll('#trending-post-list > li').length,
+      hasPreview: !!document.querySelector('#trending-post-preview'),
+      destinations: ['/board', '/top10'].map((href) => {
+        const link = [...document.querySelectorAll('[data-home-text-header] a')].find(
+          (el) => new URL(el.href).pathname.replace(/\/$/, '') === href
+        );
+        const rect = link?.getBoundingClientRect();
+        return { href, visible: !!rect && rect.top >= 0 && rect.bottom <= innerHeight };
+      }),
       text: main.innerText,
     };
   });
   check(!result.overflow, label + ' horizontal overflow');
   check(result.graphics === 0, label + ' graphic elements remain');
   check(result.fixed === 0, label + ' fixed/sticky elements remain');
-  check(result.titleSize <= 18, label + ' oversized title');
+  check(result.titleSize <= 20, label + ' oversized title');
+  check(
+    result.headings.every((heading) => heading.weight >= 700),
+    label + ' weak heading emphasis'
+  );
+  check(
+    result.destinations.every((link) => link.visible),
+    label + ' missing first-screen destination'
+  );
+  if (!result.hasPreview) {
+    for (const section of result.sections) {
+      check(
+        section.height <= result.viewportHeight - 16,
+        label + ' section too tall: ' + section.id + ' (' + section.height + 'px)'
+      );
+    }
+  }
   check(/mono|Consolas|D2Coding/i.test(result.font), label + ' missing mono font');
   if (label !== 'actual API')
     check(!/[█░▒▓●◉•→↗↓]/.test(result.text), label + ' non-ASCII decoration remains');
   report.viewports.push({ label, ...result, text: undefined });
   return result;
 }
-
 async function inspectMotion(page, label, shouldMove) {
   const sample = () =>
     page.evaluate(() => {
@@ -311,28 +347,6 @@ async function inspectOffscreenMotion(page) {
   await inspectMotion(page, 'sculpture returned to viewport', true);
 }
 
-async function recordMotionPreview() {
-  const viewport = { width: 1440, height: 900 };
-  const { page, context } = await makePage(viewport, 'normal', 3, true);
-  const video = page.video();
-  const header = page.locator('[data-ascii-flow="signal"]').locator('..');
-  const bounds = await header.boundingBox();
-  await page.waitForTimeout(1500);
-  if (bounds) {
-    await page.mouse.move(bounds.x + bounds.width * 0.2, bounds.y + bounds.height * 0.45);
-    await page.mouse.move(bounds.x + bounds.width * 0.8, bounds.y + bounds.height * 0.65, {
-      steps: 36,
-    });
-  }
-  await page.waitForTimeout(2500);
-  await page.mouse.move(0, 0);
-  await page.waitForTimeout(1500);
-  await context.close();
-  await video.saveAs(path.join(artifacts, 'animation.webm'));
-  await video.delete();
-  report.animation = path.join(artifacts, 'animation.webm');
-}
-
 try {
   for (const viewport of [
     { width: 320, height: 720 },
@@ -345,6 +359,14 @@ try {
     const label = viewport.width + 'x' + viewport.height;
     await inspect(page, label);
     check((await page.locator('[data-topic-node]').count()) === 16, label + ' missing tag rows');
+    check(
+      (await page.locator('#trending-post-list > li').count()) === 10,
+      label + ' missing popular titles'
+    );
+    check(
+      (await page.locator('#trending-post-preview').count()) === 0,
+      label + ' preview should start closed'
+    );
     check(
       (await page.locator('[data-source-link]').first().getAttribute('href')).includes('sites='),
       label + ' missing source filter'
@@ -364,6 +386,16 @@ try {
       ).includes('rank=2'),
       label + ' preview link lost'
     );
+    if (viewport.width === 390) {
+      await page
+        .locator('#trending-post-preview')
+        .screenshot({ path: path.join(artifacts, 'selected-preview.png') });
+    }
+    await page.getByRole('button', { name: /2위.*스포츠.*미리보기/ }).click();
+    check(
+      (await page.locator('#trending-post-preview').count()) === 0,
+      label + ' preview did not close'
+    );
     await page.getByRole('button', { name: '인기', exact: true }).click();
     await page.evaluate(() => scrollTo(0, 0));
     await screenshot(page, label);
@@ -374,6 +406,7 @@ try {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       await inspectMotion(page, 'motion preference restored', true);
     }
+    await page.evaluate(() => scrollTo(0, 0));
     if (viewport.width === 1440) {
       const motionToggle = page.getByRole('button', { name: '화면 움직임', exact: true });
       check(
@@ -403,11 +436,17 @@ try {
     if (viewport.width === 2560) await inspectMotion(page, 'ultrawide motion', true);
     await context.close();
   }
-  if (process.env.PULSE_RECORD_MOTION === '1') await recordMotionPreview();
   for (const mode of ['empty', 'error', 'long', 'reduced']) {
     const { page, context } = await makePage({ width: 390, height: 650 }, mode, 6);
     await inspect(page, mode);
     if (mode === 'reduced') await inspectMotion(page, 'reduced on initial load', false);
+    check(
+      (await page
+        .locator('#popular-feed a[href="/top10"], #popular-feed a[href="/top10/"]')
+        .count()) > 0,
+      mode + ' missing Top 10 destination'
+    );
+    await page.evaluate(() => scrollTo(0, 0));
     await screenshot(page, mode);
     await context.close();
   }
@@ -419,7 +458,7 @@ try {
     await page.waitForTimeout(150);
     await inspect(page, 'dark');
     await screenshot(page, 'dark');
-  }
+  } else check(false, 'missing theme switch');
   await context.close();
   const apiContext = await browser.newContext();
   try {
@@ -460,7 +499,6 @@ console.log(
       artifacts,
       checks: report.viewports.length,
       motion: report.motion,
-      animation: report.animation,
       errors: report.errors,
       api: report.api,
       failures,

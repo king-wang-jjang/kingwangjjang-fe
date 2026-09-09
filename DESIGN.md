@@ -1,6 +1,6 @@
 # Kingwangjjang Design System
 
-> ASCII / Plain Text home · v3.0 · 2026-09-08
+> ASCII / Plain Text home · v3.1 · 2026-09-09
 
 홈 `/`는 텍스트와 ASCII 기호로만 구성한다. 아래의 기존 공통 색상·카드·모션 규칙과 충돌하면 `8. Page Blueprints`의 ASCII / Plain Text 홈 절을 우선한다.
 
@@ -318,13 +318,23 @@ CSS와 JavaScript의 breakpoint가 어긋나지 않도록 모두 MUI theme 값�
 
 > 2026-09-08 사용자 수정: **홈 자체를 ASCII 기호와 단순 텍스트로 구성한다.** 이 절이 이전 Community Pulse 모션 설계를 대체한다.
 
+> 2026-09-09 사용자 수정: 제목을 강조하고 각 목록을 한 화면에서 훑을 수 있게 줄인다. `/board`, `/top10` 진입을 상단과 해당 섹션 제목 옆에 드러낸다.
+
 #### 화면 원칙
 
 한국어 제목과 게시글은 그대로 표시한다. 로고, 메뉴, 목록, 조작 표시, 구분선은 텍스트와 ASCII 기호 `[ ] # + - = > / | .`로 구성한다. 숫자 막대는 `[######....]`이다. Unicode 블록·화살표·그림문자는 장식에 사용하지 않는다.
 
-고정폭 글꼴, 본문 13–14px, 제목 최대 18px, 행간 1.7–1.9를 사용한다. 최대 폭 960px의 한 열 문서와 모바일 좌우 16px 여백을 기준으로 한다. 긴 글은 자연스럽게 줄바꿈한다. 무채색 밝은/어두운 테마를 제공하고, 강조는 굵기·밑줄·대괄호로 나타낸다.
+고정폭 글꼴, 본문 13–14px, 페이지 제목 18–20px, 섹션 제목 17–18px를 사용한다. 제목은 굵기 800과 ASCII `=` 구분선으로 강조한다. 최대 폭 960px의 문서와 모바일 좌우 16px 여백을 기준으로 한다. 무채색 밝은/어두운 테마를 제공하고, 강조는 굵기·밑줄·대괄호로 나타낸다.
 
-그래픽 로고, SVG/canvas, 버블, 입자, 이미지 썸네일, 둥근 카드, 채워진 버튼, 색상 배지, 큰 타이포, sticky/fixed stage, 스크롤 애니메이션을 홈에서 사용하지 않는다. 헤더와 요약도 일반 문서 흐름에 놓는다. 로딩과 오류는 텍스트다.
+태그 16개는 모바일에서도 2열로 모두 표시하며, 이름과 ASCII 점수 막대에 집중한다. 게시글 수·증감·출처 수는 `[상세 지표와 점수 설명]`에서 펼친다. 인기글 10개는 굵기 700의 제목과 순위, 상세 링크를 44px 행에 표시한다. 긴 게시글 제목은 ASCII `...`로 표시하고 클릭하면 해당 행 바로 아래 전체 제목과 요약을 펼친다. 요약은 처음에는 닫혀 있고 한 번에 한 개만 연다. 사용자 선택으로 펼친 상세 내용은 자연스럽게 문서를 늘린다.
+
+출처 목록은 출처명·게시글 수·비중을 먼저 표시하고 대표 글 제목은 `[출처별 대표 글 보기]`에서 펼친다. 출처가 6개인 경우에도 기본 목록을 한 번에 읽을 수 있도록 한다.
+
+헤더의 `[게시판]`, `[Top 10]`, 소개 아래의 전체 콘텐츠 링크, 각 목록 제목 옆의 전체 보기 링크로 탐색 경로를 제공한다. 로딩·빈 결과·오류에서도 전체 페이지로 이동할 수 있어야 한다. 각 섹션으로 이동했을 때 기본 목록 전체가 화면 안에 들어오도록 확인한다. 목록을 내부 스크롤로 가두거나 항목 수를 줄이지 않는다.
+
+그래픽 로고, SVG/canvas, 버블, 입자, 이미지 썸네일, 둥근 카드, 채워진 버튼, 색상 배지, 큰 타이포, sticky/fixed stage, 스크롤 연동 장면을 홈에서 사용하지 않는다. 헤더와 요약도 일반 문서 흐름에 놓는다. 로딩과 오류는 텍스트다.
+
+원격 브랜치에 추가된 ASCII 문자 배경과 소개 영역의 문자 신호는 보존한다. 데이터 차트가 아닌 장식이며 스크린리더와 포인터 조작에서 제외한다. `[움직임 켜짐/꺼짐]`으로 정지할 수 있고 시스템 모션 감소 설정, 화면 밖 이동, 탭 비활성화를 따른다. 제목·목록·요약에는 이 효과를 적용하지 않는다.
 
 #### 레퍼런스
 
@@ -338,75 +348,83 @@ CSS와 JavaScript의 breakpoint가 어긋나지 않도록 모두 MUI theme 값�
 도식의 영문은 자리표시자다. 화면은 한국어 콘텐츠와 실제 집계 값을 표시한다.
 
 ```text
-mayak.kr    [trends] [sources] [popular] [board]    [theme] [login]
+mayak.kr    [tags] [sources] [popular] [board] [Top 10]    [theme] [login]
 ---------------------------------------------------------------
 
 # recent 24h community activity
 updated: {time} / window: {hours}h
 posts: {count} | tags: {count} | sources: {count} | links: {count}
-[popular posts >]
+[live board >] [all Top 10 >]
 
----------------------------------------------------------------
-[01] trending tags / top {returned_count}
-01  #tag                             [########..] 75
-    {posts} posts / change -64% / {sources} sources
-02  #tag                             [######....] 62
-    {posts} posts / change +25% / {sources} sources
-[score details]
+===============================================================
+[01] trending tags                              [all board >]
+01 #tag                          02 #tag
+   [########..] 75                  [######....] 62
+03 #tag                          04 #tag
+   [######....] 60                  [######....] 58
+...                              ...
+15 #tag                          16 #tag
+   [##........] 20                  [#.........] 12
+[counts, changes, sources and score details]
 
----------------------------------------------------------------
+===============================================================
 [02] sources / #top_tag
 01  [source >]                       [########..] 80%
-    {count} posts / representative title when available
+    {count} posts
 02  [source >]                       [##........] 20%
-    {count} posts / representative title when available
+    {count} posts
+[representative posts]
 
----------------------------------------------------------------
-[03] popular posts                   [popular] [reaction] [latest]
-> 01  Post title [details >]
-      source / time / #tag
-  02  Post title [details >]
-      source / time / #tag
+===============================================================
+[03] popular posts                              [all Top 10 >]
+[popular] [reaction] [latest]
+  01  Bold post title                              [details]
+  02  Bold post title                              [details]
+  ...
+  10  Long bold post title...                      [details]
 
-[selected post]
-Post title
-AI summary text.
-views: {count} / likes: {count} / comments: {count}
-[rank details >] [original >]
+Click a title: full title, summary, metrics and links open below it.
 
 ---------------------------------------------------------------
 mayak.kr / community posts, summaries and tags
-[board >]
+[board >] [all Top 10 >]
 ```
 
 #### Mobile ASCII Design
 
 ```text
-mayak.kr  [trends] [sources] [popular] [board]
-[theme] [login]
+mayak.kr          [theme] [login]
+[tags] [sources] [popular] [board] [Top 10]
 --------------------------------
 # recent community activity
 updated: {time}
 posts: {count} / tags: {count}
 sources: {count} / links: {count}
+[live board >] [all Top 10 >]
 
-[01] trending tags
-01  #long tag wraps naturally
-    [########..] 75
-    {count} posts / change -64%
+================================
+[01] tags          [all board >]
+01 #tag          02 #tag
+   [########..]75   [######....]62
+...
+15 #tag          16 #tag
+   [##........]20   [#.........]12
+[details and score explanation]
 
+================================
 [02] sources / #top_tag
 01  [source >] [########..] 80%
     {count} posts
 
-[03] popular posts
+================================
+[03] popular      [all Top 10 >]
 [popular] [reaction] [latest]
-> 01 Title wraps on small screens
-     source / time / [details >]
+  01 Bold title...     [details]
+  02 Bold title...     [details]
+  ...
+  10 Bold title...     [details]
 
-[selected post]
-Title and summary in document flow.
-[rank details >] [original >]
+Click a title to read it in full.
 --------------------------------
 ```
 
@@ -418,7 +436,7 @@ Title and summary in document flow.
 - Activity는 언급량 0.40, 양의 증감 0.25, 출처 다양성 0.20, 확인된 연결 0.15의 기존 상대 점수다. 로그 정규화와 증가율 상한 300을 유지한다.
 - 증감은 최근 12시간과 이전 12시간의 +1 보정 비교다. 출처 비중은 해당 태그 전체 게시글 수를 분모로 계산한다.
 - 태그 클릭은 `/board?tag=...`, 출처 클릭은 `/board?tag=...&sites=...`로 연결한다.
-- 인기·반응·최신 정렬, 선택한 글의 텍스트 요약, 원문 새 탭, 원래 순위 기반 `/top10?rank=N`을 유지한다.
+- 인기·반응·최신 정렬, 선택한 글의 텍스트 요약, 원문 새 탭, 원래 순위 기반 `/top10?rank=N`을 유지한다. 정렬 변경 시 요약을 닫아 목록을 다시 한눈에 볼 수 있게 한다.
 - 없는 요약·지표는 해당 상태를 표시하고 실제 0은 보존한다. 이미지는 상세 페이지나 원문에서 볼 수 있다.
 - 동향과 인기글의 로딩·빈 결과·오류·갱신 상태를 각 영역의 텍스트로 알린다.
 - 키보드 접근, 자연스러운 줄바꿈, 최소44px 조작 영역을 확보한다. 홈 이외의 화면과 인증·관리자 권한은 유지한다.
@@ -437,6 +455,16 @@ Title and summary in document flow.
 - 320 / 390 / 768 / 1440px 화면과 다크 모드, 모션 감소 설정, 빈 결과, API 오류, 긴 태그·6개 출처를 확인했다. 가로 넘침, 그래픽 요소, sticky/fixed 요소, 브라우저 오류가 없었다.
 - 실제 API 응답(태그 16개, 인기글 10개)으로도 렌더링을 확인했다. 정렬 후 원래 순위 링크와 선택한 글의 요약 연결을 확인했다.
 - 스크린샷과 `report.json`은 OS 임시 폴더의 `codex-home-ascii-review`에 저장한다. 테스트용 데이터는 애플리케이션에 포함하지 않는다.
+
+#### 2026-09-09 밀도·탐색 개선 검증
+
+- `npm run check`: 원격 변경 통합 후 10개 파일의 44개 테스트, 타입 및 UI 계약 검사 통과. 린트 오류 없음(기존 `/top10` import 정렬 경고 1개 유지).
+- `npm run build`: 프로덕션 빌드 통과.
+- Chromium 12개 화면·상태 검사 통과. 320×720, 390×844, 768×1024, 1440×900, 2560×1080, 다크 모드, 최초 로드 및 사용 중 모션 감소 설정, 빈 결과, API 오류, 긴 태그와 6개 출처, 실제 API 데이터를 확인했다.
+- 390×844에서 기본 태그 목록은 586px, 인기글은 596px로 각각 화면 높이 안에 들어온다. 320×720에서도 태그 607px, 인기글 622px로 모든 항목을 표시한다. 긴 태그·6개 출처 조건의 390×650에서는 출처 목록이 621px다. 직접 펼친 상세 내용은 이 높이 제한에서 제외한다.
+- 제목 강조, 첫 화면의 `/board`·`/top10` 링크, 인기글 10개와 태그 16개 유지, 미리보기 열기·닫기, 정렬 후 원래 순위 링크를 확인했다. 가로 넘침·그래픽 요소·고정 장면·브라우저 오류가 없었다.
+- 실제 API는 HTTP 200, 태그 16개와 인기글 10개를 반환했다. 최신 스크린샷과 `report.json`은 OS 임시 폴더의 `codex-home-compact-review`에 저장한다.
+- 원격의 `/board`·`/top10` 레이아웃 변경과 ASCII 문자 효과를 보존했다. 문자 효과의 정지·재개, 화면 밖 정지, 모션 감소 설정과 넓은 화면에서의 배경 범위를 추가 확인했다.
 
 ### `/board` — 실시간 게시판
 

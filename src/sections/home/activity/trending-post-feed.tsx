@@ -3,7 +3,7 @@
 import type { BoardPost } from 'src/api/board-api';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 
 import { getPostSummary } from 'src/components/board-post/board-post-utils';
 
@@ -64,8 +64,6 @@ export function TrendingPostFeed({
     [posts]
   );
   const visiblePosts = useMemo(() => sortPosts(rankedPosts, mode), [mode, rankedPosts]);
-  const selectedPost =
-    visiblePosts.find((entry) => entry.key === selectedPostKey) ?? visiblePosts[0];
 
   let stateMessage;
   if (isLoading && posts.length === 0) {
@@ -94,13 +92,15 @@ export function TrendingPostFeed({
     <section className={styles.feed} aria-labelledby="trending-post-feed-title">
       <div className={styles.inner} aria-busy={isLoading || isRefreshing}>
         <p className={styles.separator} aria-hidden="true">
-          ----------------------------------------
+          {'='.repeat(110)}
         </p>
-        <h2 id="trending-post-feed-title">[03] 오늘의 인기글 / Top 10</h2>
-        <p className={styles.description}>
-          제목을 선택하면 선택한 글의 요약을 바로 읽을 수 있습니다.
-        </p>
-        {featuredTag && <p className={styles.note}>24시간 1위 태그: #{featuredTag}</p>}
+        <div className={styles.heading}>
+          <h2 id="trending-post-feed-title">[03] 오늘의 인기글</h2>
+          <Link href="/top10" className={styles.sectionLink}>
+            [Top 10 전체 보기 &gt;]
+          </Link>
+        </div>
+        <p className={styles.description}>제목 선택: 전체 제목과 요약 펼치기</p>
 
         {stateMessage ?? (
           <>
@@ -125,84 +125,63 @@ export function TrendingPostFeed({
                     aria-label={item.label}
                     aria-pressed={mode === item.id}
                     aria-controls="trending-post-list"
-                    onClick={() => setMode(item.id)}
+                    onClick={() => {
+                      setMode(item.id);
+                      setSelectedPostKey(null);
+                    }}
                     className={styles.modeTab}
                   >
                     [{item.label}]
                   </button>
                 ))}
               </div>
-              <p className={styles.note} aria-live="polite">
+              <p className={styles.modeDescription} aria-live="polite">
                 {getModeDescription(mode)}
               </p>
             </div>
 
-            <div className={styles.reader}>
-              <div
-                className={styles.listScroll}
-                role="region"
-                aria-label="전체 인기글 목록"
-                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allow keyboard scrolling of the overflow container.
-                tabIndex={0}
-              >
-                <ol
-                  id="trending-post-list"
-                  aria-labelledby={`post-feed-mode-${mode}`}
-                  className={styles.postList}
-                >
-                  {visiblePosts.map((entry, index) => {
-                    const selected = entry.key === selectedPost?.key;
-                    const postTime = formatPostTime(entry.post.createTime);
-                    const tags = uniqueTags(entry.post.tags).slice(0, 2);
+            <ol
+              id="trending-post-list"
+              aria-labelledby={`post-feed-mode-${mode}`}
+              className={styles.postList}
+            >
+              {visiblePosts.map((entry, index) => {
+                const selected = entry.key === selectedPostKey;
+                const previewId = `trending-post-preview-${entry.originalRank}`;
 
-                    return (
-                      <li key={entry.key} className={styles.postItem}>
-                        <button
-                          type="button"
-                          aria-pressed={selected}
-                          aria-controls="trending-post-preview"
-                          aria-label={`${index + 1}위, ${getSourceLabel(entry.post)}, ${entry.post.title} 미리보기`}
-                          onClick={() => setSelectedPostKey(entry.key)}
-                          className={styles.postButton}
-                        >
-                          <span className={styles.rank} aria-hidden="true">
-                            {selected ? '>' : ' '} {String(index + 1).padStart(2, '0')}.
-                          </span>
-                          <span className={styles.postCopy}>
-                            <strong className={styles.postTitle}>{entry.post.title}</strong>
-                            <span className={styles.postMeta}>
-                              <span>{getSourceLabel(entry.post)}</span>
-                              {postTime && (
-                                <>
-                                  <span aria-hidden="true"> / </span>
-                                  <time dateTime={entry.post.createTime}>{postTime}</time>
-                                </>
-                              )}
-                              {tags.length > 0 && (
-                                <span> / {tags.map((tag) => `#${tag}`).join(' ')}</span>
-                              )}
-                            </span>
-                          </span>
-                        </button>
-                        <Link
-                          href={`/top10?rank=${entry.originalRank}`}
-                          className={styles.directLink}
-                          aria-label={`${entry.post.title} 상세 페이지로 이동`}
-                        >
-                          [상세]
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </div>
-
-              {selectedPost && <PostPreview entry={selectedPost} mode={mode} />}
-            </div>
-
-            <div className={styles.footerLink}>
-              <Link href="/top10">[전체 Top 10 보기]</Link>
-            </div>
+                return (
+                  <li key={entry.key}>
+                    <div className={styles.postRow}>
+                      <button
+                        type="button"
+                        aria-expanded={selected}
+                        aria-controls={previewId}
+                        aria-label={`${index + 1}위, ${getSourceLabel(entry.post)}, ${entry.post.title} 미리보기`}
+                        onClick={() => setSelectedPostKey(selected ? null : entry.key)}
+                        className={styles.postButton}
+                      >
+                        <span className={styles.rank} aria-hidden="true">
+                          {selected ? '>' : ' '} {String(index + 1).padStart(2, '0')}.
+                        </span>
+                        <CompactPostTitle title={entry.post.title} />
+                      </button>
+                      <Link
+                        href={`/top10?rank=${entry.originalRank}`}
+                        className={styles.directLink}
+                        aria-label={`${entry.post.title} 상세 페이지로 이동`}
+                      >
+                        [상세]
+                      </Link>
+                    </div>
+                    <div id={previewId} hidden={!selected}>
+                      {selected && (
+                        <PostPreview entry={entry} mode={mode} featuredTag={featuredTag} />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           </>
         )}
       </div>
@@ -210,7 +189,47 @@ export function TrendingPostFeed({
   );
 }
 
-function PostPreview({ entry, mode }: { entry: RankedPost; mode: FeedMode }) {
+function CompactPostTitle({ title }: { title: string }) {
+  const containerRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [isClipped, setIsClipped] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) {
+      return undefined;
+    }
+
+    const measure = () => setIsClipped(text.scrollWidth > container.clientWidth);
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [title]);
+
+  return (
+    <strong ref={containerRef} className={styles.postTitle} title={title}>
+      <span ref={textRef} className={styles.postTitleText}>
+        {title}
+      </span>
+      {isClipped && <span aria-hidden="true">...</span>}
+    </strong>
+  );
+}
+
+function PostPreview({
+  entry,
+  mode,
+  featuredTag,
+}: {
+  entry: RankedPost;
+  mode: FeedMode;
+  featuredTag?: string;
+}) {
   const { post, originalRank } = entry;
   const summary = getPostSummary(post);
   const tags = uniqueTags(post.tags).slice(0, 5);
@@ -224,8 +243,6 @@ function PostPreview({ entry, mode }: { entry: RankedPost; mode: FeedMode }) {
       className={styles.preview}
       aria-label={`선택한 인기글: ${post.title}`}
       aria-live="polite"
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allow keyboard scrolling of the overflow container.
-      tabIndex={0}
     >
       <p className={styles.separator} aria-hidden="true">
         ----------------------------------------
@@ -248,6 +265,7 @@ function PostPreview({ entry, mode }: { entry: RankedPost; mode: FeedMode }) {
           {tags.map((tag) => `#${tag}`).join(' ')}
         </p>
       )}
+      {featuredTag && <p className={styles.note}>24시간 1위 태그: #{featuredTag}</p>}
       <div className={styles.summary}>
         <p>AI 요약:</p>
         <p>{summary || '아직 제공된 요약이 없습니다.'}</p>
@@ -383,10 +401,10 @@ function getModeLabel(mode: FeedMode) {
 
 function getModeDescription(mode: FeedMode) {
   if (mode === 'reaction') {
-    return '현재 Top 10 내 일간 / 반응 점수순';
+    return '일간 / 반응 점수순';
   }
   if (mode === 'latest') {
-    return '현재 Top 10 내 게시 시각순';
+    return '게시 시각순';
   }
-  return '오늘의 Top 10 순위순';
+  return 'Top 10 순위순';
 }

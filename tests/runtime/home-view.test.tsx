@@ -91,9 +91,9 @@ describe('HomeView', () => {
   test('lets visitors preview another Top 10 story before opening it', async () => {
     const user = userEvent.setup();
 
-    const { getByRole } = render(<HomeView />);
+    const { getByRole, queryByRole } = render(<HomeView />);
 
-    expect(getByRole('heading', { name: '첫 번째 인기 이야기' })).toBeTruthy();
+    expect(queryByRole('heading', { name: '첫 번째 인기 이야기' })).toBeNull();
 
     await user.click(getByRole('button', { name: /2위.*두 번째 인기 이야기/ }));
 

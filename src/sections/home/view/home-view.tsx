@@ -49,17 +49,17 @@ export function HomeView() {
         motionEnabled={motionEnabled}
         isMotionReduced={prefersReducedMotion}
         onMotionToggle={() => setMotionPaused((paused) => !paused)}
-      >
-        <div id="popular-feed" className={styles.feedAnchor}>
-          <TrendingPostFeed
-            posts={topBoards}
-            isLoading={topBoardsQuery.isPending}
-            isError={topBoardsQuery.isError}
-            featuredTag={activityData?.topics[0]?.label}
-            isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
-          />
-        </div>
-      </ActivityStory>
+      />
+
+      <div id="popular-feed" className={styles.feedAnchor}>
+        <TrendingPostFeed
+          posts={topBoards}
+          isLoading={topBoardsQuery.isPending}
+          isError={topBoardsQuery.isError}
+          featuredTag={activityData?.topics[0]?.label}
+          isRefreshing={topBoardsQuery.isFetching && !topBoardsQuery.isPending}
+        />
+      </div>
 
       <footer className={styles.footer}>
         <p className={styles.rule} aria-hidden="true">
@@ -67,7 +67,10 @@ export function HomeView() {
         </p>
         <p>마약.kr / 커뮤니티 게시글 수집, 요약, 태그 통계</p>
         <p>Activity는 현재 집계 안의 상대 지표이며 사회적 중요도나 전체 여론을 뜻하지 않습니다.</p>
-        <Link href="/board">[실시간 게시판 &gt;]</Link>
+        <nav className={styles.footerLinks} aria-label="전체 게시글 탐색">
+          <Link href="/board">[실시간 게시판 &gt;]</Link>
+          <Link href="/top10">[Top 10 전체 &gt;]</Link>
+        </nav>
       </footer>
     </div>
   );

@@ -26,7 +26,7 @@
   scroll-margin-top: 16px;
 }
 .footer {
-  width: min(calc(100% - var(--home-gutter) * 2), 1680px);
+  width: min(calc(100% - var(--home-gutter) * 2), 960px);
   margin: 0 auto;
   padding: 12px 0 20px;
   font-size: 12px;
@@ -43,4 +43,10 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  font-weight: 700;
+}
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
 }

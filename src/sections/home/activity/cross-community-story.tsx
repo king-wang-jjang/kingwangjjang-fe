@@ -20,22 +20,17 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
       aria-labelledby="cross-community-title"
     >
       <p className={styles.rule} aria-hidden="true">
-        {'-'.repeat(110)}
+        {'='.repeat(110)}
       </p>
-      <h2 id="cross-community-title">[02] 출처별 게시글{topic ? ` / #${topic.label}` : ''}</h2>
+      <h2 id="cross-community-title">[02] 출처별 게시글</h2>
       <p className={styles.note}>
         최근 {windowHours}시간 /{' '}
         {topic
-          ? `1위 태그 전체 ${formatActivityCount(topic.volume)}개 게시글 기준`
+          ? `1위 태그 #${topic.label} / 전체 ${formatActivityCount(topic.volume)}개 게시글 기준`
           : '상위 태그의 출처별 분포'}
       </p>
       {sources.length > 0 ? (
-        <ol
-          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allow keyboard scrolling of the overflow container.
-          tabIndex={0}
-          className={styles.sourceList}
-          aria-label="태그의 출처별 게시글 분포"
-        >
+        <ol className={styles.sourceList} aria-label="태그의 출처별 게시글 분포">
           {sources.map((source, index) => (
             <li key={source.id}>
               <span className={styles.rank} aria-hidden="true">
@@ -58,11 +53,6 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
                 <p className={styles.note}>
                   <strong>{formatActivityCount(source.contribution)}</strong>개 게시글
                 </p>
-                <p className={styles.note}>
-                  {source.representativePost
-                    ? `대표 글: ${source.representativePost.title}`
-                    : '연결된 Top 10 글 없음'}
-                </p>
               </div>
             </li>
           ))}
@@ -75,6 +65,18 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
               ? '출처 통계를 불러오는 중...'
               : '최근 집계에 출처 통계가 없습니다.'}
         </p>
+      )}
+      {sources.length > 0 && (
+        <details className={styles.representatives}>
+          <summary>[출처별 대표 글 보기]</summary>
+          {sources.map((source) => (
+            <p key={source.id}>
+              <strong>{source.name.trim() || source.site}</strong>
+              <br />
+              <span>{source.representativePost?.title || '연결된 Top 10 글 없음'}</span>
+            </p>
+          ))}
+        </details>
       )}
       <p className={styles.note}>
         비중은 해당 태그 전체 게시글을 기준으로 계산합니다. 집계에서 확인된 출처만 표시합니다.

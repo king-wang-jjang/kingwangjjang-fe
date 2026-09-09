@@ -62,18 +62,37 @@ function renderFeed(posts: readonly BoardPost[] = POSTS) {
 }
 
 describe('TrendingPostFeed', () => {
-  test('keeps the API rank for preview selection and the Top 10 detail link', async () => {
+  test('opens only the selected row preview and toggles it closed while retaining its API rank', async () => {
     const user = userEvent.setup();
     const screen = renderFeed();
 
+    expect(screen.queryByRole('article')).toBeNull();
+    const firstPost = screen.getByRole('button', { name: /1위.*API 첫 번째 글 미리보기/ });
+    const secondPost = screen.getByRole('button', { name: /2위.*가장 최신 글 미리보기/ });
+    expect(firstPost.getAttribute('aria-expanded')).toBe('false');
+    expect(secondPost.getAttribute('aria-expanded')).toBe('false');
+
+    await user.click(firstPost);
     expect(screen.getByRole('heading', { name: 'API 첫 번째 글' })).toBeTruthy();
+    expect(firstPost.getAttribute('aria-expanded')).toBe('true');
 
-    await user.click(screen.getByRole('button', { name: /2위.*가장 최신 글 미리보기/ }));
+    await user.click(secondPost);
 
+    expect(screen.queryByRole('heading', { name: 'API 첫 번째 글' })).toBeNull();
     expect(screen.getByRole('heading', { name: '가장 최신 글' })).toBeTruthy();
+    expect(firstPost.getAttribute('aria-expanded')).toBe('false');
+    expect(secondPost.getAttribute('aria-expanded')).toBe('true');
+    expect(secondPost.closest('li')?.querySelector('article')).toBe(screen.getByRole('article'));
+    expect(screen.getByRole('article').parentElement?.id).toBe(
+      secondPost.getAttribute('aria-controls')
+    );
     expect(screen.getByRole('link', { name: '2위 글 자세히 보기' }).getAttribute('href')).toBe(
       '/top10?rank=2'
     );
+
+    await user.click(secondPost);
+    expect(screen.queryByRole('article')).toBeNull();
+    expect(secondPost.getAttribute('aria-expanded')).toBe('false');
   });
 
   test('sorts reaction and latest modes only with real BoardPost values', async () => {
@@ -82,12 +101,22 @@ describe('TrendingPostFeed', () => {
 
     await user.click(screen.getByRole('button', { name: '반응' }));
 
+    const reactionPosts = within(screen.getByRole('list')).getAllByRole('button');
+    expect(reactionPosts[0].getAttribute('aria-label')).toContain('반응 점수가 가장 높은 글');
+    expect(screen.queryByRole('article')).toBeNull();
+    await user.click(reactionPosts[0]);
+
     expect(screen.getByRole('heading', { name: '반응 점수가 가장 높은 글' })).toBeTruthy();
     expect(screen.getByRole('link', { name: '3위 글 자세히 보기' }).getAttribute('href')).toBe(
       '/top10?rank=3'
     );
 
     await user.click(screen.getByRole('button', { name: '최신' }));
+
+    const latestPosts = within(screen.getByRole('list')).getAllByRole('button');
+    expect(latestPosts[0].getAttribute('aria-label')).toContain('가장 최신 글');
+    expect(screen.queryByRole('article')).toBeNull();
+    await user.click(latestPosts[0]);
 
     expect(screen.getByRole('heading', { name: '가장 최신 글' })).toBeTruthy();
     expect(screen.getByRole('link', { name: '2위 글 자세히 보기' }).getAttribute('href')).toBe(
@@ -109,13 +138,14 @@ describe('TrendingPostFeed', () => {
       expect(detailLink.closest('button')).toBeNull();
     });
 
-    expect(screen.getByRole('heading', { name: '반응 점수가 가장 높은 글' })).toBeTruthy();
+    expect(screen.queryByRole('article')).toBeNull();
   });
 
   test('omits missing nullable metrics while preserving a real zero', async () => {
     const user = userEvent.setup();
     const screen = renderFeed();
 
+    await user.click(screen.getByRole('button', { name: /1위.*API 첫 번째 글 미리보기/ }));
     expect(screen.queryByLabelText('실제 게시글 지표')).toBeNull();
 
     await user.click(screen.getByRole('button', { name: /2위.*가장 최신 글 미리보기/ }));
@@ -131,6 +161,7 @@ describe('TrendingPostFeed', () => {
     const user = userEvent.setup();
     const screen = renderFeed();
 
+    await user.click(screen.getByRole('button', { name: /1위.*API 첫 번째 글 미리보기/ }));
     expect(screen.queryByRole('link', { name: /원문 열기/ })).toBeNull();
 
     const secondPost = screen.getByRole('button', { name: /2위.*가장 최신 글 미리보기/ });
@@ -151,17 +182,31 @@ describe('TrendingPostFeed', () => {
     expect(
       screen.getByText('최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.')
     ).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'API 첫 번째 글' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /1위.*API 첫 번째 글 미리보기/ })).toBeTruthy();
   });
 
-  test('uses a text-only preview even when a thumbnail is available', () => {
+  test('uses a text-only preview even when a thumbnail is available', async () => {
+    const user = userEvent.setup();
     const { container, getByText, getByRole } = renderFeed([
       { ...POSTS[2], thumbnail: 'https://example.com/missing.jpg' },
     ]);
+    await user.click(getByRole('button', { name: /1위.*반응 점수가 가장 높은 글 미리보기/ }));
     expect(container.querySelector('img, svg, canvas, video')).toBeNull();
     expect(getByText('아직 제공된 요약이 없습니다.')).toBeTruthy();
     expect(getByRole('link', { name: '1위 글 자세히 보기' }).getAttribute('href')).toBe(
       '/top10?rank=1'
+    );
+  });
+
+  test.each([
+    { isLoading: true, isError: false },
+    { isLoading: false, isError: true },
+    { isLoading: false, isError: false },
+  ])('keeps the Top 10 entry available when the list is unavailable: %j', (state) => {
+    const screen = render(<TrendingPostFeed posts={[]} {...state} />);
+
+    expect(screen.getByRole('link', { name: '[Top 10 전체 보기 >]' }).getAttribute('href')).toBe(
+      '/top10'
     );
   });
 });

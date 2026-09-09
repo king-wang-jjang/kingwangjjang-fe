@@ -13,10 +13,11 @@ import { isAdmin } from 'src/auth/permissions';
 import styles from './home-text-header.module.css';
 
 const homeLinks = [
-  { label: '동향', href: '#community-pulse' },
+  { label: '태그', href: '#tag-rankings' },
   { label: '출처', href: '#cross-community' },
   { label: '인기글', href: '#popular-feed' },
-  { label: '게시판', href: '/board' },
+  { label: '게시판', href: '/board', primary: true },
+  { label: 'Top 10', href: '/top10', primary: true },
 ];
 
 export function HomeTextHeader() {
@@ -34,7 +35,11 @@ export function HomeTextHeader() {
 
         <nav className={styles.links} aria-label="홈 주요 메뉴">
           {homeLinks.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={item.primary ? styles.primaryLink : undefined}
+            >
               [{item.label}]
             </Link>
           ))}
