@@ -7,6 +7,8 @@ import { useRef, useMemo, useState, useEffect } from 'react';
 
 import { getPostSummary } from 'src/components/board-post/board-post-utils';
 
+import { UpdateStatus } from './update-status';
+
 // Keep the local stylesheet after application imports to match the repository import groups.
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './trending-post-feed.module.css';
@@ -100,21 +102,19 @@ export function TrendingPostFeed({
             [Top 10 전체 보기 &gt;]
           </Link>
         </div>
-        <p className={styles.description}>제목 선택: 전체 제목과 요약 펼치기</p>
+        <UpdateStatus
+          status={
+            posts.length > 0 ? (isError ? 'error' : isRefreshing ? 'pending' : 'idle') : 'idle'
+          }
+          messages={{
+            idle: '제목 선택: 전체 제목과 요약 펼치기',
+            pending: '[갱신 중] 인기글을 갱신하고 있습니다.',
+            error: '최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.',
+          }}
+        />
 
         {stateMessage ?? (
           <>
-            {isError && (
-              <p className={styles.stateMessage} role="alert">
-                최신 목록 갱신에 실패해 현재 확인 가능한 데이터를 표시합니다.
-              </p>
-            )}
-            {isRefreshing && !isError && (
-              <p className={styles.note} role="status">
-                [갱신 중] 인기글을 갱신하고 있습니다.
-              </p>
-            )}
-
             <div className={styles.toolbar}>
               <div role="group" aria-label="인기글 정렬 기준" className={styles.modeTabs}>
                 {FEED_MODES.map((item) => (
@@ -244,9 +244,6 @@ function PostPreview({
       aria-label={`선택한 인기글: ${post.title}`}
       aria-live="polite"
     >
-      <p className={styles.separator} aria-hidden="true">
-        ----------------------------------------
-      </p>
       <p className={styles.note}>[선택한 글] / Top 10 #{String(originalRank).padStart(2, '0')}</p>
       <h3>{post.title}</h3>
       <p className={styles.note}>

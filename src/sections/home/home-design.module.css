@@ -9,6 +9,13 @@
   --home-focus: #222222;
   --home-accent: #526636;
   --home-accent-wash: #5266360d;
+  --home-highlight: #f1ec86;
+  --home-marker: linear-gradient(
+    transparent 22%,
+    var(--home-highlight) 22%,
+    var(--home-highlight) 86%,
+    transparent 86%
+  );
   --home-paper: var(--home-canvas);
   --home-subtle: var(--home-canvas);
   --home-primary: var(--home-canvas);
@@ -29,11 +36,17 @@
   --home-focus: #dddddd;
   --home-accent: #a6bf83;
   --home-accent-wash: #a6bf8312;
+  --home-highlight: #62591f;
 }
 .theme a {
   color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
+}
+.theme a:hover,
+.theme a:focus-visible,
+.theme a:active {
+  text-decoration: none;
+  background-image: var(--home-marker);
 }
 .theme button,
 .theme input,

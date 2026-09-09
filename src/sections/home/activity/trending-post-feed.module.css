@@ -45,16 +45,10 @@
   line-height: 1;
 }
 
-.description,
 .note {
   margin: 4px 0;
   color: var(--home-muted);
   overflow-wrap: anywhere;
-}
-
-.description {
-  margin: 0;
-  font-size: 12px;
 }
 
 .note {
@@ -111,8 +105,7 @@
 .modeTab[aria-pressed='true'] {
   color: var(--home-ink);
   font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  background-image: var(--home-marker);
 }
 
 .postList {
@@ -178,11 +171,12 @@
   font-size: 13px;
 }
 
-.feed a:hover,
+.postButton[aria-expanded='true'] .postTitle,
 .postButton:hover .postTitle,
-.modeTab:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.postButton:focus-visible .postTitle,
+.modeTab:hover,
+.modeTab:focus-visible {
+  background-image: var(--home-marker);
 }
 
 .preview {

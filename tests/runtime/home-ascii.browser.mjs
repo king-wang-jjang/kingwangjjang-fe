@@ -79,7 +79,15 @@ const posts = Array.from({ length: 10 }, (_, index) => ({
 }));
 let liveOverview, livePosts;
 const failures = [];
-const report = { fixture: true, artifacts, viewports: [], motion: [], errors: [], api: null };
+const report = {
+  fixture: true,
+  artifacts,
+  viewports: [],
+  motion: [],
+  refresh: [],
+  errors: [],
+  api: null,
+};
 const cacheRoot = path.join(process.env.LOCALAPPDATA || path.join(tmpdir(), '..'), 'ms-playwright');
 const cachedChrome =
   process.platform === 'win32' && existsSync(cacheRoot)
@@ -102,9 +110,10 @@ const check = (condition, message) => {
 async function makePage(viewport, mode = 'normal', sourceCount = 3) {
   const context = await browser.newContext({
     viewport,
-    reducedMotion: mode === 'reduced' ? 'reduce' : 'no-preference',
+    reducedMotion: mode === 'reduced' || mode === 'refresh' ? 'reduce' : 'no-preference',
   });
   const page = await context.newPage();
+  if (mode === 'refresh') await page.clock.install();
   page.on('pageerror', (error) => report.errors.push(error.message));
   await page.route('**/*', async (route) => {
     const url = new URL(route.request().url());
@@ -134,6 +143,8 @@ async function makePage(viewport, mode = 'normal', sourceCount = 3) {
     }
     if (url.pathname.includes('/boards/daily')) {
       if (mode === 'error') return json({ message: 'Fixture API unavailable' }, 500);
+      if (mode === 'refresh')
+        return json(posts.map((post) => ({ ...post, analysis_status: 'processing' })));
       return json(mode === 'actual' ? livePosts : mode === 'empty' ? [] : posts);
     }
     if (url.pathname.includes('/boards/filters'))
@@ -280,6 +291,8 @@ async function inspectMotion(page, label, shouldMove) {
           document.querySelector('[data-ascii-flow="ambient"]')?.getAttribute('data-animating') ===
           'true',
         overflow: document.documentElement.scrollWidth > innerWidth,
+        pageHeight: document.documentElement.scrollHeight,
+        rankingsTop: document.getElementById('tag-rankings').getBoundingClientRect().top,
       };
     });
   // Allow the media query or pause control to settle before comparing frames.
@@ -326,6 +339,8 @@ async function inspectMotion(page, label, shouldMove) {
     check(!charactersChanged, label + ' live ASCII characters continued animating');
   }
   check(!before.overflow && !after.overflow, label + ' motion caused horizontal overflow');
+  check(before.pageHeight === after.pageHeight, label + ' motion changed the page height');
+  check(before.rankingsTop === after.rankingsTop, label + ' motion moved the rankings');
   report.motion.push({
     label,
     tracks: after.tracks.length,
@@ -377,6 +392,120 @@ async function inspectOffscreenMotion(page) {
   await inspectMotion(page, 'sculpture returned to viewport', true);
 }
 
+async function inspectRefresh(viewport) {
+  const { page, context } = await makePage(viewport, 'refresh');
+  try {
+    await page.getByRole('button', { name: /2위.*스포츠.*미리보기/ }).click();
+    await page.evaluate(() => scrollBy(0, 80));
+    const sample = () =>
+      page.evaluate(() => ({
+        height: document.documentElement.scrollHeight,
+        scrollY,
+        sections: ['tag-rankings', 'cross-community', 'popular-feed', 'trending-post-preview'].map(
+          (id) => {
+            const bounds = document.getElementById(id).getBoundingClientRect();
+            return { id, top: bounds.top, height: bounds.height };
+          }
+        ),
+      }));
+    const before = await sample();
+    const assertStable = async (state) => {
+      const after = await sample();
+      check(
+        JSON.stringify(before) === JSON.stringify(after),
+        `${viewport.width}px ${state} moved the page`
+      );
+      check(
+        await page.locator('#trending-post-preview').isVisible(),
+        `${state} closed the selected preview`
+      );
+      report.refresh.push({ width: viewport.width, state, before, after });
+    };
+    const pending = [];
+    await page.route('**/boards/**', (route) => {
+      const pathname = new URL(route.request().url()).pathname;
+      if (pathname.includes('/boards/issues') || pathname.includes('/boards/daily'))
+        pending.push(route);
+      else return route.fallback();
+    });
+    const settle = async (status = 200) => {
+      check(pending.length === 2, 'both home queries should refresh');
+      await Promise.all(
+        pending.splice(0).map((route) =>
+          route.fulfill({
+            status,
+            contentType: 'application/json',
+            headers: {
+              'access-control-allow-origin': 'http://pulse.invalid',
+              'access-control-allow-credentials': 'true',
+            },
+            body: JSON.stringify(
+              status !== 200
+                ? { message: 'Refresh unavailable' }
+                : route.request().url().includes('/boards/issues')
+                  ? { ...overview, total_posts: 18543 }
+                  : posts.map((post) => ({
+                      ...post,
+                      analysis_status: 'processing',
+                      native_view_count: 12000,
+                    }))
+            ),
+          })
+        )
+      );
+      await page.waitForTimeout(100);
+    };
+    for (const outcome of ['success', 'error', 'recovered']) {
+      await page.clock.fastForward(120_001);
+      await page.locator('#popular-feed [aria-busy="true"]').waitFor();
+      await page.waitForTimeout(100);
+      await assertStable(`${outcome}: refreshing`);
+      await settle(outcome === 'error' ? 500 : 200);
+      if (outcome === 'error') {
+        await page.clock.fastForward(1_001);
+        await page.waitForTimeout(100);
+        await settle(500);
+        await page.locator('#popular-feed [role="alert"]').waitFor();
+        await page.locator('#tag-rankings [role="alert"]').waitFor();
+      } else {
+        await page.locator('#popular-feed [aria-busy="false"]').waitFor();
+        check(
+          (await page.locator('#community-pulse header').innerText()).includes('18,543'),
+          'updated data was not displayed'
+        );
+      }
+      await assertStable(outcome);
+    }
+  } finally {
+    await context.close();
+  }
+}
+
+async function inspectHighlight(page, label) {
+  const selectedTitle = page.locator('#trending-post-list button[aria-expanded="true"] strong');
+  const styles = await selectedTitle.evaluate((el) => ({
+    background: getComputedStyle(el).backgroundImage,
+    decoration: getComputedStyle(el).textDecorationLine,
+  }));
+  check(
+    styles.background.includes('linear-gradient'),
+    label + ' selected title missing highlighter'
+  );
+  check(styles.decoration === 'none', label + ' selected title is underlined');
+  check(
+    (await page.locator('#trending-post-preview > p[aria-hidden="true"]').count()) === 0,
+    label + ' selected preview still adds a separator'
+  );
+  const mode = await page.locator('#popular-feed button[aria-pressed="true"]').evaluate((el) => ({
+    background: getComputedStyle(el).backgroundImage,
+    decoration: getComputedStyle(el).textDecorationLine,
+  }));
+  check(
+    mode.background.includes('linear-gradient') && mode.decoration === 'none',
+    label + ' sort mode missing highlighter'
+  );
+}
+
 try {
   for (const viewport of [
     { width: 320, height: 720 },
@@ -408,6 +537,8 @@ try {
       label + ' original rank lost'
     );
     await page.getByRole('button', { name: /2위.*스포츠.*미리보기/ }).click();
+    await page.mouse.move(0, 0);
+    await inspectHighlight(page, label);
     check(
       (
         await page
@@ -466,6 +597,13 @@ try {
     if (viewport.width === 2560) await inspectMotion(page, 'ultrawide motion', true);
     await context.close();
   }
+  for (const viewport of [
+    { width: 320, height: 720 },
+    { width: 390, height: 844 },
+    { width: 1440, height: 900 },
+  ]) {
+    await inspectRefresh(viewport);
+  }
   for (const mode of ['empty', 'error', 'long', 'reduced']) {
     const { page, context } = await makePage({ width: 390, height: 650 }, mode, 6);
     await inspect(page, mode);
@@ -488,6 +626,12 @@ try {
     await page.waitForTimeout(150);
     await inspect(page, 'dark');
     await screenshot(page, 'dark');
+    await page.getByRole('button', { name: /2위.*스포츠.*미리보기/ }).click();
+    await page.mouse.move(0, 0);
+    await inspectHighlight(page, 'dark');
+    await page
+      .locator('#popular-feed')
+      .screenshot({ path: path.join(artifacts, 'dark-highlight.png') });
   } else check(false, 'missing theme switch');
   await context.close();
   const apiContext = await browser.newContext();
@@ -529,6 +673,7 @@ console.log(
       artifacts,
       checks: report.viewports.length,
       motion: report.motion,
+      refreshChecks: report.refresh.length,
       errors: report.errors,
       api: report.api,
       failures,

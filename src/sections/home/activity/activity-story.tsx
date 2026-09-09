@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { AsciiFlow } from './ascii-flow';
+import { UpdateStatus } from './update-status';
 import { CrossCommunityStory } from './cross-community-story';
 import {
   asciiMeter,
@@ -111,20 +112,16 @@ export function ActivityStory({
             <h2 id="tag-rankings-title">[01] 태그 순위</h2>
             <Link href="/board">[게시판 전체 &gt;]</Link>
           </div>
-          <p className={styles.note}>
-            상위 {topics.length}개 / Activity 점수 / 태그 선택 시 게시판 이동
-          </p>
-          {(isLoading || isError || isRefreshing) && (
-            <p role="status">
-              {isError
-                ? data
-                  ? '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
-                  : '태그 통계를 불러오지 못했습니다.'
-                : isLoading
-                  ? '태그 통계를 불러오는 중...'
-                  : '최근 집계를 갱신하는 중...'}
-            </p>
-          )}
+          <UpdateStatus
+            status={isError ? 'error' : isLoading || isRefreshing ? 'pending' : 'idle'}
+            messages={{
+              idle: `상위 ${topics.length}개 / Activity 점수 / 태그 선택 시 게시판 이동`,
+              pending: isLoading ? '태그 통계를 불러오는 중...' : '최근 집계를 갱신하는 중...',
+              error: data
+                ? '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
+                : '태그 통계를 불러오지 못했습니다.',
+            }}
+          />
           <ol
             id="all-topic-rankings"
             className={styles.topicList}

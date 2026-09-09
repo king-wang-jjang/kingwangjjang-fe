@@ -24,7 +24,7 @@
 }
 .motionToggle:hover:not(:disabled) {
   color: var(--home-ink);
-  text-decoration: underline;
+  background-image: var(--home-marker);
 }
 .motionToggle:disabled {
   cursor: default;
@@ -163,9 +163,10 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-.topicButton:hover .topicName {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.topicButton:hover .topicName,
+.topicButton:focus-visible .topicName,
+.topicButton:active .topicName {
+  background-image: var(--home-marker);
 }
 .meter {
   white-space: nowrap;
@@ -185,8 +186,11 @@
   min-height: 44px;
   align-content: center;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+}
+.scoreNote[open] summary,
+.scoreNote summary:hover,
+.scoreNote summary:focus-visible {
+  background-image: var(--home-marker);
 }
 .scoreNote summary::-webkit-details-marker {
   display: none;
