@@ -1,0 +1,60 @@
+.background {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--home-ink);
+  opacity: 0.27;
+  /* Keep the field visible in the margins and quiet behind the reading column. */
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 12%,
+    #0004 28%,
+    #0003 50%,
+    #0004 72%,
+    #000 88%,
+    #000 100%
+  );
+}
+
+.object {
+  position: absolute;
+  width: 48ch;
+  margin-left: -24ch;
+  margin-top: -14em;
+  font-family: var(--home-mono);
+  font-size: 2.5px;
+  line-height: 1;
+  transform-origin: center;
+}
+
+.object[data-in-view='true'] {
+  will-change: transform;
+}
+
+.object pre {
+  margin: 0;
+  font: inherit;
+  letter-spacing: 0;
+  white-space: pre;
+}
+
+@media (max-width: 599.95px) {
+  .background {
+    opacity: 0.17;
+    mask-image: linear-gradient(90deg, #000b, #0006 35%, #0006 65%, #000b);
+  }
+
+  .object:nth-child(n + 163) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .object {
+    will-change: auto;
+  }
+}

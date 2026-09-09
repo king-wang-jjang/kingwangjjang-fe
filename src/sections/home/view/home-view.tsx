@@ -39,7 +39,7 @@ export function HomeView() {
 
   return (
     <div className={styles.home} data-home-motion={motionEnabled ? 'running' : 'paused'}>
-      <AsciiFlow variant="ambient" />
+      <AsciiFlow variant="ambient" motionEnabled={motionEnabled} />
       <ActivityStory
         data={activityData}
         isLoading={issueOverviewQuery.isPending}

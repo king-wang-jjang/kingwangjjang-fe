@@ -1,7 +1,6 @@
 .feed {
   padding: 12px var(--home-gutter) 20px;
   color: var(--home-ink);
-  background: var(--home-canvas);
   font-size: 14px;
   line-height: 1.5;
 }

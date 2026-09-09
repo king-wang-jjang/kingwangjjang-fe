@@ -16,7 +16,7 @@ try {
   playwright = require(path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright'));
 }
 const root = process.cwd();
-const artifacts = path.join(tmpdir(), 'codex-home-compact-review');
+const artifacts = path.join(tmpdir(), 'codex-home-solids-review');
 await mkdir(artifacts, { recursive: true });
 const labels = [
   '인공지능',
@@ -262,8 +262,8 @@ async function inspectMotion(page, label, shouldMove) {
         tracks: [...document.querySelectorAll('[data-ascii-track]')].map((track) => ({
           flow: track.closest('[data-ascii-flow]')?.getAttribute('data-ascii-flow'),
           transform: getComputedStyle(track).transform,
-          tileWidth: track.firstElementChild?.getBoundingClientRect().width ?? 0,
-          containerWidth: track.closest('[data-ascii-flow]')?.getBoundingClientRect().width ?? 0,
+          shape: track.getAttribute('data-ascii-object'),
+          text: track.textContent,
         })),
         running: home
           ? home
@@ -276,6 +276,9 @@ async function inspectMotion(page, label, shouldMove) {
           pointerEvents: getComputedStyle(flow).pointerEvents,
         })),
         liveFrame: document.querySelector('[data-ascii-live]')?.textContent ?? '',
+        ambientRunning:
+          document.querySelector('[data-ascii-flow="ambient"]')?.getAttribute('data-animating') ===
+          'true',
         overflow: document.documentElement.scrollWidth > innerWidth,
       };
     });
@@ -288,15 +291,18 @@ async function inspectMotion(page, label, shouldMove) {
     (track, index) => track.transform !== before.tracks[index]?.transform
   );
   const charactersChanged = before.liveFrame !== after.liveFrame;
-  check(after.tracks.length > 0, label + ' missing ASCII motion tracks');
+  const solidsRotated = after.tracks.some(
+    (track, index) => track.text !== before.tracks[index]?.text
+  );
+  check(after.tracks.length >= 162, label + ' too few floating solids');
   check(after.liveFrame.trim().length > 0, label + ' missing live ASCII sculpture');
   check(/^[\x20-\x7e\n]+$/.test(after.liveFrame), label + ' non-ASCII sculpture characters');
-  check(
-    after.tracks
-      .filter((track) => track.flow === 'ambient')
-      .every((track) => track.tileWidth >= track.containerWidth),
-    label + ' ambient tile does not cover the viewport through a full loop'
-  );
+  for (const shape of ['cube', 'sphere', 'prism']) {
+    check(
+      after.tracks.some((track) => track.shape === shape && /^[\x20-\x7e\n]+$/.test(track.text)),
+      label + ' missing ASCII solid: ' + shape
+    );
+  }
   for (const kind of ['ambient', 'signal']) {
     const decoration = after.decorations.find((flow) => flow.kind === kind);
     check(decoration?.hidden, label + ' ' + kind + ' is exposed to assistive technology');
@@ -310,11 +316,13 @@ async function inspectMotion(page, label, shouldMove) {
       moved.some((track) => track.flow === 'ambient'),
       label + ' ambient flow did not move'
     );
-    check(after.running > 0, label + ' missing running animation');
+    check(after.ambientRunning, label + ' missing background animation');
+    check(solidsRotated, label + ' background solids did not rotate in 3D');
     check(charactersChanged, label + ' live ASCII characters did not animate');
   } else {
     check(moved.length === 0, label + ' ASCII tracks continued moving');
     check(after.running === 0, label + ' home animations continued running');
+    check(!after.ambientRunning && !solidsRotated, label + ' background solids continued rotating');
     check(!charactersChanged, label + ' live ASCII characters continued animating');
   }
   check(!before.overflow && !after.overflow, label + ' motion caused horizontal overflow');
@@ -324,6 +332,7 @@ async function inspectMotion(page, label, shouldMove) {
     moved: moved.length,
     running: after.running,
     charactersChanged,
+    solidsRotated,
   });
 }
 
@@ -342,6 +351,27 @@ async function inspectOffscreenMotion(page) {
   await page.waitForTimeout(450);
   const after = await page.locator('[data-ascii-live]').textContent();
   check(before === after, 'offscreen live ASCII characters continued animating');
+  const sampleSolids = () =>
+    page.locator('[data-ascii-object]').evaluateAll((solids) =>
+      solids.map((solid) => ({
+        visible: solid.getAttribute('data-in-view') === 'true',
+        text: solid.textContent,
+      }))
+    );
+  const solidsBefore = await sampleSolids();
+  await page.waitForTimeout(450);
+  const solidsAfter = await sampleSolids();
+  check(
+    solidsAfter.some((solid) => !solid.visible),
+    'no offscreen solids for culling check'
+  );
+  check(
+    solidsAfter.every(
+      (solid, index) =>
+        solid.visible || solidsBefore[index].visible || solid.text === solidsBefore[index].text
+    ),
+    'offscreen solid surfaces continued rendering'
+  );
   report.motion.push({ label: 'offscreen sculpture', charactersChanged: before !== after });
   await page.evaluate(() => scrollTo(0, 0));
   await inspectMotion(page, 'sculpture returned to viewport', true);
