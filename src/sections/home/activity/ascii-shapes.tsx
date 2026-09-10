@@ -2,14 +2,33 @@
 
 import { useRef, useEffect } from 'react';
 
-import { renderAsciiSolid } from './ascii-solids-renderer';
-
-import type { SolidShape } from './ascii-solids-renderer';
-
 // eslint-disable-next-line perfectionist/sort-imports
-import styles from './ascii-solids.module.css';
+import styles from './ascii-shapes.module.css';
 
-const SHAPES: SolidShape[] = ['cube', 'sphere', 'prism'];
+const SHAPES = ['square', 'circle', 'triangle'] as const;
+const FRAMES = {
+  square: ['+--------------+', ...Array<string>(8).fill('|              |'), '+--------------+'],
+  circle: [
+    '     .----.     ',
+    '   .        .   ',
+    '  .          .  ',
+    ' (            ) ',
+    ' (            ) ',
+    '  .          .  ',
+    '   .        .   ',
+    "     '----'     ",
+  ],
+  triangle: [
+    '       /\\       ',
+    '      /  \\      ',
+    '     /    \\     ',
+    '    /      \\    ',
+    '   /        \\   ',
+    '  /          \\  ',
+    ' /            \\ ',
+    '+--------------+',
+  ],
+};
 const MOBILE_OBJECT_COUNT = 162;
 const OBJECTS = Array.from({ length: 324 }, (_, index) => {
   const shape = SHAPES[index % SHAPES.length];
@@ -19,7 +38,9 @@ const OBJECTS = Array.from({ length: 324 }, (_, index) => {
     y: (0.06 + index * 0.381966 + Math.floor(index / 6) * 0.13) % 1,
     speedX: Math.cos(index * 2.4 + 0.3) * (10 + (index % 5) * 3),
     speedY: Math.sin(index * 1.7 + 0.6) * (8 + (index % 4) * 3),
-    frame: renderAsciiSolid(shape, 0, index),
+    rotation: index * 37,
+    rotationSpeed: index % 2 ? -6 : 6,
+    frame: FRAMES[shape].join('\n'),
   };
 });
 const FRAME_INTERVAL = 1000 / 20;
@@ -32,7 +53,7 @@ function wrap(value: number, extent: number) {
   );
 }
 
-export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
+export function AsciiShapes({ motionEnabled }: { motionEnabled: boolean }) {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const elapsedRef = useRef(0);
 
@@ -43,8 +64,6 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const mobile = window.matchMedia('(max-width: 599.95px)');
     const objects = Array.from(background.querySelectorAll<HTMLElement>('[data-ascii-object]'));
-    const frames = objects.map((object) => object.querySelector('pre')!);
-    const visible = new Set<Element>();
     let width = background.clientWidth;
     let height = background.clientHeight;
     let inView = typeof IntersectionObserver === 'undefined';
@@ -79,9 +98,7 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
             Math.cos(index) * 42,
           height
         );
-        const depth = Math.sin(time * 0.22 + index * 1.9);
-        object.style.transform = `translate3d(${x - model.x * width}px, ${y - model.y * height}px, 0)`;
-        object.style.opacity = String(0.58 + (depth + 1) * 0.21);
+        object.style.transform = `translate(${x - model.x * width}px, ${y - model.y * height}px) rotate(${model.rotation + time * model.rotationSpeed}deg)`;
       });
     };
 
@@ -93,17 +110,8 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
       }
       if (previousTime !== null) elapsedRef.current += Math.min(now - previousTime, 50) / 1000;
       previousTime = now;
-      positionObjects();
-
       if (now - previousPaint >= FRAME_INTERVAL) {
-        objects.forEach((object, index) => {
-          if (!visible.has(object) || (mobile.matches && index >= MOBILE_OBJECT_COUNT)) return;
-          frames[index].textContent = renderAsciiSolid(
-            OBJECTS[index].shape,
-            elapsedRef.current,
-            index
-          );
-        });
+        positionObjects();
         previousPaint = now;
       }
       requestId = requestAnimationFrame(animate);
@@ -124,8 +132,6 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
             entries.forEach((entry) => {
               if (entry.target === background) inView = entry.isIntersecting;
               else {
-                if (entry.isIntersecting) visible.add(entry.target);
-                else visible.delete(entry.target);
                 (entry.target as HTMLElement).dataset.inView = String(entry.isIntersecting);
               }
             });
@@ -134,7 +140,6 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
     observer?.observe(background);
     objects.forEach((object) => {
       if (observer) observer.observe(object);
-      else visible.add(object);
     });
     const resizeObjects = () => {
       width = background.clientWidth;
@@ -174,6 +179,7 @@ export function AsciiSolids({ motionEnabled }: { motionEnabled: boolean }) {
           style={{
             left: `${model.x * 100}%`,
             top: `${model.y * 100}%`,
+            transform: `rotate(${model.rotation}deg)`,
           }}
         >
           <pre>{model.frame}</pre>

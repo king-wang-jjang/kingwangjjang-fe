@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 
-import { AsciiFlow } from './ascii-flow';
 import { UpdateStatus } from './update-status';
 import { CrossCommunityStory } from './cross-community-story';
 import {
@@ -81,8 +80,14 @@ export function ActivityStory({
                 {' / '}최근 {hours}시간
               </p>
             </div>
-            <div className={styles.signalPanel} aria-hidden="true">
-              <AsciiFlow variant="signal" motionEnabled={motionEnabled && !isMotionReduced} />
+            <div className={styles.logoPanel}>
+              <img
+                src="/logo/logo-full.png"
+                alt="마약 프로젝트 로고"
+                width={360}
+                height={128}
+                className={styles.logo}
+              />
             </div>
           </div>
           <dl className={styles.metrics} aria-label="최근 커뮤니티 집계">

@@ -113,10 +113,23 @@ assert.match(
   /<ol[\s\S]*all-topic-rankings[\s\S]*<button/,
   'tag rankings must be real text and keyboard controls'
 );
+const homeLogo = activityStory.match(/<img\b[^>]*\/>/g) ?? [];
+assert.equal(homeLogo.length, 1, 'home introduction should show one project logo');
+assert.match(
+  homeLogo[0],
+  /src="\/logo\/logo-full\.png"/,
+  'home should use the requested logo asset'
+);
 assert.doesNotMatch(
-  [homeView, homeTextHeader, activityStory, crossCommunityStory, trendingPostFeed].join('\n'),
+  [
+    homeView,
+    homeTextHeader,
+    activityStory.replace(homeLogo[0], ''),
+    crossCommunityStory,
+    trendingPostFeed,
+  ].join('\n'),
   /<svg|<canvas|<img|component="img"|RoundedIcon|import\('animejs'\)|import\('d3-force'\)/,
-  'home must contain text controls without graphic assets or animation engines'
+  'home should retain text controls and only the requested project logo as a graphic asset'
 );
 assert.doesNotMatch(
   [homeStyles, activityStoryStyles, crossCommunityStoryStyles, trendingPostFeedStyles].join('\n'),
@@ -224,7 +237,11 @@ assert.doesNotMatch(
   'app initial loading should not show the old loading text or spinner'
 );
 assert.match(appShell, /Workspace/, 'app shell should keep the workspace navigation label');
-assert.match(homeTextHeader, />\s*마약\.kr\s*</, 'the home header should show the product name as text');
+assert.match(
+  homeTextHeader,
+  />\s*마약\.kr\s*</,
+  'the home header should show the product name as text'
+);
 assert.doesNotMatch(
   [appShell, appConfig, manifest, favicon].join('\n'),
   /kingwangjjang/i,

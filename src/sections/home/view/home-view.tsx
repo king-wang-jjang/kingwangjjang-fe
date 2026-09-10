@@ -9,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
-import { AsciiFlow } from '../activity/ascii-flow';
+import { AsciiShapes } from '../activity/ascii-shapes';
 import { ActivityStory } from '../activity/activity-story';
 import { adaptActivityData } from '../activity/activity-data';
 import { TrendingPostFeed } from '../activity/trending-post-feed';
@@ -39,7 +39,7 @@ export function HomeView() {
 
   return (
     <div className={styles.home} data-home-motion={motionEnabled ? 'running' : 'paused'}>
-      <AsciiFlow variant="ambient" motionEnabled={motionEnabled} />
+      <AsciiShapes motionEnabled={motionEnabled} />
       <ActivityStory
         data={activityData}
         isLoading={issueOverviewQuery.isPending}

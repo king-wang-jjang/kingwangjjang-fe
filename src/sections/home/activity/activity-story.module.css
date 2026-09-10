@@ -39,11 +39,17 @@
   flex: 1 1 300px;
   min-width: 0;
 }
-.signalPanel {
-  --home-accent: var(--home-ink);
-  flex: 0 0 144px;
+.logoPanel {
+  flex: 0 0 200px;
   min-width: 0;
   max-width: 100%;
+  padding: 8px 12px;
+  background: #fafafa;
+}
+.logo {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .story h1 {
   font-size: 20px;
@@ -210,8 +216,8 @@
   .story h1 {
     font-size: 18px;
   }
-  .signalPanel {
-    flex-basis: 120px;
+  .logoPanel {
+    flex-basis: 180px;
     margin-left: auto;
   }
   .topicList {

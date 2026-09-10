@@ -22,13 +22,16 @@
 
 .object {
   position: absolute;
-  width: 48ch;
-  margin-left: -24ch;
-  margin-top: -14em;
+  width: 16ch;
+  height: 10em;
+  margin-left: -8ch;
+  margin-top: -5em;
   font-family: var(--home-mono);
-  font-size: 2.5px;
+  font-size: 5px;
   line-height: 1;
   transform-origin: center;
+  display: grid;
+  place-items: center;
 }
 
 .object[data-in-view='true'] {

@@ -1,7 +1,7 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { vi, test, expect, describe, afterEach, beforeEach } from 'vitest';
 
-import { AsciiSignal } from 'src/sections/home/activity/ascii-signal';
+import { AsciiShapes } from 'src/sections/home/activity/ascii-shapes';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -14,6 +14,7 @@ function mockAnimationEnvironment(reducedMotion = false) {
   const observers: {
     callback: IntersectionObserverCallback;
     observer: IntersectionObserver;
+    targets: Element[];
   }[] = [];
 
   const requestFrame = vi.fn((callback: FrameRequestCallback) => {
@@ -35,18 +36,27 @@ function mockAnimationEnvironment(reducedMotion = false) {
 
   vi.stubGlobal('requestAnimationFrame', requestFrame);
   vi.stubGlobal('cancelAnimationFrame', cancelFrame);
-  vi.stubGlobal('matchMedia', vi.fn(() => mediaQuery));
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => mediaQuery)
+  );
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      observe = vi.fn();
+      targets: Element[] = [];
+
+      observe = vi.fn((target: Element) => this.targets.push(target));
 
       unobserve = vi.fn();
 
       disconnect = vi.fn(() => disconnectedObservers.add(this as unknown as IntersectionObserver));
 
       constructor(callback: IntersectionObserverCallback) {
-        observers.push({ callback, observer: this as unknown as IntersectionObserver });
+        observers.push({
+          callback,
+          observer: this as unknown as IntersectionObserver,
+          targets: this.targets,
+        });
       }
     }
   );
@@ -84,9 +94,12 @@ function mockAnimationEnvironment(reducedMotion = false) {
     },
     setIntersecting(isIntersecting: boolean) {
       act(() => {
-        observers.forEach(({ callback, observer }) => {
+        observers.forEach(({ callback, observer, targets }) => {
           if (!disconnectedObservers.has(observer)) {
-            callback([{ isIntersecting } as IntersectionObserverEntry], observer);
+            callback(
+              targets.map((target) => ({ target, isIntersecting }) as IntersectionObserverEntry),
+              observer
+            );
           }
         });
       });
@@ -94,13 +107,13 @@ function mockAnimationEnvironment(reducedMotion = false) {
   };
 }
 
-function getSignal(container: HTMLElement) {
-  const signal = container.querySelector<HTMLPreElement>('pre[data-ascii-live]');
+function getShape(container: HTMLElement) {
+  const signal = container.querySelector<HTMLDivElement>('[data-ascii-object]');
   expect(signal).not.toBeNull();
   return signal!;
 }
 
-describe('AsciiSignal', () => {
+describe('AsciiShapes', () => {
   let animation: ReturnType<typeof mockAnimationEnvironment>;
 
   beforeEach(() => {
@@ -113,58 +126,58 @@ describe('AsciiSignal', () => {
     vi.restoreAllMocks();
   });
 
-  test('renders the same readable static frame when motion is disabled', () => {
-    const first = render(<AsciiSignal motionEnabled={false} />);
-    const initialFrame = getSignal(first.container).textContent;
+  test('keeps flat shapes still when motion is disabled', () => {
+    const first = render(<AsciiShapes motionEnabled={false} />);
+    const initialFrame = getShape(first.container).style.transform;
 
     expect(initialFrame?.trim().length).toBeGreaterThan(0);
     expect(animation.pendingFrames.size).toBe(0);
     first.unmount();
 
-    const second = render(<AsciiSignal motionEnabled={false} />);
-    expect(getSignal(second.container).textContent).toBe(initialFrame);
+    const second = render(<AsciiShapes motionEnabled={false} />);
+    expect(getShape(second.container).style.transform).toBe(initialFrame);
     expect(animation.pendingFrames.size).toBe(0);
   });
 
-  test('changes the actual ASCII characters as animation frames advance', () => {
-    const { container } = render(<AsciiSignal motionEnabled />);
-    const signal = getSignal(container);
-    const initialFrame = signal.textContent;
+  test('moves flat shapes as animation frames advance', () => {
+    const { container } = render(<AsciiShapes motionEnabled />);
+    const signal = getShape(container);
+    const initialFrame = signal.style.transform;
     animation.setIntersecting(true);
 
     for (let timestamp = 0; timestamp <= 1000; timestamp += 50) {
       animation.frame(timestamp);
     }
 
-    expect(signal.textContent).not.toBe(initialFrame);
+    expect(signal.style.transform).not.toBe(initialFrame);
     expect(animation.pendingFrames.size).toBe(1);
   });
 
   test('freezes the current frame while paused and cancels pending work on unmount', () => {
-    const { container, rerender, unmount } = render(<AsciiSignal motionEnabled />);
+    const { container, rerender, unmount } = render(<AsciiShapes motionEnabled />);
     animation.setIntersecting(true);
 
     animation.frame(0);
     animation.frame(100);
     animation.frame(200);
-    const pausedFrame = getSignal(container).textContent;
+    const pausedFrame = getShape(container).style.transform;
     const pendingId = Array.from(animation.pendingFrames.keys())[0];
 
-    rerender(<AsciiSignal motionEnabled={false} />);
+    rerender(<AsciiShapes motionEnabled={false} />);
 
     expect(animation.cancelFrame).toHaveBeenCalledWith(pendingId);
     expect(animation.pendingFrames.size).toBe(0);
     animation.frame(10000);
-    expect(getSignal(container).textContent).toBe(pausedFrame);
+    expect(getShape(container).style.transform).toBe(pausedFrame);
 
-    rerender(<AsciiSignal motionEnabled />);
-    expect(getSignal(container).textContent).toBe(pausedFrame);
+    rerender(<AsciiShapes motionEnabled />);
+    expect(getShape(container).style.transform).toBe(pausedFrame);
     animation.setIntersecting(true);
     expect(animation.pendingFrames.size).toBe(1);
     animation.frame(10000);
-    expect(getSignal(container).textContent).toBe(pausedFrame);
+    expect(getShape(container).style.transform).toBe(pausedFrame);
     animation.frame(10100);
-    expect(getSignal(container).textContent).not.toBe(pausedFrame);
+    expect(getShape(container).style.transform).not.toBe(pausedFrame);
 
     unmount();
     expect(animation.pendingFrames.size).toBe(0);
@@ -172,38 +185,38 @@ describe('AsciiSignal', () => {
 
   test('does not schedule animation when reduced motion is already requested', () => {
     animation.mediaQuery.matches = true;
-    const { container } = render(<AsciiSignal motionEnabled />);
-    const initialFrame = getSignal(container).textContent;
+    const { container } = render(<AsciiShapes motionEnabled />);
+    const initialFrame = getShape(container).style.transform;
     animation.setIntersecting(true);
 
     animation.frame(1000);
 
     expect(window.matchMedia).toHaveBeenCalledWith(REDUCED_MOTION_QUERY);
     expect(animation.requestFrame).not.toHaveBeenCalled();
-    expect(getSignal(container).textContent).toBe(initialFrame);
+    expect(getShape(container).style.transform).toBe(initialFrame);
   });
 
   test('responds to changes in the reduced-motion preference', () => {
-    const { container } = render(<AsciiSignal motionEnabled />);
+    const { container } = render(<AsciiShapes motionEnabled />);
     animation.setIntersecting(true);
     animation.frame(0);
     animation.frame(100);
-    const pausedFrame = getSignal(container).textContent;
+    const pausedFrame = getShape(container).style.transform;
 
     animation.setReducedMotion(true);
     expect(animation.pendingFrames.size).toBe(0);
     animation.frame(5000);
-    expect(getSignal(container).textContent).toBe(pausedFrame);
+    expect(getShape(container).style.transform).toBe(pausedFrame);
 
     animation.setReducedMotion(false);
     expect(animation.pendingFrames.size).toBe(1);
     animation.frame(5000);
     animation.frame(5100);
-    expect(getSignal(container).textContent).not.toBe(pausedFrame);
+    expect(getShape(container).style.transform).not.toBe(pausedFrame);
   });
 
-  test('only runs while the page is visible and the signal is on screen', () => {
-    render(<AsciiSignal motionEnabled />);
+  test('only runs while the page is visible and the background is on screen', () => {
+    render(<AsciiShapes motionEnabled />);
     expect(animation.observers).toHaveLength(1);
     expect(animation.pendingFrames.size).toBe(0);
 
@@ -226,7 +239,7 @@ describe('AsciiSignal', () => {
 
   test('releases observers and event listeners when unmounted', () => {
     const removeListener = vi.spyOn(document, 'removeEventListener');
-    const { unmount } = render(<AsciiSignal motionEnabled />);
+    const { unmount } = render(<AsciiShapes motionEnabled />);
     expect(animation.mediaListeners.size).toBe(1);
     animation.setIntersecting(true);
 
