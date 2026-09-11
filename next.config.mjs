@@ -5,6 +5,7 @@ const isStaticExport = false;
 
 const nextConfig = {
   trailingSlash: true,
+  output: isStaticExport ? 'export' : 'standalone',
   env: {
     NEXT_PUBLIC_BUILD_STATIC_EXPORT: isStaticExport.toString(),
   },
@@ -16,9 +17,6 @@ const nextConfig = {
       transform: '@mui/material/{{member}}',
     },
   },
-  ...(isStaticExport && {
-    output: 'export',
-  }),
 };
 
 export default nextConfig;

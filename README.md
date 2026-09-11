@@ -84,6 +84,10 @@ public/                    # 파비콘/매니페스트
 
 ## Docker
 
+Docker 이미지는 Next.js `standalone` 결과와 `public`, `.next/static`만 포함하며,
+런타임 의존성 재설치 없이 `node server.js`로 8083 포트에서 실행합니다.
+의존성은 빌드 대상 아키텍처에서 `yarn.lock`에 고정된 버전으로 설치합니다.
+
 ```bash
 docker build -t kingwangjjang-fe:local .
 docker run --rm -p 8083:8083 --name kingwangjjang-fe kingwangjjang-fe:local
@@ -95,3 +99,13 @@ docker run --rm -p 8083:8083 --name kingwangjjang-fe kingwangjjang-fe:local
 docker network create kingwangjjang-network
 docker compose up -d
 ```
+
+GitHub Actions에서는 AMD64를 `ubuntu-24.04`, ARM64를 `ubuntu-24.04-arm`에서 각각
+빌드합니다. 두 빌드가 모두 성공하면 실행 번호별 이미지를 멀티 아키텍처 태그 `0.0.1`로
+합친 뒤 배포합니다. PR에서는 빌드만 검증하며 이미지 게시와 배포는 `develop`에서만 합니다.
+아키텍처별 캐시를 사용하고 빌드 작업 제한은 30분입니다.
+
+`The operation was canceled`만으로는 취소 원인을 알 수 없습니다. Actions의 작업
+Annotations를 함께 확인하세요. 기존 QEMU 빌드에서는 ARM64 의존성 설치가 끝나지 않아
+`The job has exceeded the maximum execution time of 6h0m0s`로 취소된 사례가 있어,
+에뮬레이션 대신 각 아키텍처의 네이티브 러너를 사용합니다.

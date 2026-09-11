@@ -1,12 +1,12 @@
-# 1단계: Node.js 애플리케이션을 빌드합니다.
-FROM node:24-alpine AS build
+# Install native dependencies on the same architecture as the runtime image.
+FROM node:24-alpine AS dependencies
 WORKDIR /usr/app
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# 의존성만 복사하고 설치 (캐싱 활용)
 COPY package.json yarn.lock ./
-RUN yarn install --ignore-optional --network-timeout 100000
+RUN yarn install --frozen-lockfile --non-interactive --network-timeout 100000
 
-# 나머지 소스 복사 및 빌드
+FROM dependencies AS build
 COPY ./ ./
 ARG NEXT_PUBLIC_SERVER_URL
 ARG NEXT_PUBLIC_IMAGE_SERVER_URL
@@ -16,18 +16,18 @@ ENV NEXT_PUBLIC_IMAGE_SERVER_URL=$NEXT_PUBLIC_IMAGE_SERVER_URL
 ENV NEXT_PUBLIC_BUILD_STATIC_EXPORT=$NEXT_PUBLIC_BUILD_STATIC_EXPORT
 RUN yarn build
 
-# 2단계: 런타임 이미지를 생성합니다.
+# Standalone output contains the runtime dependencies; no second install is needed.
 FROM node:24-alpine AS production
 WORKDIR /usr/app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=8083 \
+    HOSTNAME=0.0.0.0
 
-# 빌드된 파일만 복사
-COPY --from=build /usr/app /usr/app
+COPY --from=build --chown=node:node /usr/app/.next/standalone ./
+COPY --from=build --chown=node:node /usr/app/.next/static ./.next/static
+COPY --from=build --chown=node:node /usr/app/public ./public
 
-# 의존성 설치 (prod only)
-RUN yarn install --production --ignore-optional --network-timeout 100000
-
-# 포트 노출
+USER node
 EXPOSE 8083
-
-# 애플리케이션 실행
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]
