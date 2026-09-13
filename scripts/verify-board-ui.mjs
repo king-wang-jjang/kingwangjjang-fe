@@ -117,7 +117,7 @@ const homeLogo = activityStory.match(/<img\b[^>]*\/>/g) ?? [];
 assert.equal(homeLogo.length, 1, 'home introduction should show one project logo');
 assert.match(
   homeLogo[0],
-  /src="\/logo\/logo-full\.png"/,
+  /src="\/logo\/logo-single\.png"/,
   'home should use the requested logo asset'
 );
 assert.doesNotMatch(

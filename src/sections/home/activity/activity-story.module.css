@@ -40,11 +40,9 @@
   min-width: 0;
 }
 .logoPanel {
-  flex: 0 0 200px;
+  flex: 0 0 132px;
   min-width: 0;
   max-width: 100%;
-  padding: 8px 12px;
-  background: #fafafa;
 }
 .logo {
   display: block;
@@ -217,7 +215,7 @@
     font-size: 18px;
   }
   .logoPanel {
-    flex-basis: 180px;
+    flex-basis: 96px;
     margin-left: auto;
   }
   .topicList {

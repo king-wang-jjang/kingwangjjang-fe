@@ -82,10 +82,10 @@ export function ActivityStory({
             </div>
             <div className={styles.logoPanel}>
               <img
-                src="/logo/logo-full.png"
+                src="/logo/logo-single.png"
                 alt="마약 프로젝트 로고"
-                width={360}
-                height={128}
+                width={1080}
+                height={1080}
                 className={styles.logo}
               />
             </div>

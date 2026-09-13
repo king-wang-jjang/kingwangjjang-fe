@@ -208,11 +208,11 @@ async function inspect(page, label) {
     const fixed = contents
       .flatMap((x) => [x, ...x.querySelectorAll('*')])
       .filter((x) => ['fixed', 'sticky'].includes(getComputedStyle(x).position)).length;
-    const logo = document.querySelector('img[src="/logo/logo-full.png"]');
+    const logo = document.querySelector('img[src="/logo/logo-single.png"]');
     return {
       overflow: document.documentElement.scrollWidth > innerWidth,
       graphics,
-      logoLoaded: logo?.complete && logo.naturalWidth === 360 && logo.naturalHeight === 128,
+      logoLoaded: logo?.complete && logo.naturalWidth === 1080 && logo.naturalHeight === 1080,
       logoAlt: logo?.alt,
       logoAspectRatio: logo ? logo.clientWidth / logo.clientHeight : 0,
       sculptureCount: document.querySelectorAll('[data-ascii-live], [data-ascii-flow="signal"]')
@@ -251,7 +251,7 @@ async function inspect(page, label) {
     label + ' project logo missing or failed to load'
   );
   check(result.logoAlt === '마약 프로젝트 로고', label + ' logo missing accessible text');
-  check(Math.abs(result.logoAspectRatio - 360 / 128) < 0.05, label + ' logo is distorted');
+  check(Math.abs(result.logoAspectRatio - 1) < 0.05, label + ' logo is distorted');
   check(result.sculptureCount === 0, label + ' old interactive sculpture remains');
   check(result.fixed === 0, label + ' fixed/sticky elements remain');
   check(result.titleSize <= 20, label + ' oversized title');
@@ -299,7 +299,7 @@ async function inspectMotion(page, label, shouldMove) {
           hidden: flow.getAttribute('aria-hidden') === 'true',
           pointerEvents: getComputedStyle(flow).pointerEvents,
         })),
-        logoTransform: getComputedStyle(document.querySelector('img[src="/logo/logo-full.png"]'))
+        logoTransform: getComputedStyle(document.querySelector('img[src="/logo/logo-single.png"]'))
           .transform,
         ambientRunning:
           document.querySelector('[data-ascii-flow="ambient"]')?.getAttribute('data-animating') ===
@@ -325,7 +325,7 @@ async function inspectMotion(page, label, shouldMove) {
     after.tracks.every((track) => track.is2D),
     label + ' background still uses 3D transforms'
   );
-  check(!charactersChanged, label + ' flat outlines should not be redrawn or shaded');
+  check(!charactersChanged, label + ' filled shapes should not be redrawn or shaded');
   check(
     before.logoTransform === 'none' && after.logoTransform === 'none',
     label + ' logo should stay still'

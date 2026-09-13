@@ -368,7 +368,7 @@ export function AppShell({ children }: Props) {
           >
             <Box
               component="img"
-              src="/logo/logo-single.svg"
+              src="/logo/logo-single.png"
               alt="마약"
               sx={{ width: '100%', height: '100%', display: 'block' }}
             />
