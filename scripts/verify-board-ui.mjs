@@ -30,6 +30,7 @@ const activityScore = read('src/sections/home/activity/activity-score.ts');
 const homeTextHeader = read('src/layouts/home-text-header.tsx');
 const activityFormat = read('src/sections/home/activity/activity-format.ts');
 const activityStory = read('src/sections/home/activity/activity-story.tsx');
+const asciiLogo = read('src/sections/home/activity/ascii-logo.tsx');
 const activityStoryStyles = read('src/sections/home/activity/activity-story.module.css');
 const crossCommunityStory = read('src/sections/home/activity/cross-community-story.tsx');
 const crossCommunityStoryStyles = read(
@@ -113,23 +114,17 @@ assert.match(
   /<ol[\s\S]*all-topic-rankings[\s\S]*<button/,
   'tag rankings must be real text and keyboard controls'
 );
-const homeLogo = activityStory.match(/<img\b[^>]*\/>/g) ?? [];
-assert.equal(homeLogo.length, 1, 'home introduction should show one project logo');
 assert.match(
-  homeLogo[0],
-  /src="\/logo\/logo-single\.png"/,
-  'home should use the requested logo asset'
+  activityStory,
+  /<AsciiLogo\s+motionEnabled=/,
+  'home should render an ASCII logo with the shared motion control'
 );
 assert.doesNotMatch(
-  [
-    homeView,
-    homeTextHeader,
-    activityStory.replace(homeLogo[0], ''),
-    crossCommunityStory,
-    trendingPostFeed,
-  ].join('\n'),
+  [homeView, homeTextHeader, activityStory, asciiLogo, crossCommunityStory, trendingPostFeed].join(
+    '\n'
+  ),
   /<svg|<canvas|<img|component="img"|RoundedIcon|import\('animejs'\)|import\('d3-force'\)/,
-  'home should retain text controls and only the requested project logo as a graphic asset'
+  'home, including the logo, should use text instead of graphic assets'
 );
 assert.doesNotMatch(
   [homeStyles, activityStoryStyles, crossCommunityStoryStyles, trendingPostFeedStyles].join('\n'),

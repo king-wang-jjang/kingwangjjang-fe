@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import { AsciiLogo } from './ascii-logo';
 import { UpdateStatus } from './update-status';
 import { CrossCommunityStory } from './cross-community-story';
 import {
@@ -81,13 +82,7 @@ export function ActivityStory({
               </p>
             </div>
             <div className={styles.logoPanel}>
-              <img
-                src="/logo/logo-single.png"
-                alt="마약 프로젝트 로고"
-                width={1080}
-                height={1080}
-                className={styles.logo}
-              />
+              <AsciiLogo motionEnabled={motionEnabled && !isMotionReduced} />
             </div>
           </div>
           <dl className={styles.metrics} aria-label="최근 커뮤니티 집계">

@@ -208,12 +208,15 @@ async function inspect(page, label) {
     const fixed = contents
       .flatMap((x) => [x, ...x.querySelectorAll('*')])
       .filter((x) => ['fixed', 'sticky'].includes(getComputedStyle(x).position)).length;
-    const logo = document.querySelector('img[src="/logo/logo-single.png"]');
+    const logo = document.querySelector('[data-ascii-logo]');
+    const logoFrame = logo?.querySelector('[data-logo-frame]');
     return {
       overflow: document.documentElement.scrollWidth > innerWidth,
       graphics,
-      logoLoaded: logo?.complete && logo.naturalWidth === 1080 && logo.naturalHeight === 1080,
-      logoAlt: logo?.alt,
+      logoText: logoFrame?.textContent,
+      logoAlt: logo?.getAttribute('aria-label'),
+      logoRole: logo?.getAttribute('role'),
+      logoTextHidden: logoFrame?.parentElement.getAttribute('aria-hidden') === 'true',
       logoAspectRatio: logo ? logo.clientWidth / logo.clientHeight : 0,
       sculptureCount: document.querySelectorAll('[data-ascii-live], [data-ascii-flow="signal"]')
         .length,
@@ -247,10 +250,20 @@ async function inspect(page, label) {
   });
   check(!result.overflow, label + ' horizontal overflow');
   check(
-    result.graphics === 1 && result.logoLoaded,
-    label + ' project logo missing or failed to load'
+    result.graphics === 0 && /^[\x20-\x7e\n]+$/.test(result.logoText ?? ''),
+    label + ' logo should be ASCII text without image assets'
   );
-  check(result.logoAlt === '마약 프로젝트 로고', label + ' logo missing accessible text');
+  check(
+    result.logoRole === 'img' &&
+      result.logoAlt?.includes('마약 프로젝트 ASCII 로고') &&
+      result.logoTextHidden,
+    label + ' logo missing accessible text or exposing raw characters'
+  );
+  const logoRows = result.logoText?.split('\n') ?? [];
+  check(
+    logoRows.length === 16 && logoRows.every((row) => row.length === 32),
+    label + ' logo should preserve its 32-column, 16-row proportions'
+  );
   check(Math.abs(result.logoAspectRatio - 1) < 0.05, label + ' logo is distorted');
   check(result.sculptureCount === 0, label + ' old interactive sculpture remains');
   check(result.fixed === 0, label + ' fixed/sticky elements remain');
@@ -281,6 +294,8 @@ async function inspectMotion(page, label, shouldMove) {
   const sample = () =>
     page.evaluate(() => {
       const home = document.querySelector('[data-home-motion]');
+      const logo = document.querySelector('[data-ascii-logo]');
+      const logoBounds = logo.getBoundingClientRect();
       return {
         tracks: [...document.querySelectorAll('[data-ascii-track]')].map((track) => ({
           flow: track.closest('[data-ascii-flow]')?.getAttribute('data-ascii-flow'),
@@ -299,8 +314,9 @@ async function inspectMotion(page, label, shouldMove) {
           hidden: flow.getAttribute('aria-hidden') === 'true',
           pointerEvents: getComputedStyle(flow).pointerEvents,
         })),
-        logoTransform: getComputedStyle(document.querySelector('img[src="/logo/logo-single.png"]'))
-          .transform,
+        logoTransform: getComputedStyle(logo.querySelector('[data-logo-frame]')).transform,
+        logoInView: logoBounds.bottom > 0 && logoBounds.top < innerHeight,
+        logoRunning: logo.dataset.animating === 'true',
         ambientRunning:
           document.querySelector('[data-ascii-flow="ambient"]')?.getAttribute('data-animating') ===
           'true',
@@ -310,7 +326,7 @@ async function inspectMotion(page, label, shouldMove) {
       };
     });
   // Allow the media query or pause control to settle before comparing frames.
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(300);
   const before = await sample();
   await page.waitForTimeout(450);
   const after = await sample();
@@ -326,10 +342,17 @@ async function inspectMotion(page, label, shouldMove) {
     label + ' background still uses 3D transforms'
   );
   check(!charactersChanged, label + ' filled shapes should not be redrawn or shaded');
-  check(
-    before.logoTransform === 'none' && after.logoTransform === 'none',
-    label + ' logo should stay still'
-  );
+  if (shouldMove && after.logoInView) {
+    check(
+      after.logoRunning && before.logoTransform !== after.logoTransform,
+      label + ' ASCII logo did not move'
+    );
+  } else {
+    check(
+      !after.logoRunning && before.logoTransform === after.logoTransform,
+      label + ' ASCII logo continued moving'
+    );
+  }
   for (const shape of ['square', 'circle', 'triangle']) {
     check(
       after.tracks.some((track) => track.shape === shape && /^[\x20-\x7e\n]+$/.test(track.text)),
@@ -363,8 +386,39 @@ async function inspectMotion(page, label, shouldMove) {
     tracks: after.tracks.length,
     moved: moved.length,
     running: after.running,
+    logoRunning: after.logoRunning,
     charactersChanged,
   });
+}
+
+async function inspectLogoPointer(page, label, enabled) {
+  await page.evaluate(() => scrollTo(0, 0));
+  const header = page.locator('[data-ascii-home] > header');
+  const bounds = await header.boundingBox();
+  const sample = () =>
+    page.locator('[data-logo-pointer]').evaluate((el) => getComputedStyle(el).transform);
+  await page.mouse.move(bounds.x + bounds.width * 0.15, bounds.y + 25);
+  await page.waitForTimeout(300);
+  const left = await sample();
+  await page.mouse.move(bounds.x + bounds.width * 0.85, bounds.y + 25);
+  await page.waitForTimeout(300);
+  const right = await sample();
+  check(enabled ? left !== right : left === right, label + ' logo pointer response incorrect');
+  await header.dispatchEvent('pointermove', {
+    pointerType: 'touch',
+    clientX: bounds.x,
+    clientY: bounds.y,
+  });
+  await page.waitForTimeout(300);
+  check((await sample()) === right, label + ' touch input moved the logo');
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(300);
+  if (enabled) {
+    const centered = await page
+      .locator('[data-logo-pointer]')
+      .evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity);
+    check(centered, label + ' logo did not return to center on pointer leave');
+  }
 }
 
 async function inspectRefresh(viewport) {
@@ -539,6 +593,7 @@ try {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await inspect(page, 'reduced after load');
       await inspectMotion(page, 'reduced after load', false);
+      await inspectLogoPointer(page, 'reduced after load', false);
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       await inspectMotion(page, 'motion preference restored', true);
     }
@@ -551,6 +606,7 @@ try {
         'motion control should initially indicate running'
       );
       await inspectMotion(page, 'normal motion', true);
+      await inspectLogoPointer(page, 'normal motion', true);
       await motionToggle.click();
       check(
         (await motionToggle.getAttribute('aria-pressed')) === 'false' &&
@@ -559,6 +615,7 @@ try {
         'motion control did not indicate paused'
       );
       await inspectMotion(page, 'user paused', false);
+      await inspectLogoPointer(page, 'user paused', false);
       await motionToggle.click();
       check(
         (await motionToggle.getAttribute('aria-pressed')) === 'true' &&

@@ -44,11 +44,6 @@
   min-width: 0;
   max-width: 100%;
 }
-.logo {
-  display: block;
-  width: 100%;
-  height: auto;
-}
 .story h1 {
   font-size: 20px;
   font-weight: 800;
