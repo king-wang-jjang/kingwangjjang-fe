@@ -261,8 +261,12 @@ async function inspect(page, label) {
   );
   const logoRows = result.logoText?.split('\n') ?? [];
   check(
-    logoRows.length === 16 && logoRows.every((row) => row.length === 32),
-    label + ' logo should preserve its 32-column, 16-row proportions'
+    logoRows.length === 36 && logoRows.every((row) => row.length === 72),
+    label + ' logo should preserve its 72-column, 36-row proportions'
+  );
+  check(
+    new Set(result.logoText.replace(/\s/g, '')).size >= 3,
+    label + ' 3D logo missing lighting shades'
   );
   check(Math.abs(result.logoAspectRatio - 1) < 0.05, label + ' logo is distorted');
   check(result.sculptureCount === 0, label + ' old interactive sculpture remains');
@@ -315,6 +319,7 @@ async function inspectMotion(page, label, shouldMove) {
           pointerEvents: getComputedStyle(flow).pointerEvents,
         })),
         logoTransform: getComputedStyle(logo.querySelector('[data-logo-frame]')).transform,
+        logoText: logo.querySelector('[data-logo-frame]').textContent,
         logoInView: logoBounds.bottom > 0 && logoBounds.top < innerHeight,
         logoRunning: logo.dataset.animating === 'true',
         ambientRunning:
@@ -342,14 +347,18 @@ async function inspectMotion(page, label, shouldMove) {
     label + ' background still uses 3D transforms'
   );
   check(!charactersChanged, label + ' filled shapes should not be redrawn or shaded');
+  check(
+    before.logoTransform === 'none' && after.logoTransform === 'none',
+    label + ' logo should render 3D into text'
+  );
   if (shouldMove && after.logoInView) {
     check(
-      after.logoRunning && before.logoTransform !== after.logoTransform,
-      label + ' ASCII logo did not move'
+      after.logoRunning && before.logoText !== after.logoText,
+      label + ' 3D ASCII logo did not redraw its geometry and shading'
     );
   } else {
     check(
-      !after.logoRunning && before.logoTransform === after.logoTransform,
+      !after.logoRunning && before.logoText === after.logoText,
       label + ' ASCII logo continued moving'
     );
   }
@@ -387,6 +396,7 @@ async function inspectMotion(page, label, shouldMove) {
     moved: moved.length,
     running: after.running,
     logoRunning: after.logoRunning,
+    logoCharactersChanged: before.logoText !== after.logoText,
     charactersChanged,
   });
 }
@@ -395,8 +405,7 @@ async function inspectLogoPointer(page, label, enabled) {
   await page.evaluate(() => scrollTo(0, 0));
   const header = page.locator('[data-ascii-home] > header');
   const bounds = await header.boundingBox();
-  const sample = () =>
-    page.locator('[data-logo-pointer]').evaluate((el) => getComputedStyle(el).transform);
+  const sample = () => page.locator('[data-logo-frame]').textContent();
   await page.mouse.move(bounds.x + bounds.width * 0.15, bounds.y + 25);
   await page.waitForTimeout(300);
   const left = await sample();
@@ -404,21 +413,10 @@ async function inspectLogoPointer(page, label, enabled) {
   await page.waitForTimeout(300);
   const right = await sample();
   check(enabled ? left !== right : left === right, label + ' logo pointer response incorrect');
-  await header.dispatchEvent('pointermove', {
-    pointerType: 'touch',
-    clientX: bounds.x,
-    clientY: bounds.y,
-  });
-  await page.waitForTimeout(300);
-  check((await sample()) === right, label + ' touch input moved the logo');
+  // The clock-controlled unit test isolates pointer tilt from automatic rotation
+  // and checks touch input plus return to the original orientation.
   await page.mouse.move(0, 0);
   await page.waitForTimeout(300);
-  if (enabled) {
-    const centered = await page
-      .locator('[data-logo-pointer]')
-      .evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity);
-    check(centered, label + ' logo did not return to center on pointer leave');
-  }
 }
 
 async function inspectRefresh(viewport) {

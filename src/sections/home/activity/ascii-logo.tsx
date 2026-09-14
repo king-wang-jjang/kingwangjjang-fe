@@ -2,58 +2,81 @@
 
 import { useRef, useEffect } from 'react';
 
+import { renderAsciiLogo } from './ascii-logo-renderer';
+
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './ascii-logo.module.css';
 
-// Preserve logo-single.png's square / circle / lower-right triangle arrangement.
-const FRAME = [
-  '.--------------.     .----.     ',
-  '|##############|   .########.   ',
-  '|##############|  .##########.  ',
-  '|##############| (############) ',
-  '|##############| (############) ',
-  '|##############|  .##########.  ',
-  '|##############|   .########.   ',
-  "'--------------'     '----'     ",
-  '                +--------------+',
-  '                  \\############|',
-  '                    \\##########|',
-  '                      \\########|',
-  '                        \\######|',
-  '                          \\####|',
-  '                            \\##|',
-  '                              \\|',
-].join('\n');
+const INITIAL_FRAME = renderAsciiLogo(0);
+const FRAME_INTERVAL = 1000 / 24;
 
 export function AsciiLogo({ motionEnabled }: { motionEnabled: boolean }) {
   const logoRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLPreElement>(null);
+  const phaseRef = useRef(0);
+  const pointerRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
 
   useEffect(() => {
     const logo = logoRef.current;
-    if (!logo || !motionEnabled) return undefined;
+    const frame = frameRef.current;
+    if (!logo || !frame || !motionEnabled) return undefined;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const pointerSurface = logo.closest('header') ?? logo;
+    const pointer = pointerRef.current;
     let inView = typeof IntersectionObserver === 'undefined';
+    let requestId: number | null = null;
+    let previousTime: number | null = null;
+    let previousPaint = -Infinity;
     const canAnimate = () => inView && !document.hidden && !reducedMotion.matches;
+    const stop = () => {
+      if (requestId !== null) cancelAnimationFrame(requestId);
+      requestId = null;
+      previousTime = null;
+      logo.dataset.animating = 'false';
+    };
+    const animate = (now: number) => {
+      requestId = null;
+      if (!canAnimate()) {
+        stop();
+        return;
+      }
+      const delta = previousTime === null ? 0 : Math.min(now - previousTime, 50) / 1000;
+      phaseRef.current += delta;
+      previousTime = now;
+      const smoothing = 1 - Math.exp(-delta * 8);
+      pointer.x += (pointer.targetX - pointer.x) * smoothing;
+      pointer.y += (pointer.targetY - pointer.y) * smoothing;
+      if (now - previousPaint >= FRAME_INTERVAL) {
+        // Only the text node changes; rotating geometry never shifts the document.
+        frame.textContent = renderAsciiLogo(phaseRef.current, pointer.x, pointer.y);
+        previousPaint = now;
+      }
+      requestId = requestAnimationFrame(animate);
+    };
     const syncPlayback = () => {
-      logo.dataset.animating = String(canAnimate());
+      if (!canAnimate()) stop();
+      else if (requestId === null) {
+        logo.dataset.animating = 'true';
+        requestId = requestAnimationFrame(animate);
+      }
     };
     const movePointer = (event: PointerEvent) => {
       if (event.pointerType === 'touch' || !canAnimate()) return;
       const bounds = pointerSurface.getBoundingClientRect();
       if (!bounds.width || !bounds.height) return;
-      const x = Math.max(-1, Math.min(1, ((event.clientX - bounds.left) / bounds.width - 0.5) * 2));
-      const y = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height - 0.5) * 2));
-      logo.style.setProperty('--logo-x', `${x * 3}px`);
-      logo.style.setProperty('--logo-y', `${y * 3}px`);
-      logo.style.setProperty('--logo-turn', `${x * 5}deg`);
+      pointer.targetX = Math.max(
+        -1,
+        Math.min(1, ((event.clientX - bounds.left) / bounds.width - 0.5) * 2)
+      );
+      pointer.targetY = Math.max(
+        -1,
+        Math.min(1, ((event.clientY - bounds.top) / bounds.height - 0.5) * 2)
+      );
     };
     const resetPointer = () => {
-      if (!canAnimate()) return;
-      logo.style.setProperty('--logo-x', '0px');
-      logo.style.setProperty('--logo-y', '0px');
-      logo.style.setProperty('--logo-turn', '0deg');
+      pointer.targetX = 0;
+      pointer.targetY = 0;
     };
     const observer =
       typeof IntersectionObserver === 'undefined'
@@ -71,7 +94,7 @@ export function AsciiLogo({ motionEnabled }: { motionEnabled: boolean }) {
     syncPlayback();
 
     return () => {
-      logo.dataset.animating = 'false';
+      stop();
       observer?.disconnect();
       document.removeEventListener('visibilitychange', syncPlayback);
       reducedMotion.removeEventListener('change', syncPlayback);
@@ -85,12 +108,12 @@ export function AsciiLogo({ motionEnabled }: { motionEnabled: boolean }) {
       ref={logoRef}
       className={styles.logo}
       role="img"
-      aria-label="마약 프로젝트 ASCII 로고: 사각형, 원, 삼각형"
+      aria-label="마약 프로젝트 ASCII 로고: 입체 사각형, 구, 삼각기둥"
       data-ascii-logo
     >
-      <div className={styles.pointer} data-logo-pointer aria-hidden="true">
-        <pre className={styles.frame} data-logo-frame>
-          {FRAME}
+      <div aria-hidden="true">
+        <pre ref={frameRef} className={styles.frame} data-logo-frame>
+          {INITIAL_FRAME}
         </pre>
       </div>
     </div>
