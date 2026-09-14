@@ -20,6 +20,12 @@
   );
 }
 
+/* Avoid inherited box sizing across the animated element and its text child. */
+.object,
+.object pre {
+  box-sizing: border-box;
+}
+
 .object {
   position: absolute;
   width: 16ch;
