@@ -90,7 +90,7 @@ export function HomeTextHeader() {
         </div>
       </div>
       <p className={styles.rule} aria-hidden="true">
-        --------------------------------------------------------------------------------------------------------------------------------
+        {': . '.repeat(32)}
       </p>
     </header>
   );

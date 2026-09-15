@@ -63,7 +63,7 @@ export function HomeView() {
 
       <footer className={styles.footer}>
         <p className={styles.rule} aria-hidden="true">
-          {'-'.repeat(110)}
+          {'. - '.repeat(28)}
         </p>
         <p>마약.kr / 커뮤니티 게시글 수집, 요약, 태그 통계</p>
         <p>Activity는 현재 집계 안의 상대 지표이며 사회적 중요도나 전체 여론을 뜻하지 않습니다.</p>

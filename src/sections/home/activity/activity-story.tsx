@@ -106,7 +106,7 @@ export function ActivityStory({
 
         <section id="tag-rankings" className={styles.rankings} aria-labelledby="tag-rankings-title">
           <p className={styles.rule} aria-hidden="true">
-            {'='.repeat(110)}
+            {'+---'.repeat(28)}+
           </p>
           <div className={styles.sectionHeading}>
             <h2 id="tag-rankings-title">[01] 태그 순위</h2>

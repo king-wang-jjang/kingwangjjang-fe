@@ -94,7 +94,7 @@ export function TrendingPostFeed({
     <section className={styles.feed} aria-labelledby="trending-post-feed-title">
       <div className={styles.inner} aria-busy={isLoading || isRefreshing}>
         <p className={styles.separator} aria-hidden="true">
-          {'='.repeat(110)}
+          {'/\\'.repeat(56)}
         </p>
         <div className={styles.heading}>
           <h2 id="trending-post-feed-title">[03] 오늘의 인기글</h2>

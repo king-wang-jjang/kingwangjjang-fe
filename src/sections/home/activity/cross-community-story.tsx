@@ -20,7 +20,7 @@ export function CrossCommunityStory({ topic, windowHours = 24, isError }: Props)
       aria-labelledby="cross-community-title"
     >
       <p className={styles.rule} aria-hidden="true">
-        {'='.repeat(110)}
+        {'o---'.repeat(28)}o
       </p>
       <h2 id="cross-community-title">[02] 출처별 게시글</h2>
       <p className={styles.note}>
