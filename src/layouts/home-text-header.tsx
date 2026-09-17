@@ -12,7 +12,7 @@ import { isAdmin } from 'src/auth/permissions';
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './home-text-header.module.css';
 
-const primaryLinks = [
+const pageLinks = [
   { label: '게시판', href: '/board' },
   { label: 'Top 10', href: '/top10' },
 ];
@@ -35,24 +35,6 @@ export function HomeTextHeader() {
         <Link href="/" className={styles.brand} aria-label="마약.kr 홈으로 이동">
           마약.kr
         </Link>
-
-        <nav className={styles.links} aria-label="홈 주요 메뉴">
-          <div className={styles.primaryLinks}>
-            {primaryLinks.map((item) => (
-              <Link key={item.href} href={item.href} className={styles.primaryLink}>
-                <span>[{item.label}]</span>
-                <span aria-hidden="true">&gt;</span>
-              </Link>
-            ))}
-          </div>
-          <div className={styles.sectionLinks}>
-            {sectionLinks.map((item) => (
-              <Link key={item.href} href={item.href}>
-                [{item.label}]
-              </Link>
-            ))}
-          </div>
-        </nav>
 
         <div className={`header-login-actions ${styles.actions}`}>
           <button
@@ -97,6 +79,32 @@ export function HomeTextHeader() {
             </button>
           )}
         </div>
+      </div>
+      <div className={styles.navigation}>
+        <nav className={styles.navigationRow} aria-labelledby="home-page-links-label">
+          <span id="home-page-links-label" className={styles.navigationLabel}>
+            전체 보기
+          </span>
+          <div className={styles.navigationLinks}>
+            {pageLinks.map((item) => (
+              <Link key={item.href} href={item.href}>
+                [{item.label} &gt;]
+              </Link>
+            ))}
+          </div>
+        </nav>
+        <nav className={styles.navigationRow} aria-labelledby="home-section-links-label">
+          <span id="home-section-links-label" className={styles.navigationLabel}>
+            이 페이지
+          </span>
+          <div className={`${styles.navigationLinks} ${styles.sectionLinks}`}>
+            {sectionLinks.map((item) => (
+              <Link key={item.href} href={item.href}>
+                [{item.label}]
+              </Link>
+            ))}
+          </div>
+        </nav>
       </div>
       <p className={styles.rule} aria-hidden="true">
         {': . '.repeat(32)}

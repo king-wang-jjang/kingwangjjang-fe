@@ -10,8 +10,7 @@
 }
 
 .row,
-.links,
-.sectionLinks,
+.navigationLinks,
 .actions,
 .accountContent {
   display: flex;
@@ -22,16 +21,29 @@
 }
 
 .row {
-  gap: 8px 24px;
+  gap: 0 24px;
 }
 
-.links {
-  gap: 4px 20px;
+.navigation {
+  margin-top: 4px;
 }
 
-.primaryLinks {
-  display: flex;
-  gap: 8px;
+.navigationRow {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  align-items: center;
+  gap: 0 12px;
+  min-width: 0;
+}
+
+.navigationLabel {
+  color: var(--home-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.navigationLinks a {
+  white-space: nowrap;
 }
 
 .sectionLinks {
@@ -68,29 +80,10 @@
   font-weight: 800;
 }
 
-.header .primaryLink {
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 48px;
-  padding: 8px 14px;
-  border: 2px solid var(--home-ink);
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
 .header a:hover,
 .header button:hover,
 .header summary:hover {
   background-image: var(--home-marker);
-}
-
-.header .primaryLink:hover,
-.header .primaryLink:focus-visible {
-  border-style: double;
-  border-width: 4px;
-  padding: 6px 12px;
-  text-decoration: none;
 }
 
 .header summary {
@@ -133,27 +126,10 @@
 
 @media (max-width: 599px) {
   .row {
-    gap: 8px 16px;
-  }
-
-  .links {
-    order: 3;
-    width: 100%;
-    gap: 4px;
-    font-size: 12px;
-  }
-
-  .primaryLinks {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%;
-  }
-
-  .sectionLinks {
     gap: 0 16px;
   }
 
-  .actions {
-    margin-left: auto;
+  .navigationLinks {
+    gap: 0 8px;
   }
 }
