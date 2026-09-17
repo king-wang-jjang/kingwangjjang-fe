@@ -12,12 +12,15 @@ import { isAdmin } from 'src/auth/permissions';
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './home-text-header.module.css';
 
-const homeLinks = [
+const primaryLinks = [
+  { label: '게시판', href: '/board' },
+  { label: 'Top 10', href: '/top10' },
+];
+
+const sectionLinks = [
   { label: '태그', href: '#tag-rankings' },
   { label: '출처', href: '#cross-community' },
   { label: '인기글', href: '#popular-feed' },
-  { label: '게시판', href: '/board', primary: true },
-  { label: 'Top 10', href: '/top10', primary: true },
 ];
 
 export function HomeTextHeader() {
@@ -34,15 +37,21 @@ export function HomeTextHeader() {
         </Link>
 
         <nav className={styles.links} aria-label="홈 주요 메뉴">
-          {homeLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={item.primary ? styles.primaryLink : undefined}
-            >
-              [{item.label}]
-            </Link>
-          ))}
+          <div className={styles.primaryLinks}>
+            {primaryLinks.map((item) => (
+              <Link key={item.href} href={item.href} className={styles.primaryLink}>
+                <span>[{item.label}]</span>
+                <span aria-hidden="true">&gt;</span>
+              </Link>
+            ))}
+          </div>
+          <div className={styles.sectionLinks}>
+            {sectionLinks.map((item) => (
+              <Link key={item.href} href={item.href}>
+                [{item.label}]
+              </Link>
+            ))}
+          </div>
         </nav>
 
         <div className={`header-login-actions ${styles.actions}`}>
