@@ -32,9 +32,18 @@ export function HomeTextHeader() {
   return (
     <header className={`app-header ${styles.header}`} data-home-text-header>
       <div className={styles.row}>
-        <Link href="/" className={styles.brand} aria-label="마약.kr 홈으로 이동">
-          마약.kr
-        </Link>
+        <div className={styles.brandNavigation}>
+          <Link href="/" className={styles.brand} aria-label="마약.kr 홈으로 이동">
+            마약.kr
+          </Link>
+          <nav className={styles.pageLinks} aria-label="전체 보기">
+            {pageLinks.map((item) => (
+              <Link key={item.href} href={item.href} className={styles.pageLink}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <div className={`header-login-actions ${styles.actions}`}>
           <button
@@ -81,18 +90,6 @@ export function HomeTextHeader() {
         </div>
       </div>
       <div className={styles.navigation}>
-        <nav className={styles.navigationRow} aria-labelledby="home-page-links-label">
-          <span id="home-page-links-label" className={styles.navigationLabel}>
-            전체 보기
-          </span>
-          <div className={styles.navigationLinks}>
-            {pageLinks.map((item) => (
-              <Link key={item.href} href={item.href}>
-                [{item.label} &gt;]
-              </Link>
-            ))}
-          </div>
-        </nav>
         <nav className={styles.navigationRow} aria-labelledby="home-section-links-label">
           <span id="home-section-links-label" className={styles.navigationLabel}>
             이 페이지
