@@ -16,7 +16,7 @@ try {
   playwright = require(path.join(tmpdir(), 'codex-pulse-browser/node_modules/playwright'));
 }
 const root = process.cwd();
-const artifacts = path.join(tmpdir(), 'codex-home-flat-review');
+const artifacts = path.join(tmpdir(), 'codex-home-hourly-review');
 await mkdir(artifacts, { recursive: true });
 const labels = [
   '인공지능',
@@ -43,6 +43,17 @@ const overview = {
   window_hours: 24,
   total_posts: 18542,
   total_tags: 1438,
+  hourly_rankings: Array.from({ length: 24 }, (_, hour) => ({
+    started_at: new Date(Date.UTC(2026, 8, 7, hour + 1)).toISOString(),
+    tags:
+      hour === 9
+        ? []
+        : Array.from({ length: 10 }, (_, index) => ({
+            tag: labels[(index + Math.floor(hour / 4)) % 10],
+            rank: index + 1,
+            post_count: 100 - index * 8 + hour,
+          })),
+  })),
   tags: labels.map((tag, index) => ({
     tag,
     post_count: 900 - index * 45,
@@ -130,9 +141,17 @@ async function makePage(viewport, mode = 'normal', sourceCount = 3) {
     if (url.pathname.includes('/boards/issues')) {
       if (mode === 'error') return json({ message: 'Fixture API unavailable' }, 500);
       if (mode === 'actual') return json(liveOverview);
-      if (mode === 'empty') return json({ ...overview, tags: [], total_posts: 0, total_tags: 0 });
+      if (mode === 'empty')
+        return json({ ...overview, tags: [], hourly_rankings: [], total_posts: 0, total_tags: 0 });
       const data = structuredClone(overview);
-      if (mode === 'long') data.tags[0].tag = '아주긴이름의커뮤니티태그주제';
+      if (mode === 'long') {
+        data.tags[0].tag = '아주긴이름의커뮤니티태그주제';
+        data.hourly_rankings.forEach((bucket) =>
+          bucket.tags.forEach((tag) => {
+            if (tag.tag === labels[0]) tag.tag = data.tags[0].tag;
+          })
+        );
+      }
       if (sourceCount === 6)
         data.tags[0].top_sites = sites.map((site, n) => ({
           site,
@@ -186,6 +205,9 @@ async function screenshot(page, name) {
   await page.screenshot({ path: path.join(artifacts, name + '.png') });
   await page.screenshot({ path: path.join(artifacts, name + '-full.png'), fullPage: true });
   await page
+    .locator('#hourly-tag-rankings')
+    .screenshot({ path: path.join(artifacts, name + '-hourly.png') });
+  await page
     .locator('#tag-rankings')
     .screenshot({ path: path.join(artifacts, name + '-tags.png') });
   await page
@@ -204,6 +226,7 @@ async function inspect(page, label) {
     ].filter(Boolean);
     const graphics = contents
       .flatMap((x) => [...x.querySelectorAll('svg,img,canvas,video')])
+      .filter((el) => !el.matches('#hourly-tag-rankings svg'))
       .filter(visible).length;
     const fixed = contents
       .flatMap((x) => [x, ...x.querySelectorAll('*')])
@@ -293,6 +316,50 @@ async function inspect(page, label) {
     check(!/[█░▒▓●◉•→↗↓]/.test(result.text), label + ' non-ASCII decoration remains');
   report.viewports.push({ label, ...result, text: undefined });
   return result;
+}
+async function inspectHourlyChart(page, label) {
+  const chart = page.locator('#hourly-tag-rankings');
+  const slider = chart.getByRole('slider', { name: '순위를 확인할 시간' });
+  check((await chart.getByRole('img').count()) === 1, label + ' missing hourly rank graph');
+  check(
+    (await chart.locator('[data-rank-series]').count()) === 5,
+    label + ' missing default tag series'
+  );
+  for (const hours of [6, 12, 24]) {
+    await chart.getByRole('button', { name: `[${hours}시간]`, exact: true }).click();
+    check(
+      (await slider.getAttribute('max')) === String(hours - 1),
+      label + ' wrong hourly range ' + hours
+    );
+  }
+  await chart.getByRole('combobox', { name: '비교 태그' }).selectOption(labels[0]);
+  check(
+    (await chart.locator('[data-rank-series]').count()) === 1,
+    label + ' tag filter did not select one series'
+  );
+  await slider.focus();
+  await slider.press('Home');
+  await slider.press('ArrowRight');
+  check((await slider.inputValue()) === '1', label + ' keyboard hour selection failed');
+  check(
+    (await chart.locator('time').getAttribute('datetime')) ===
+      overview.hourly_rankings[1].started_at,
+    label + ' selected hour timestamp mismatch'
+  );
+  const entry = overview.hourly_rankings[1].tags.find((tag) => tag.tag === labels[0]);
+  check(
+    (await chart.getByText(`${entry.rank}위 / ${entry.post_count}개`, { exact: true }).count()) ===
+      1,
+    label + ' selected hour rank/count mismatch'
+  );
+  await chart.getByRole('button', { name: `#${labels[0]}`, exact: true }).click();
+  check(
+    (await chart.locator('[data-rank-series]').count()) === 5,
+    label + ' default comparison did not restore'
+  );
+  await slider.focus();
+  await slider.press('End');
+  await page.evaluate(() => scrollTo(0, 0));
 }
 async function inspectMotion(page, label, shouldMove) {
   const sample = () =>
@@ -544,6 +611,7 @@ try {
     const { page, context } = await makePage(viewport);
     const label = viewport.width + 'x' + viewport.height;
     await inspect(page, label);
+    await inspectHourlyChart(page, label);
     check((await page.locator('[data-topic-node]').count()) === 16, label + ' missing tag rows');
     check(
       (await page.locator('#trending-post-list > li').count()) === 10,

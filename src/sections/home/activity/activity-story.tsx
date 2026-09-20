@@ -1,9 +1,12 @@
 'use client';
 
+import type { IssueHourlyRanking } from 'src/api/board-api';
+
 import Link from 'next/link';
 
 import { AsciiLogo } from './ascii-logo';
 import { UpdateStatus } from './update-status';
+import { HourlyTagRankings } from './hourly-tag-rankings';
 import { CrossCommunityStory } from './cross-community-story';
 import {
   asciiMeter,
@@ -20,6 +23,7 @@ import styles from './activity-story.module.css';
 
 type Props = {
   data?: ActivityData;
+  hourlyRankings?: IssueHourlyRanking[];
   isLoading: boolean;
   isError: boolean;
   isRefreshing?: boolean;
@@ -31,6 +35,7 @@ type Props = {
 
 export function ActivityStory({
   data,
+  hourlyRankings,
   isLoading,
   isError,
   isRefreshing,
@@ -103,6 +108,13 @@ export function ActivityStory({
             <Link href="/top10">[Top 10 전체 &gt;]</Link>
           </nav>
         </header>
+
+        <HourlyTagRankings
+          rankings={hourlyRankings}
+          isLoading={isLoading}
+          isError={isError}
+          isRefreshing={isRefreshing}
+        />
 
         <section id="tag-rankings" className={styles.rankings} aria-labelledby="tag-rankings-title">
           <p className={styles.rule} aria-hidden="true">

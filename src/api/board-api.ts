@@ -66,6 +66,14 @@ type IssueOverviewRest = {
   window_hours: number;
   total_posts: number;
   total_tags: number;
+  hourly_rankings?: {
+    started_at: string;
+    tags: {
+      tag: string;
+      post_count: number;
+      rank: number;
+    }[];
+  }[];
   tags: {
     tag: string;
     post_count: number;
@@ -99,12 +107,24 @@ export type IssueTag = {
   relatedTags: string[];
 };
 
+export type IssueHourlyTagRank = {
+  tag: string;
+  postCount: number;
+  rank: number;
+};
+
+export type IssueHourlyRanking = {
+  startedAt: string;
+  tags: IssueHourlyTagRank[];
+};
+
 export type IssueOverview = {
   generatedAt: string;
   windowHours: number;
   totalPosts: number;
   totalTags: number;
   tags: IssueTag[];
+  hourlyRankings?: IssueHourlyRanking[];
 };
 
 export type BoardPost = {
@@ -356,6 +376,14 @@ export async function getIssueOverview({
     windowHours: overview.window_hours,
     totalPosts: overview.total_posts,
     totalTags: overview.total_tags,
+    hourlyRankings: (overview.hourly_rankings ?? []).map((hour) => ({
+      startedAt: hour.started_at,
+      tags: hour.tags.map((tag) => ({
+        tag: tag.tag,
+        postCount: tag.post_count,
+        rank: tag.rank,
+      })),
+    })),
     tags: overview.tags.map((tag) => ({
       tag: tag.tag,
       postCount: tag.post_count,

@@ -42,6 +42,7 @@ export function HomeView() {
       <AsciiShapes motionEnabled={motionEnabled} />
       <ActivityStory
         data={activityData}
+        hourlyRankings={issueOverviewQuery.data?.hourlyRankings}
         isLoading={issueOverviewQuery.isPending}
         isError={issueOverviewQuery.isError}
         onTopicSelect={handleTopicSelect}
