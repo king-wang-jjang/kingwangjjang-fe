@@ -12,6 +12,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import PeopleOutlineRoundedIcon from '@mui/icons-material/PeopleOutlineRounded';
 import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import {
@@ -55,6 +56,12 @@ type Props = {
 type AuthenticatedUser = NonNullable<UserType>;
 
 const navItems = [
+  {
+    label: '회원 관리',
+    href: '/admin/users',
+    icon: <PeopleOutlineRoundedIcon fontSize="small" />,
+    adminOnly: true,
+  },
   {
     label: '커뮤니티 동향',
     href: '/',
@@ -255,6 +262,12 @@ function UserProfileMenu({ user }: { user: AuthenticatedUser }) {
         </MenuItem>
         {isAdmin(user) && (
           <>
+            <MenuItem component={Link} href="/admin/users" onClick={closeMenu}>
+              <ListItemIcon>
+                <PeopleOutlineRoundedIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="회원 관리" secondary="회원 조회 및 프로필 관리" />
+            </MenuItem>
             <MenuItem component={Link} href="/admin/shorts" onClick={closeMenu}>
               <ListItemIcon>
                 <VideoLibraryOutlinedIcon fontSize="small" />

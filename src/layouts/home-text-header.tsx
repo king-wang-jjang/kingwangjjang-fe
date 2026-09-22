@@ -71,6 +71,7 @@ export function HomeTextHeader() {
                   <>
                     <Link href="/admin/shorts">[Shorts Studio]</Link>
                     <Link href="/admin/resources">[AI Resource]</Link>
+                    <Link href="/admin/users">[회원 관리]</Link>
                   </>
                 )}
               </div>
