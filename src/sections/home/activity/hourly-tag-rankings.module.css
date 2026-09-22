@@ -44,7 +44,8 @@
   font-size: 12px;
 }
 .section button[aria-pressed='true'],
-.section button:hover {
+.section button:hover,
+.legend a:hover {
   background-image: var(--home-marker);
 }
 .section .note {
@@ -105,7 +106,8 @@
   cursor: pointer;
 }
 .timeControl input:focus-visible,
-.tagSelect select:focus-visible {
+.tagSelect select:focus-visible,
+.legend a:focus-visible {
   outline: 1px dashed var(--home-focus);
   outline-offset: 3px;
 }
@@ -126,9 +128,13 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
-.legend button {
+.legend a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-align: left;
   max-width: 100%;
+  color: inherit;
 }
 .legend li > span {
   color: var(--home-muted);

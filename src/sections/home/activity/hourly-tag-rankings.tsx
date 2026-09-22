@@ -2,6 +2,7 @@
 
 import type { IssueHourlyRanking } from 'src/api/board-api';
 
+import Link from 'next/link';
 import { useId, useRef, useMemo, useState, useEffect } from 'react';
 
 import { UpdateStatus } from './update-status';
@@ -265,11 +266,7 @@ export function HourlyTagRankings({ rankings = [], isLoading, isError, isRefresh
               const entry = activeBucket.tags.find((tag) => tag.tag === item.tag);
               return (
                 <li key={item.tag}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTag(activeTag ? '' : item.tag)}
-                    aria-pressed={activeTag === item.tag}
-                  >
+                  <Link href={`/board?${new URLSearchParams({ tag: item.tag }).toString()}`}>
                     <span
                       className={styles.swatch}
                       style={{ color: item.color }}
@@ -278,7 +275,7 @@ export function HourlyTagRankings({ rankings = [], isLoading, isError, isRefresh
                       {item.dash ? '- -' : '---'}
                     </span>
                     <strong>#{item.tag}</strong>
-                  </button>
+                  </Link>
                   <span>
                     {entry
                       ? `${entry.rank}위 / ${formatActivityCount(entry.postCount)}개`

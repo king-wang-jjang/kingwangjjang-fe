@@ -150,16 +150,22 @@ describe('HourlyTagRankings', () => {
     const list = screen.getByRole('list', { name: '선택한 시간의 태그 순위' });
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);
     expect(within(list).getByText('4위 / 2개')).toBeTruthy();
+    expect(within(list).getByRole('link', { name: '#AI' }).getAttribute('href')).toBe(
+      '/board?tag=AI'
+    );
 
     fireEvent.change(screen.getByRole('slider'), { target: { value: '0' } });
 
     expect(within(list).getByText('2위 / 8개')).toBeTruthy();
     expect(within(list).queryByText('4위 / 2개')).toBeNull();
 
-    await user.click(within(list).getByRole('button', { name: '#AI' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: '비교 태그' }), '');
 
     expect(container.querySelectorAll('[data-rank-series]')).toHaveLength(3);
     expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('');
+    expect(within(list).getByRole('link', { name: '#유머' }).getAttribute('href')).toBe(
+      '/board?tag=%EC%9C%A0%EB%A8%B8'
+    );
   });
 
   test.each([

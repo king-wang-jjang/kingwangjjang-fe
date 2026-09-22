@@ -352,7 +352,13 @@ async function inspectHourlyChart(page, label) {
       1,
     label + ' selected hour rank/count mismatch'
   );
-  await chart.getByRole('button', { name: `#${labels[0]}`, exact: true }).click();
+  const tagLink = chart.getByRole('link', { name: `#${labels[0]}`, exact: true });
+  const tagUrl = new URL(await tagLink.getAttribute('href'), page.url());
+  check(
+    tagUrl.pathname === '/board' && tagUrl.searchParams.get('tag') === labels[0],
+    label + ' hourly tag link did not target the matching board filter'
+  );
+  await chart.getByRole('combobox', { name: '비교 태그' }).selectOption('');
   check(
     (await chart.locator('[data-rank-series]').count()) === 5,
     label + ' default comparison did not restore'
