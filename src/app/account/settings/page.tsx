@@ -8,8 +8,8 @@ import { useMemo, useState, useEffect } from 'react';
 import { Box, Alert, Stack, Avatar, Button, Divider, TextField, Typography } from '@mui/material';
 
 import { updateMeProfile } from 'src/api/user-api';
-import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
+import { useReadStore, getReadEntries } from 'src/store/read-store';
 
 function displayName(user: NonNullable<UserType>) {
   return user.displayName || user.nickname || `카카오 사용자 ${user.userId}`;
@@ -30,13 +30,14 @@ function formatDateTime(value?: string) {
 
 export default function AccountSettingsPage() {
   const { isAuthenticated, user, updateUser } = useAuthStore();
-  const readEntries = useReadStore((state) => state.getReadEntries());
+  const readPosts = useReadStore((state) => state.readPosts);
+  const readEntries = useMemo(() => getReadEntries(readPosts), [readPosts]);
   const [displayNameValue, setDisplayNameValue] = useState(user?.displayName || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const latestReadAt = useMemo(() => readEntries[0]?.readAt, [readEntries]);
+  const latestReadAt = readEntries[0]?.readAt;
 
   useEffect(() => {
     setDisplayNameValue(user?.displayName || '');

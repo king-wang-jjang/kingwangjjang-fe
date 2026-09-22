@@ -7,8 +7,8 @@ import { Box, Chip, Stack, Button, Divider, Typography } from '@mui/material';
 
 import { useBoard } from 'src/hooks/use-board';
 
-import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
+import { useReadStore, getReadEntries } from 'src/store/read-store';
 
 function formatDateTime(value?: string) {
   if (!value) {
@@ -25,7 +25,8 @@ function formatDateTime(value?: string) {
 
 export default function AccountHistoryPage() {
   const { isAuthenticated, user } = useAuthStore();
-  const readEntries = useReadStore((state) => state.getReadEntries());
+  const readPosts = useReadStore((state) => state.readPosts);
+  const readEntries = useMemo(() => getReadEntries(readPosts), [readPosts]);
   const clearReadHistory = useReadStore((state) => state.clearReadHistory);
   const { postData } = useBoard();
 

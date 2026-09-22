@@ -20,6 +20,16 @@ function readValueToDate(value: ReadPostValue) {
   return typeof value === 'string' ? value : '';
 }
 
+export function getReadEntries(readPosts: ReadStore['readPosts']): ReadEntry[] {
+  return Object.entries(readPosts)
+    .filter(([, value]) => Boolean(value))
+    .map(([boardId, value]) => ({
+      boardId,
+      readAt: readValueToDate(value),
+    }))
+    .sort((a, b) => (b.readAt || '').localeCompare(a.readAt || ''));
+}
+
 export const useReadStore = create<ReadStore>()(
   persist(
     (set, get) => ({
@@ -34,14 +44,7 @@ export const useReadStore = create<ReadStore>()(
         const key = `${boardId}`;
         return !!get().readPosts[key]; // 존재하면 true 반환
       },
-      getReadEntries: () =>
-        Object.entries(get().readPosts)
-          .filter(([, value]) => Boolean(value))
-          .map(([boardId, value]) => ({
-            boardId,
-            readAt: readValueToDate(value),
-          }))
-          .sort((a, b) => (b.readAt || '').localeCompare(a.readAt || '')),
+      getReadEntries: () => getReadEntries(get().readPosts),
       clearReadHistory: () => set({ readPosts: {} }),
     }),
     {
