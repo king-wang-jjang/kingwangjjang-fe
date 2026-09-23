@@ -5,6 +5,8 @@ import type { BoardPost } from 'src/api/board-api';
 import Link from 'next/link';
 import { useRef, useMemo, useState, useEffect } from 'react';
 
+import { recordPostInterest } from 'src/store/interest-store';
+
 import { getPostSummary } from 'src/components/board-post/board-post-utils';
 
 import { UpdateStatus } from './update-status';
@@ -157,7 +159,10 @@ export function TrendingPostFeed({
                         aria-expanded={selected}
                         aria-controls={previewId}
                         aria-label={`${index + 1}위, ${getSourceLabel(entry.post)}, ${entry.post.title} 미리보기`}
-                        onClick={() => setSelectedPostKey(selected ? null : entry.key)}
+                        onClick={() => {
+                          if (!selected) recordPostInterest('open', entry.post);
+                          setSelectedPostKey(selected ? null : entry.key);
+                        }}
                         className={styles.postButton}
                       >
                         <span className={styles.rank} aria-hidden="true">
@@ -287,6 +292,7 @@ function PostPreview({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="원문 열기, 새 탭"
+            onClick={() => recordPostInterest('source', post)}
           >
             [원문 열기]
           </a>

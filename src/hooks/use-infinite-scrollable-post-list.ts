@@ -5,6 +5,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { getRealtimeBoards } from 'src/api/board-api';
 
+import { useRecommendedBoards } from './use-recommended-boards';
+
 const BOARD_PAGE_SIZE = 30;
 const EMPTY_FILTERS: BoardListFilters = {};
 const ANALYSIS_REFRESH_INTERVAL_MS = 3_000;
@@ -15,18 +17,23 @@ function hasActiveAnalysis(posts: BoardPost[]): boolean {
   );
 }
 
-const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS) => {
+const useInfiniteScrollablePostList = (
+  filters: BoardListFilters = EMPTY_FILTERS,
+  personalized = false
+) => {
   const loadingRef = useRef<HTMLDivElement | null>(null);
+  const recommendations = useRecommendedBoards(filters, personalized);
 
   const {
     data: queryData,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    error: realtimeError,
+    fetchNextPage: fetchRealtimePage,
+    hasNextPage: hasRealtimePage,
+    isFetchingNextPage: fetchingRealtimePage,
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['boards', 'realtime', filters],
+    enabled: !personalized,
     queryFn: ({ pageParam }) => getRealtimeBoards(pageParam, BOARD_PAGE_SIZE, filters),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
@@ -35,6 +42,13 @@ const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS
       query.state.data?.pages.some(hasActiveAnalysis) ? ANALYSIS_REFRESH_INTERVAL_MS : false,
     refetchIntervalInBackground: false,
   });
+
+  const error = personalized ? recommendations.error : realtimeError;
+  const fetchNextPage = personalized ? recommendations.fetchNextPage : fetchRealtimePage;
+  const hasNextPage = personalized ? recommendations.hasNextPage : hasRealtimePage;
+  const isFetchingNextPage = personalized
+    ? recommendations.isFetchingNextPage
+    : fetchingRealtimePage;
 
   const data = useMemo(
     () => ({
@@ -68,7 +82,17 @@ const useInfiniteScrollablePostList = (filters: BoardListFilters = EMPTY_FILTERS
     };
   }, [error, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  return { loadingRef, data, loading: isLoading || isFetchingNextPage, error };
+  const recommendedData = useMemo(
+    () => ({ realtimePagination: recommendations.posts }),
+    [recommendations.posts]
+  );
+  return {
+    loadingRef,
+    data: personalized ? recommendedData : data,
+    loading: personalized ? recommendations.loading : isLoading || isFetchingNextPage,
+    error,
+    refreshRecommendations: recommendations.refresh,
+  };
 };
 
 export default useInfiniteScrollablePostList;

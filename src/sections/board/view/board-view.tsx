@@ -43,7 +43,9 @@ import { useBoard } from 'src/hooks/use-board';
 
 import { useReadStore } from 'src/store/read-store';
 import { useAuthStore } from 'src/store/auth-store';
+import { RecommendationControls } from 'src/personalization/recommendation-controls';
 import { addBoardLike, reanalyzeBoardPost, getBoardAnalysisJob } from 'src/api/board-api';
+import { useInterestStore, recordTagInterest, recordPostInterest } from 'src/store/interest-store';
 
 import { Top10List } from 'src/components/top10';
 import { formatCategory } from 'src/components/issues';
@@ -59,6 +61,7 @@ type Props = {
   initialCategory?: string;
   initialTag?: string;
   initialSites?: string[];
+  initialPersonalized?: boolean;
 };
 
 type SelectedPost = {
@@ -75,6 +78,7 @@ export function BoardView({
   initialCategory,
   initialTag,
   initialSites = [],
+  initialPersonalized = false,
 }: Props) {
   const pageTheme = useTheme();
   const isMobile = useMediaQuery(pageTheme.breakpoints.down('md'));
@@ -85,6 +89,10 @@ export function BoardView({
   const isWideWorkbench = useMediaQuery('(min-width: 1440px)');
 
   const [siteMenuAnchor, setSiteMenuAnchor] = useState<null | HTMLElement>(null);
+  const [personalized, setPersonalized] = useState(initialPersonalized);
+  const [dismissedPosts, setDismissedPosts] = useState<string[]>([]);
+  const interestsReady = useInterestStore((state) => state.ready);
+  const interestOwner = useInterestStore((state) => state.owner);
   const [selectedSites, setSelectedSites] = useState<string[]>(initialSites);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(initialCategory);
   const [selectedTag, setSelectedTag] = useState<string | undefined>(initialTag);
@@ -112,7 +120,29 @@ export function BoardView({
     boardFilterOptions,
     boardContentsQueryError,
     boardContentsQueryLoading,
-  } = useBoard(boardFilters);
+    refreshRecommendations,
+  } = useBoard(boardFilters, personalized);
+
+  useEffect(() => {
+    if (interestsReady && selectedTag) recordTagInterest(selectedTag);
+  }, [interestsReady, selectedTag]);
+
+  useEffect(() => {
+    setDismissedPosts([]);
+  }, [interestOwner]);
+
+  const handleRefreshRecommendations = () => {
+    setDismissedPosts([]);
+    refreshRecommendations();
+  };
+
+  const handleFeedMode = (value: boolean) => {
+    setPersonalized(value);
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set('feed', 'for-you');
+    else url.searchParams.delete('feed');
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  };
 
   const siteLabels = useMemo(
     () =>
@@ -305,6 +335,13 @@ export function BoardView({
             </Stack>
           </Stack>
 
+          <RecommendationControls
+            personalized={personalized}
+            onModeChange={handleFeedMode}
+            onRefresh={handleRefreshRecommendations}
+            tags={postData.flatMap((post) => post.tags ?? [])}
+          />
+
           <Stack
             direction="row"
             spacing={1}
@@ -391,9 +428,7 @@ export function BoardView({
   const renderToolPane = <Top10List variant="sidebar" />;
 
   const renderCommentEmptyState = (
-    <Card
-      sx={{ bgcolor: 'background.subtle', borderColor: 'divider', borderRadius: 1 }}
-    >
+    <Card sx={{ bgcolor: 'background.subtle', borderColor: 'divider', borderRadius: 1 }}>
       <CardContent
         sx={{
           minHeight: 140,
@@ -417,18 +452,28 @@ export function BoardView({
     <Stack spacing={0.75}>
       {initialLoading
         ? Array.from({ length: 5 }).map((_, index) => <PostCardSkeleton key={index} />)
-        : postData.map((post) => (
-            <BoardPostCard
-              key={getPostId(post)}
-              post={post}
-              selected={selectedPost?.boardId === getPostId(post)}
-              isAdminUser={isAdminUser}
-              analysisJob={analysisJobsByPostId[getPostId(post)]}
-              onPostSelect={handlePostSelect}
-              onReanalyze={handleReanalyze}
-              onCommentOpen={handleCommentOpen}
-            />
-          ))}
+        : postData.map((post) =>
+            personalized && dismissedPosts.includes(getPostId(post)) ? null : (
+              <BoardPostCard
+                key={getPostId(post)}
+                post={post}
+                selected={selectedPost?.boardId === getPostId(post)}
+                isAdminUser={isAdminUser}
+                analysisJob={analysisJobsByPostId[getPostId(post)]}
+                onPostSelect={handlePostSelect}
+                onReanalyze={handleReanalyze}
+                onCommentOpen={handleCommentOpen}
+                onDismiss={
+                  personalized
+                    ? () => {
+                        recordPostInterest('dismiss', post);
+                        setDismissedPosts((current) => [...current, getPostId(post)]);
+                      }
+                    : undefined
+                }
+              />
+            )
+          )}
 
       {!initialLoading && !postData.length && (
         <Card sx={{ bgcolor: 'background.paper', borderColor: 'divider', borderRadius: 1 }}>
@@ -557,6 +602,7 @@ type BoardPostCardProps = {
   onPostSelect: (post: BoardPost) => void;
   onReanalyze: (post: BoardPost) => void;
   onCommentOpen: (post: BoardPost) => void;
+  onDismiss?: () => void;
 };
 
 function BoardPostCard({
@@ -567,6 +613,7 @@ function BoardPostCard({
   onPostSelect,
   onReanalyze,
   onCommentOpen,
+  onDismiss,
 }: BoardPostCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
@@ -606,6 +653,7 @@ function BoardPostCard({
     }
 
     setExpanded(true);
+    recordPostInterest('open', post);
     onPostSelect(post);
     markAsRead(boardId);
   };
@@ -632,6 +680,7 @@ function BoardPostCard({
     try {
       const result = await addBoardLike(boardId);
       setCurrentLikeCount(result.likeCount);
+      recordPostInterest('like', post);
     } catch (error: any) {
       toast.warning(`좋아요 추가 실패: ${error.message || error}`);
     }
@@ -646,6 +695,7 @@ function BoardPostCard({
   const handleOpenSource = (event: React.MouseEvent) => {
     event.stopPropagation();
     markAsRead(boardId);
+    recordPostInterest('source', post);
   };
 
   const renderSideImageSlot = thumbnailSrc ? (
@@ -749,6 +799,30 @@ function BoardPostCard({
             }}
           >
             <Stack spacing={0.5}>
+              {post.recommendationReason && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    {post.recommendationReason}
+                  </Typography>
+                  {onDismiss && (
+                    <Button
+                      size="small"
+                      color="inherit"
+                      aria-label={`${post.title} 관심 없음`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDismiss();
+                      }}
+                    >
+                      관심 없음
+                    </Button>
+                  )}
+                </Stack>
+              )}
               <Stack direction="row" spacing={1} sx={{ alignItems: 'stretch' }}>
                 <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
                   <Stack spacing={0.5} sx={{ minWidth: 0 }}>

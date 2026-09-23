@@ -9,6 +9,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useIssueOverview } from 'src/hooks/use-issue-overview';
 
+import { recordTagInterest } from 'src/store/interest-store';
+
 import { AsciiShapes } from '../activity/ascii-shapes';
 import { ActivityStory } from '../activity/activity-story';
 import { adaptActivityData } from '../activity/activity-data';
@@ -33,6 +35,7 @@ export function HomeView() {
   );
 
   const handleTopicSelect = (tag: string) => {
+    recordTagInterest(tag);
     const query = new URLSearchParams({ tag });
     router.push(`/board?${query.toString()}`);
   };

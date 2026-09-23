@@ -9,6 +9,7 @@ type PageProps = {
     category?: string | string[];
     tag?: string | string[];
     sites?: string | string[];
+    feed?: string | string[];
   }>;
 };
 
@@ -27,8 +28,10 @@ function parseFilters(value: string | string[] | undefined) {
 
 export default async function Page({ searchParams }: PageProps) {
   const { category, tag, sites } = await searchParams;
+  const { feed } = await searchParams;
   return (
     <BoardView
+      initialPersonalized={parseFilter(feed) === 'for-you'}
       initialCategory={parseFilter(category)}
       initialTag={parseFilter(tag)}
       initialSites={parseFilters(sites)}

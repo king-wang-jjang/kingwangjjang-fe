@@ -5,6 +5,8 @@ import type { IssueHourlyRanking } from 'src/api/board-api';
 import Link from 'next/link';
 import { useId, useRef, useMemo, useState, useEffect } from 'react';
 
+import { recordTagInterest } from 'src/store/interest-store';
+
 import { UpdateStatus } from './update-status';
 import { formatActivityTime, formatActivityCount } from './activity-format';
 
@@ -266,7 +268,10 @@ export function HourlyTagRankings({ rankings = [], isLoading, isError, isRefresh
               const entry = activeBucket.tags.find((tag) => tag.tag === item.tag);
               return (
                 <li key={item.tag}>
-                  <Link href={`/board?${new URLSearchParams({ tag: item.tag }).toString()}`}>
+                  <Link
+                    href={`/board?${new URLSearchParams({ tag: item.tag }).toString()}`}
+                    onClick={() => recordTagInterest(item.tag)}
+                  >
                     <span
                       className={styles.swatch}
                       style={{ color: item.color }}

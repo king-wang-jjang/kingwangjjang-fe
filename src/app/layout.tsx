@@ -10,6 +10,7 @@ import { AppToaster } from 'src/theme/app-toaster';
 import { QueryProvider } from 'src/providers/query-provider';
 import { COLOR_MODE_STORAGE_KEY } from 'src/theme/constants';
 import { AppThemeProvider } from 'src/theme/app-theme-provider';
+import { InterestInitializer } from 'src/personalization/interest-initializer';
 
 import { AuthInitializer } from 'src/auth/auth-initializer';
 
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: Props) {
         />
         <QueryProvider>
           <AuthInitializer>
+            <InterestInitializer />
             <AppThemeProvider>
               <AppToaster />
               {children}

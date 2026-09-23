@@ -31,6 +31,8 @@ import {
 import { useTopBoardAnalysis } from 'src/hooks/use-top-board-analysis';
 import { useTopBoards, TOP_BOARDS_LIMIT, TOP_BOARDS_TODAY } from 'src/hooks/use-top-boards';
 
+import { recordPostInterest } from 'src/store/interest-store';
+
 import { CommentDrawer } from 'src/components/comment';
 import { getPostSummary, resolveThumbnailSrc } from 'src/components/board-post/board-post-utils';
 
@@ -233,6 +235,7 @@ function Top10PageRow({
         aria-label={`${rank}위 ${post.title} 상세 보기`}
         onClick={() => {
           if (!expanded) {
+            recordPostInterest('open', post);
             onExpand(post);
           }
         }}
@@ -444,6 +447,7 @@ function Top10PageRow({
             <Button
               component="a"
               href={post.url}
+              onClick={() => recordPostInterest('source', post)}
               target="_blank"
               rel="noopener noreferrer"
               size="small"

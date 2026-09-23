@@ -128,6 +128,7 @@ export type IssueOverview = {
 };
 
 export type BoardPost = {
+  recommendationReason?: string;
   Id?: string | null;
   category: string;
   no: number;
@@ -313,7 +314,7 @@ export type Top10ShortsPackage = {
   notices: string[];
 };
 
-function normalizeBoardPost(post: BoardRestPost): BoardPost {
+export function normalizeBoardPost(post: BoardRestPost): BoardPost {
   return {
     Id: post._id,
     category: post.category,
