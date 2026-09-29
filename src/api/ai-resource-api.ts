@@ -6,6 +6,72 @@ export type AIResourceStatus = 'healthy' | 'busy' | 'overloaded' | 'unavailable'
 export type AICapabilityStatus = 'healthy' | 'busy' | 'saturated' | 'unavailable';
 export type AIAnalysisQueueStatus = 'healthy' | 'busy' | 'overloaded' | 'unavailable';
 
+export type AIAnalysisRunStatus = 'pending' | 'processing' | 'done' | 'failed';
+
+export type AIAnalysisRun = {
+  boardId: string;
+  title: string;
+  siteLabel: string;
+  status: AIAnalysisRunStatus;
+  retryCount: number;
+  error: string | null;
+  createdAt: string;
+  requestedAt: string | null;
+  startedAt: string | null;
+  updatedAt: string | null;
+};
+
+export type AIAnalysisRunFilters = {
+  status: AIAnalysisRunStatus | 'all';
+  query: string;
+  page: number;
+};
+
+export async function getAIAnalysisRuns(filters: AIAnalysisRunFilters) {
+  const params = new URLSearchParams({ offset: String(filters.page * 20), limit: '20' });
+  if (filters.status !== 'all') params.set('status', filters.status);
+  if (filters.query) params.set('q', filters.query);
+  const result = await apiFetch<{
+    total: number;
+    items: {
+      board_id: string;
+      title: string;
+      site_label: string;
+      status: AIAnalysisRunStatus;
+      retry_count: number;
+      error: string | null;
+      created_at: string;
+      requested_at: string | null;
+      started_at: string | null;
+      updated_at: string | null;
+    }[];
+  }>(`/boardservice/api/boards/ai/resources/runs?${params}`, { cache: 'no-store' });
+  return {
+    total: result.total,
+    items: result.items.map(
+      (item): AIAnalysisRun => ({
+        boardId: item.board_id,
+        title: item.title,
+        siteLabel: item.site_label,
+        status: item.status,
+        retryCount: item.retry_count,
+        error: item.error,
+        createdAt: item.created_at,
+        requestedAt: item.requested_at,
+        startedAt: item.started_at,
+        updatedAt: item.updated_at,
+      })
+    ),
+  };
+}
+
+export function retryAIAnalysisRun(boardId: string) {
+  return apiFetch<{ board_id: string; status: 'pending' }>(
+    `/boardservice/api/boards/ai/resources/runs/${encodeURIComponent(boardId)}/retry`,
+    { method: 'POST' }
+  );
+}
+
 export type AINodeModel = {
   name: string;
   capabilities: AICapability[];

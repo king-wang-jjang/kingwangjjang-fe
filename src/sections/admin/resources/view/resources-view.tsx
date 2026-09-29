@@ -42,6 +42,7 @@ import { useAIResources } from 'src/hooks/use-ai-resources';
 import { ApiError } from 'src/api/http';
 
 import { AINodeDialog } from './ai-node-dialog';
+import { AIWorkflowPanel } from './ai-workflow-panel';
 
 const STATUS_META: Record<
   AIResourceStatus,
@@ -163,6 +164,21 @@ function MetricCard({
 }
 
 export function ResourcesView() {
+  return (
+    <Stack spacing={3} sx={{ width: 'min(100%, 1440px)', mx: 'auto', pb: 6 }}>
+      <Box>
+        <Typography variant="h4">AI Resource</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+          LLM 실행 결과와 분석 흐름, AI 서버의 처리 상태를 한곳에서 확인합니다.
+        </Typography>
+      </Box>
+      <AIWorkflowPanel />
+      <ResourceInfrastructure />
+    </Stack>
+  );
+}
+
+function ResourceInfrastructure() {
   const resources = useAIResources();
   const [editingNode, setEditingNode] = useState<AIResourceNode | null | undefined>(undefined);
   const [deletingNode, setDeletingNode] = useState<AIResourceNode | null>(null);
@@ -246,7 +262,7 @@ export function ResourcesView() {
           <Box>
             <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
               <DnsOutlinedIcon color="action" />
-              <Typography variant="h4">AI Resource</Typography>
+              <Typography variant="h5">AI 처리 인프라</Typography>
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
               AI 처리량과 Node 상태를 확인하고 여러 추론 서버의 라우팅을 관리합니다.

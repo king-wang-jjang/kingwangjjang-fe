@@ -145,6 +145,15 @@ vi.mock('src/hooks/use-ai-resources', () => ({
   }),
 }));
 
+vi.mock('src/hooks/use-ai-analysis-runs', () => ({
+  useAIAnalysisRuns: () => ({
+    data: { items: [], total: 0, queue: OVERVIEW.analysisQueue },
+    isPending: false,
+    isError: false,
+    isFetching: false,
+  }),
+}));
+
 describe('ResourcesView', () => {
   beforeEach(() => {
     mocks.createNode.mockResolvedValue({});
