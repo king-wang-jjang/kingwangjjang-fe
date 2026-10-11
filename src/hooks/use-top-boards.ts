@@ -14,9 +14,7 @@ const ANALYSIS_REFRESH_INTERVAL_MS = 3_000;
 
 function hasActiveAnalysis(posts: Awaited<ReturnType<typeof getDailyBoards>> | undefined): boolean {
   return Boolean(
-    posts?.some(
-      (post) => post.analysisStatus === 'pending' || post.analysisStatus === 'processing'
-    )
+    posts?.some((post) => post.analysisStatus === 'pending' || post.analysisStatus === 'processing')
   );
 }
 
@@ -31,8 +29,10 @@ export function useTopBoards(selectedDate: string = TOP_BOARDS_TODAY) {
         : getDailyBoardHistory(selectedDate, TOP_BOARDS_LIMIT),
     staleTime: isToday ? 60_000 : Infinity,
     gcTime: isToday ? 5 * 60_000 : Infinity,
-    refetchInterval: (query) =>
-      isToday && hasActiveAnalysis(query.state.data) ? ANALYSIS_REFRESH_INTERVAL_MS : false,
+    refetchInterval: (query) => {
+      if (!isToday) return false;
+      return hasActiveAnalysis(query.state.data) ? ANALYSIS_REFRESH_INTERVAL_MS : 60_000;
+    },
     refetchIntervalInBackground: false,
   });
 }

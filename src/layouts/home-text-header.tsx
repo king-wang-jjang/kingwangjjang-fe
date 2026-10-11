@@ -19,6 +19,7 @@ const pageLinks = [
 
 const sectionLinks = [
   { label: '오늘의 이슈', href: '#today-issues' },
+  { label: '순위 변화', href: '#hourly-post-rankings' },
   { label: '인기글', href: '#popular-feed' },
 ];
 

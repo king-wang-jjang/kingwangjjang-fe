@@ -7,10 +7,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { useTopBoards } from 'src/hooks/use-top-boards';
 import { useDailyIssueBriefing } from 'src/hooks/use-daily-issue-briefing';
+import { useHourlyPostRankings } from 'src/hooks/use-hourly-post-rankings';
 
 import { AsciiShapes } from '../activity/ascii-shapes';
 import { ActivityStory } from '../activity/activity-story';
 import { TrendingPostFeed } from '../activity/trending-post-feed';
+import { HourlyPostRankings } from '../activity/hourly-post-rankings';
 
 // CSS modules stay after application imports to satisfy the repository import groups.
 // eslint-disable-next-line perfectionist/sort-imports
@@ -22,6 +24,7 @@ export function HomeView() {
   const motionEnabled = !motionPaused && !prefersReducedMotion;
   const issueBriefingQuery = useDailyIssueBriefing();
   const topBoardsQuery = useTopBoards();
+  const postRankingsQuery = useHourlyPostRankings();
   const topBoards = useMemo(() => topBoardsQuery.data ?? [], [topBoardsQuery.data]);
 
   return (
@@ -36,6 +39,15 @@ export function HomeView() {
         isMotionReduced={prefersReducedMotion}
         onMotionToggle={() => setMotionPaused((paused) => !paused)}
       />
+
+      <div className={styles.rankings}>
+        <HourlyPostRankings
+          rankings={postRankingsQuery.data?.rankings}
+          isLoading={postRankingsQuery.isPending}
+          isError={postRankingsQuery.isError}
+          isRefreshing={postRankingsQuery.isFetching && !postRankingsQuery.isPending}
+        />
+      </div>
 
       <div id="popular-feed" className={styles.feedAnchor}>
         <TrendingPostFeed

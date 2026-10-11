@@ -169,6 +169,46 @@ type DailyIssueBriefingRest = {
   }[];
 };
 
+export type HourlyRankedPost = {
+  boardId: string;
+  rank: number;
+  title: string;
+  site: string;
+  siteLabel: string;
+  url: string;
+};
+
+export type HourlyPostRanking = {
+  startedAt: string;
+  capturedAt: string | null;
+  isLive: boolean;
+  posts: HourlyRankedPost[];
+};
+
+export type HourlyPostRankings = {
+  generatedAt: string;
+  windowHours: number;
+  rankings: HourlyPostRanking[];
+};
+
+type HourlyPostRankingsRest = {
+  generated_at: string;
+  window_hours: number;
+  rankings: {
+    started_at: string;
+    captured_at: string | null;
+    is_live: boolean;
+    posts: {
+      board_id: string;
+      rank: number;
+      title: string;
+      site: string;
+      site_label: string;
+      url: string;
+    }[];
+  }[];
+};
+
 export type BoardPost = {
   recommendationReason?: string;
   Id?: string | null;
@@ -484,6 +524,29 @@ export async function getDailyIssueBriefing({
         site: post.site,
         siteLabel: post.site_label,
         title: post.title,
+        url: post.url,
+      })),
+    })),
+  };
+}
+
+export async function getHourlyPostRankings(hours = 24): Promise<HourlyPostRankings> {
+  const timeline = await apiFetch<HourlyPostRankingsRest>(
+    `/boardservice/api/boards/daily/hourly-rankings?${new URLSearchParams({ hours: String(hours) })}`
+  );
+  return {
+    generatedAt: timeline.generated_at,
+    windowHours: timeline.window_hours,
+    rankings: timeline.rankings.map((bucket) => ({
+      startedAt: bucket.started_at,
+      capturedAt: bucket.captured_at,
+      isLive: bucket.is_live,
+      posts: bucket.posts.map((post) => ({
+        boardId: post.board_id,
+        rank: post.rank,
+        title: post.title,
+        site: post.site,
+        siteLabel: post.site_label,
         url: post.url,
       })),
     })),

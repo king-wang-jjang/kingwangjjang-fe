@@ -25,6 +25,10 @@
 .feedAnchor {
   scroll-margin-top: 16px;
 }
+.rankings {
+  width: min(calc(100% - var(--home-gutter) * 2), 960px);
+  margin: 0 auto;
+}
 .footer {
   width: min(calc(100% - var(--home-gutter) * 2), 960px);
   margin: 0 auto;

@@ -10,6 +10,33 @@ vi.mock('src/hooks/use-daily-issue-briefing', () => ({
   useDailyIssueBriefing: useBriefing,
 }));
 
+vi.mock('src/hooks/use-hourly-post-rankings', () => ({
+  useHourlyPostRankings: () => ({
+    data: {
+      rankings: [
+        {
+          startedAt: '2026-10-11T02:00:00Z',
+          capturedAt: '2026-10-11T02:05:00Z',
+          isLive: true,
+          posts: [
+            {
+              boardId: 'ranking-post',
+              rank: 1,
+              title: '순위 그래프 인기글',
+              site: 'dcinside',
+              siteLabel: '디시인사이드',
+              url: 'https://example.com/ranking',
+            },
+          ],
+        },
+      ],
+    },
+    isPending: false,
+    isError: false,
+    isFetching: false,
+  }),
+}));
+
 function briefingQuery() {
   return {
     data: {
@@ -102,6 +129,8 @@ describe('HomeView', () => {
     expect(getByText('커뮤니티 2곳')).toBeTruthy();
     expect(queryByText('시간별 태그 순위')).toBeNull();
     expect(queryByText('[01] 태그 순위')).toBeNull();
+    expect(getByRole('heading', { name: '[02] 인기글 순위 변화' })).toBeTruthy();
+    expect(getByRole('heading', { name: '[03] 오늘의 인기글' })).toBeTruthy();
     await user.click(getByText('[관련 원문 보기]'));
     expect(getByRole('link', { name: '[더쿠] 파업 예고 원문' }).getAttribute('href')).toBe(
       'https://example.com/strike'

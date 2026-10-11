@@ -81,6 +81,31 @@ const posts = Array.from({ length: 10 }, (_, index) => ({
   native_like_count: 50,
   native_comment_count: 10,
 }));
+const timeline = {
+  generated_at: '2026-10-11T02:05:00Z',
+  window_hours: 24,
+  rankings: Array.from({ length: 24 }, (_, index) => {
+    const startedAt = new Date(Date.UTC(2026, 9, 10, 3 + index));
+    return {
+      started_at: startedAt.toISOString(),
+      captured_at: index >= 12 ? new Date(startedAt.getTime() + 5 * 60_000).toISOString() : null,
+      is_live: index === 23,
+      posts:
+        index < 12
+          ? []
+          : posts
+              .map((post, postIndex) => ({
+                board_id: post._id,
+                title: post.title,
+                site: post.site,
+                site_label: post.site_label,
+                url: post.url,
+                rank: ((postIndex + 23 - index) % 10) + 1,
+              }))
+              .sort((a, b) => a.rank - b.rank),
+    };
+  }),
+};
 const cacheRoot = path.join(process.env.LOCALAPPDATA || tmpdir(), 'ms-playwright');
 const cachedChrome = existsSync(cacheRoot)
   ? readdirSync(cacheRoot)
@@ -101,7 +126,8 @@ async function makePage(viewport, mode = 'normal') {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   const page = await context.newPage();
   let briefingRequests = 0;
-  if (mode === 'refresh' || mode === 'stale') await page.clock.install();
+  let rankingRequests = 0;
+  if (mode === 'refresh' || mode === 'stale' || mode === 'rank-stale') await page.clock.install();
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route('**/*', async (route) => {
     const url = new URL(route.request().url());
@@ -124,6 +150,21 @@ async function makePage(viewport, mode = 'normal') {
       if (mode === 'refresh' && briefingRequests > 1)
         return json({ ...briefing, total_posts: 185 });
       return json(briefing);
+    }
+    if (url.pathname.includes('/boards/daily/hourly-rankings')) {
+      rankingRequests += 1;
+      if (mode === 'rank-error' || (mode === 'rank-stale' && rankingRequests > 1))
+        return json({ message: 'Fixture ranking error' }, 500);
+      if (mode === 'rank-empty' || mode === 'rank-current')
+        return json({
+          ...timeline,
+          rankings: timeline.rankings.map((bucket) =>
+            mode === 'rank-current' && bucket.is_live
+              ? bucket
+              : { ...bucket, captured_at: null, posts: [] }
+          ),
+        });
+      return json(timeline);
     }
     if (url.pathname.includes('/boards/daily')) return json(posts);
     if (url.pathname.includes('/boards/filters')) return json({ sites: [] });
@@ -151,7 +192,12 @@ async function makePage(viewport, mode = 'normal') {
   });
   await page.goto('http://pulse.invalid/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => document.querySelectorAll('[data-ascii-home]').length === 1);
-  return { page, context, requests: () => briefingRequests };
+  return {
+    page,
+    context,
+    requests: () => briefingRequests,
+    rankingRequests: () => rankingRequests,
+  };
 }
 
 try {
@@ -164,6 +210,24 @@ try {
     await page.getByRole('heading', { name: briefing.issues[0].title }).waitFor();
     assert.equal(await page.locator('#today-issues article').count(), 3);
     assert.equal(await page.locator('#hourly-tag-rankings, #tag-rankings').count(), 0);
+    const chart = page.locator('#hourly-post-rankings');
+    await chart.getByRole('img').waitFor();
+    assert.equal(await chart.locator('[data-rank-series]').count(), 10);
+    assert.equal(
+      await page.getByRole('link', { name: '[순위 변화]', exact: true }).getAttribute('href'),
+      '#hourly-post-rankings'
+    );
+    await chart.getByRole('button', { name: '[6시간]' }).click();
+    assert.equal(await chart.getByRole('slider').getAttribute('max'), '5');
+    await chart.getByRole('combobox', { name: '비교 게시글' }).selectOption('post-0');
+    assert.equal(await chart.locator('[data-rank-series]').count(), 1);
+    await chart.getByRole('slider').focus();
+    await chart.getByRole('slider').press('Home');
+    assert.equal(await chart.getByText('더쿠 / 6위', { exact: true }).count(), 1);
+    await chart.getByRole('combobox').selectOption('');
+    await chart.getByRole('button', { name: '[24시간]' }).click();
+    await chart.getByRole('slider').focus();
+    await chart.getByRole('slider').press('End');
     assert.equal(await page.getByText('오늘 가장 많이 언급', { exact: true }).count(), 1);
     assert.equal(await page.getByText('게시글 86개', { exact: true }).count(), 1);
     assert.equal(
@@ -183,6 +247,36 @@ try {
       path: path.join(artifacts, 'issues-' + viewport.width + '.png'),
       fullPage: true,
     });
+    await chart.screenshot({ path: path.join(artifacts, 'rankings-' + viewport.width + '.png') });
+    if (viewport.width === 1440) {
+      await page.getByRole('button', { name: '다크 모드로 전환' }).click();
+      await chart.screenshot({ path: path.join(artifacts, 'rankings-dark.png') });
+    }
+    await context.close();
+  }
+  for (const mode of ['rank-empty', 'rank-error', 'rank-current', 'rank-stale']) {
+    const { page, context, rankingRequests } = await makePage({ width: 390, height: 844 }, mode);
+    const chart = page.locator('#hourly-post-rankings');
+    if (mode === 'rank-current') {
+      await chart.getByText(/아직 시간별 기록이 쌓이지 않아 현재 순위만 표시합니다/).waitFor();
+      assert.equal(await chart.locator('circle').count(), 10);
+    } else if (mode === 'rank-stale') {
+      await chart.getByRole('img').waitFor();
+      await page.clock.fastForward(80000);
+      await chart.getByRole('alert').waitFor();
+      assert.ok(rankingRequests() > 1);
+      assert.equal(await chart.locator('[data-rank-series]').count(), 10);
+    } else {
+      await chart
+        .getByText(
+          mode === 'rank-empty'
+            ? '아직 표시할 인기글 순위가 없습니다.'
+            : '인기글 순위 변화를 불러오지 못했습니다.'
+        )
+        .waitFor();
+      assert.equal(await chart.locator('svg').count(), 0);
+    }
+    assert.equal(await page.locator('#today-issues article').count(), 3);
     await context.close();
   }
   for (const mode of ['empty', 'error']) {
@@ -226,6 +320,14 @@ try {
       error: true,
       refresh: true,
       stale: true,
+      rankings: {
+        controls: true,
+        currentOnly: true,
+        empty: true,
+        error: true,
+        stale: true,
+        dark: true,
+      },
       artifacts,
     })
   );
