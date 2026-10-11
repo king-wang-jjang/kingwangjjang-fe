@@ -99,7 +99,7 @@ export function TrendingPostFeed({
           {'/\\'.repeat(56)}
         </p>
         <div className={styles.heading}>
-          <h2 id="trending-post-feed-title">[03] 오늘의 인기글</h2>
+          <h2 id="trending-post-feed-title">[02] 오늘의 인기글</h2>
           <Link href="/top10" className={styles.sectionLink}>
             [Top 10 전체 보기 &gt;]
           </Link>

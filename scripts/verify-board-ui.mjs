@@ -108,11 +108,15 @@ const mojibakePattern = new RegExp(
   ].join('|')
 );
 
-assert.match(activityStory, /<CrossCommunityStory/, 'home should expose its text source breakdown');
 assert.match(
   activityStory,
-  /<ol[\s\S]*all-topic-rankings[\s\S]*<button/,
-  'tag rankings must be real text and keyboard controls'
+  /issue\.sources[\s\S]*source\.siteLabel/,
+  'home should expose each issue’s actual source breakdown'
+);
+assert.match(
+  activityStory,
+  /<ol[\s\S]*issues\.map[\s\S]*<article[\s\S]*issue\.summary[\s\S]*<details[\s\S]*href=\{post\.url\}/,
+  'issue rankings must contain readable summaries and accessible original source links'
 );
 assert.match(
   activityStory,
@@ -593,24 +597,24 @@ assert.doesNotMatch(
 
 assert.match(
   homeView,
-  /const activityData = useMemo\([\s\S]*adaptActivityData\(issueOverviewQuery\.data, topBoards\)[\s\S]*\[issueOverviewQuery\.data, topBoards\]/,
-  'the home page should adapt the issue overview and Top 10 data once per response'
+  /const issueBriefingQuery = useDailyIssueBriefing\(\)/,
+  'the home page should request today’s social issue briefing'
 );
 assert.match(
   homeView,
-  /<ActivityStory[\s\S]*data=\{activityData\}[\s\S]*isLoading=\{issueOverviewQuery\.isPending\}[\s\S]*isError=\{issueOverviewQuery\.isError\}[\s\S]*onTopicSelect=\{handleTopicSelect\}/,
-  'the home page should render the activity story from adapted overview data'
+  /<ActivityStory[\s\S]*data=\{issueBriefingQuery\.data\}[\s\S]*isLoading=\{issueBriefingQuery\.isPending\}[\s\S]*isError=\{issueBriefingQuery\.isError\}/,
+  'the home page should render actual daily issue summaries and request states'
 );
 
 assert.match(
   homeView,
-  /id="popular-feed"[\s\S]*<TrendingPostFeed[\s\S]*posts=\{topBoards\}[\s\S]*isLoading=\{topBoardsQuery\.isPending\}[\s\S]*isError=\{topBoardsQuery\.isError\}[\s\S]*featuredTag=\{activityData\?\.topics\[0\]\?\.label\}/,
-  'the home page should render the real Top 10 feed with the leading activity topic'
+  /id="popular-feed"[\s\S]*<TrendingPostFeed[\s\S]*posts=\{topBoards\}[\s\S]*isLoading=\{topBoardsQuery\.isPending\}[\s\S]*isError=\{topBoardsQuery\.isError\}/,
+  'the home page should keep the real Top 10 feed below the daily briefing'
 );
-assert.match(
+assert.doesNotMatch(
   homeView,
-  /router\.push\(`\/board\?\$\{query\.toString\(\)\}`\)/,
-  'selecting a home activity topic should open the filtered board'
+  /useIssueOverview|featuredTag=|adaptActivityData/,
+  'the home page should use the social briefing instead of broad tag rankings'
 );
 assert.doesNotMatch(
   homeView,

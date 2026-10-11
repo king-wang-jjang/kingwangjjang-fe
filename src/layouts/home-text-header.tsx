@@ -18,8 +18,7 @@ const pageLinks = [
 ];
 
 const sectionLinks = [
-  { label: '태그', href: '#tag-rankings' },
-  { label: '출처', href: '#cross-community' },
+  { label: '오늘의 이슈', href: '#today-issues' },
   { label: '인기글', href: '#popular-feed' },
 ];
 

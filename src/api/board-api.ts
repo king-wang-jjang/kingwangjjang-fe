@@ -127,6 +127,48 @@ export type IssueOverview = {
   hourlyRankings?: IssueHourlyRanking[];
 };
 
+export type DailyIssue = {
+  id: string;
+  rank: number;
+  title: string;
+  summary: string;
+  postCount: number;
+  sourceCount: number;
+  sources: { site: string; siteLabel: string; postCount: number }[];
+  posts: { boardId: string; site: string; siteLabel: string; title: string; url: string }[];
+};
+
+export type DailyIssueBriefing = {
+  generatedAt: string;
+  date: string;
+  startedAt: string;
+  timeZone: string;
+  totalPosts: number;
+  totalIssues: number;
+  sourceCount: number;
+  issues: DailyIssue[];
+};
+
+type DailyIssueBriefingRest = {
+  generated_at: string;
+  date: string;
+  started_at: string;
+  time_zone: string;
+  total_posts: number;
+  total_issues: number;
+  source_count: number;
+  issues: {
+    id: string;
+    rank: number;
+    title: string;
+    summary: string;
+    post_count: number;
+    source_count: number;
+    sources: { site: string; site_label: string; post_count: number }[];
+    posts: { board_id: string; site: string; site_label: string; title: string; url: string }[];
+  }[];
+};
+
 export type BoardPost = {
   recommendationReason?: string;
   Id?: string | null;
@@ -399,6 +441,51 @@ export async function getIssueOverview({
         postCount: site.post_count,
       })),
       relatedTags: tag.related_tags,
+    })),
+  };
+}
+
+export async function getDailyIssueBriefing({
+  limit = 5,
+  sites = [],
+}: {
+  limit?: number;
+  sites?: string[];
+} = {}): Promise<DailyIssueBriefing> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  sites.forEach((site) => {
+    if (site.trim()) params.append('sites', site.trim());
+  });
+  const briefing = await apiFetch<DailyIssueBriefingRest>(
+    `/boardservice/api/boards/issues/briefing?${params}`
+  );
+  return {
+    generatedAt: briefing.generated_at,
+    date: briefing.date,
+    startedAt: briefing.started_at,
+    timeZone: briefing.time_zone,
+    totalPosts: briefing.total_posts,
+    totalIssues: briefing.total_issues,
+    sourceCount: briefing.source_count,
+    issues: briefing.issues.map((issue) => ({
+      id: issue.id,
+      rank: issue.rank,
+      title: issue.title,
+      summary: issue.summary,
+      postCount: issue.post_count,
+      sourceCount: issue.source_count,
+      sources: issue.sources.map((source) => ({
+        site: source.site,
+        siteLabel: source.site_label,
+        postCount: source.post_count,
+      })),
+      posts: issue.posts.map((post) => ({
+        boardId: post.board_id,
+        site: post.site,
+        siteLabel: post.site_label,
+        title: post.title,
+        url: post.url,
+      })),
     })),
   };
 }

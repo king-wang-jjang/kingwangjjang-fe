@@ -1,33 +1,21 @@
 'use client';
 
-import type { IssueHourlyRanking } from 'src/api/board-api';
+import type { DailyIssueBriefing } from 'src/api/board-api';
 
 import Link from 'next/link';
 
 import { AsciiLogo } from './ascii-logo';
 import { UpdateStatus } from './update-status';
-import { HourlyTagRankings } from './hourly-tag-rankings';
-import { CrossCommunityStory } from './cross-community-story';
-import {
-  asciiMeter,
-  formatActivityTime,
-  formatActivityCount,
-  formatActivityGrowth,
-} from './activity-format';
+import { formatActivityTime, formatActivityCount } from './activity-format';
 
-import type { ActivityData } from './activity-data';
-
-// Keep CSS modules after application imports (perfectionist/sort-imports).
 // eslint-disable-next-line perfectionist/sort-imports
 import styles from './activity-story.module.css';
 
 type Props = {
-  data?: ActivityData;
-  hourlyRankings?: IssueHourlyRanking[];
+  data?: DailyIssueBriefing;
   isLoading: boolean;
   isError: boolean;
   isRefreshing?: boolean;
-  onTopicSelect: (tag: string) => void;
   motionEnabled?: boolean;
   isMotionReduced?: boolean;
   onMotionToggle?: () => void;
@@ -35,167 +23,145 @@ type Props = {
 
 export function ActivityStory({
   data,
-  hourlyRankings,
   isLoading,
   isError,
   isRefreshing,
-  onTopicSelect,
   motionEnabled = false,
   isMotionReduced = false,
   onMotionToggle,
 }: Props) {
-  const hours = data?.windowHours ?? 24;
-  const topics = data?.topics ?? [];
+  const issues = data?.issues ?? [];
   const updated = formatActivityTime(data?.generatedAt);
   return (
-    <>
-      <section
-        id="community-pulse"
-        className={styles.story}
-        aria-labelledby="pulse-title"
-        data-ascii-home
-      >
-        <header>
-          <div className={styles.terminalBar}>
-            <span aria-hidden="true">[ COMMUNITY PULSE / {hours}H ]</span>
-            <button
-              type="button"
-              className={styles.motionToggle}
-              aria-label="화면 움직임"
-              aria-pressed={motionEnabled && !isMotionReduced}
-              disabled={isMotionReduced || !onMotionToggle}
-              title={isMotionReduced ? '기기의 모션 감소 설정이 적용되어 있습니다.' : undefined}
-              onClick={onMotionToggle}
-            >
-              [{isMotionReduced ? '모션 감소' : motionEnabled ? '움직임 켜짐' : '움직임 꺼짐'}]
-            </button>
-          </div>
-          <div className={styles.introBody}>
-            <div className={styles.introCopy}>
-              <h1 id="pulse-title"># 최근 {hours}시간 커뮤니티 동향</h1>
-              <p>여러 커뮤니티의 게시글, 요약, AI 태그를 모았습니다.</p>
-              <p className={styles.note}>
-                갱신:{' '}
-                {updated ? (
-                  <time dateTime={data?.generatedAt}>{updated}</time>
-                ) : isLoading ? (
-                  '불러오는 중...'
-                ) : (
-                  '집계 시각 없음'
-                )}
-                {' / '}최근 {hours}시간
-              </p>
-            </div>
-            <div className={styles.logoPanel}>
-              <AsciiLogo motionEnabled={motionEnabled && !isMotionReduced} />
-            </div>
-          </div>
-          <dl className={styles.metrics} aria-label="최근 커뮤니티 집계">
-            {[
-              { label: '분석 게시글', value: data?.analyzedPostCount },
-              { label: '고유 태그', value: data?.uniqueTagCount },
-              { label: '표시 출처', value: data?.sourceCount },
-              { label: '확인된 연결', value: data?.knownEdgeCount },
-            ].map((metric) => (
-              <div key={metric.label}>
-                <dt>{metric.label}:</dt>
-                <dd>{metric.value === undefined ? '-' : formatActivityCount(metric.value)}</dd>
-              </div>
-            ))}
-          </dl>
-          <nav className={styles.destinations} aria-label="전체 콘텐츠 탐색">
-            <Link href="/board">[실시간 게시판 &gt;]</Link>
-            <Link href="/top10">[Top 10 전체 &gt;]</Link>
-          </nav>
-        </header>
-
-        <HourlyTagRankings
-          rankings={hourlyRankings}
-          isLoading={isLoading}
-          isError={isError}
-          isRefreshing={isRefreshing}
-        />
-
-        <section id="tag-rankings" className={styles.rankings} aria-labelledby="tag-rankings-title">
-          <p className={styles.rule} aria-hidden="true">
-            {'+---'.repeat(28)}+
-          </p>
-          <div className={styles.sectionHeading}>
-            <h2 id="tag-rankings-title">[01] 태그 순위</h2>
-            <Link href="/board">[게시판 전체 &gt;]</Link>
-          </div>
-          <UpdateStatus
-            status={isError ? 'error' : isLoading || isRefreshing ? 'pending' : 'idle'}
-            messages={{
-              idle: `상위 ${topics.length}개 / Activity 점수 / 태그 선택 시 게시판 이동`,
-              pending: isLoading ? '태그 통계를 불러오는 중...' : '최근 집계를 갱신하는 중...',
-              error: data
-                ? '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
-                : '태그 통계를 불러오지 못했습니다.',
-            }}
-          />
-          <ol
-            id="all-topic-rankings"
-            className={styles.topicList}
-            aria-labelledby="tag-rankings-title"
+    <section
+      id="community-pulse"
+      className={styles.story}
+      aria-labelledby="pulse-title"
+      data-ascii-home
+    >
+      <header>
+        <div className={styles.terminalBar}>
+          <span aria-hidden="true">[ TODAY / SOCIAL ISSUES ]</span>
+          <button
+            type="button"
+            className={styles.motionToggle}
+            aria-label="화면 움직임"
+            aria-pressed={motionEnabled && !isMotionReduced}
+            disabled={isMotionReduced || !onMotionToggle}
+            title={isMotionReduced ? '기기의 모션 감소 설정이 적용되어 있습니다.' : undefined}
+            onClick={onMotionToggle}
           >
-            {topics.map((topic) => (
-              <li key={topic.id}>
-                <button
-                  type="button"
-                  className={styles.topicButton}
-                  data-topic-node={topic.id}
-                  onClick={() => onTopicSelect(topic.label)}
-                  aria-label={`${topic.rank}위, ${topic.label}, Activity ${Math.round(topic.activityScore)}, 태그 게시글 보기`}
-                >
-                  <span className={styles.rank} aria-hidden="true">
-                    {String(topic.rank).padStart(2, '0')}
-                  </span>
-                  <span className={styles.topicContent}>
-                    <strong className={styles.topicName}>#{topic.label}</strong>
-                    <span
-                      className={styles.meter}
-                      aria-label={`Activity ${Math.round(topic.activityScore)}`}
-                    >
-                      <span aria-hidden="true">{asciiMeter(topic.activityScore)}</span>{' '}
-                      {Math.round(topic.activityScore)}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ol>
-          {!isLoading && !isError && !topics.length && (
-            <p role="status">
-              최근 집계에 AI 태그가 없습니다. <Link href="/board">[게시판 보기 &gt;]</Link>
+            [{isMotionReduced ? '모션 감소' : motionEnabled ? '움직임 켜짐' : '움직임 꺼짐'}]
+          </button>
+        </div>
+        <div className={styles.introBody}>
+          <div className={styles.introCopy}>
+            <h1 id="pulse-title"># 오늘의 사회 이슈</h1>
+            <p>오늘 커뮤니티에서 많이 언급된 사회 이슈를 요약합니다.</p>
+            <p className={styles.note}>
+              {data?.date && <time dateTime={data.date}>{data.date}</time>}
+              {data?.date && ' / '}
+              한국 시간 00:00부터 집계
+              {' / '}갱신:{' '}
+              {updated ? (
+                <time dateTime={data?.generatedAt}>{updated}</time>
+              ) : isLoading ? (
+                '불러오는 중...'
+              ) : (
+                '집계 시각 없음'
+              )}
             </p>
-          )}
-          <details className={styles.scoreNote}>
-            <summary>[상세 지표와 점수 설명]</summary>
-            <ol className={styles.topicMetrics}>
-              {topics.map((topic) => (
-                <li key={topic.id}>
-                  <strong>#{topic.label}</strong>: {formatActivityCount(topic.volume)}개 게시글 /
-                  증감 {formatActivityGrowth(topic.growthRate)} / 출처 {topic.sourceCount}곳
-                </li>
-              ))}
-            </ol>
-            <p>
-              Activity는 언급량, 증감, 표시 출처, 확인된 연결을 현재 집계 안에서 비교한 상대
-              지표입니다.
-            </p>
-            <p>
-              증감은 최근 12시간과 이전 12시간 게시글 수의 +1 보정 비교입니다. 출처와 연결 수는
-              응답에 포함된 범위만 표시합니다.
-            </p>
-          </details>
-        </section>
+          </div>
+          <div className={styles.logoPanel}>
+            <AsciiLogo motionEnabled={motionEnabled && !isMotionReduced} />
+          </div>
+        </div>
+        <dl className={styles.metrics} aria-label="오늘의 사회 이슈 집계">
+          {[
+            { label: '관련 게시글', value: data?.totalPosts },
+            { label: '사회 이슈', value: data?.totalIssues },
+            { label: '커뮤니티', value: data?.sourceCount },
+          ].map((metric) => (
+            <div key={metric.label}>
+              <dt>{metric.label}:</dt>
+              <dd>{metric.value === undefined ? '-' : formatActivityCount(metric.value)}</dd>
+            </div>
+          ))}
+        </dl>
+        <nav className={styles.destinations} aria-label="전체 콘텐츠 탐색">
+          <Link href="/board">[실시간 게시판 &gt;]</Link>
+          <Link href="/top10">[Top 10 전체 &gt;]</Link>
+        </nav>
+      </header>
+
+      <section id="today-issues" className={styles.rankings} aria-labelledby="today-issues-title">
+        <p className={styles.rule} aria-hidden="true">
+          {'+---'.repeat(28)}+
+        </p>
+        <div className={styles.sectionHeading}>
+          <h2 id="today-issues-title">[01] 많이 언급된 이슈</h2>
+          <span className={styles.note}>관련 게시글 수 기준</span>
+        </div>
+        <UpdateStatus
+          status={isError ? 'error' : isLoading || isRefreshing ? 'pending' : 'idle'}
+          messages={{
+            idle: `상위 ${issues.length}개 / 비슷한 사건의 게시글을 묶어 요약`,
+            pending: isLoading
+              ? '오늘의 사회 이슈를 불러오는 중...'
+              : '오늘의 이슈를 갱신하는 중...',
+            error: data
+              ? '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
+              : '오늘의 사회 이슈를 불러오지 못했습니다.',
+          }}
+        />
+        <ol className={styles.issueList} aria-labelledby="today-issues-title">
+          {issues.map((issue) => (
+            <li key={issue.id}>
+              <article className={styles.issueCard} aria-labelledby={`issue-${issue.id}`}>
+                <p className={styles.issueMeta}>
+                  <span className={styles.rank}>{String(issue.rank).padStart(2, '0')}</span>
+                  {issue.rank === 1 && <strong>오늘 가장 많이 언급</strong>}
+                  <span>게시글 {formatActivityCount(issue.postCount)}개</span>
+                  <span>커뮤니티 {formatActivityCount(issue.sourceCount)}곳</span>
+                </p>
+                <h3 id={`issue-${issue.id}`}>{issue.title}</h3>
+                <p className={styles.issueSummary}>{issue.summary}</p>
+                <p className={styles.note}>
+                  {issue.sources
+                    .map(
+                      (source) => `${source.siteLabel} ${formatActivityCount(source.postCount)}개`
+                    )
+                    .join(' / ')}
+                </p>
+                <details className={styles.scoreNote}>
+                  <summary>[관련 원문 보기]</summary>
+                  <ul className={styles.sourcePosts}>
+                    {issue.posts
+                      .filter((post) => /^https?:\/\//i.test(post.url))
+                      .map((post) => (
+                        <li key={post.boardId}>
+                          <a href={post.url} target="_blank" rel="noopener noreferrer">
+                            [{post.siteLabel}] {post.title}
+                          </a>
+                        </li>
+                      ))}
+                  </ul>
+                </details>
+              </article>
+            </li>
+          ))}
+        </ol>
+        {!isLoading && !isError && !issues.length && (
+          <p role="status">
+            아직 오늘의 사회 이슈를 요약할 게시글이 없습니다. 분석이 완료되면 자동으로 반영됩니다.{' '}
+            <Link href="/board">[게시판 보기 &gt;]</Link>
+          </p>
+        )}
+        <p className={styles.note}>
+          요약은 관련 게시글의 AI 분석에서 모았습니다. 언급량은 수집한 커뮤니티 게시글 기준이며,
+          사회적 중요도나 사실 확인을 뜻하지 않습니다.
+        </p>
       </section>
-      <CrossCommunityStory
-        topic={isLoading ? undefined : (topics[0] ?? null)}
-        windowHours={hours}
-        isError={isError}
-      />
-    </>
+    </section>
   );
 }
