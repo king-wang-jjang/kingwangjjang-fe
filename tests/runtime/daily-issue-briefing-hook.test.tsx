@@ -28,6 +28,7 @@ test('starts a new query at Korean midnight instead of showing yesterday’s cac
     await vi.advanceTimersByTimeAsync(1001);
   });
   expect(getDailyIssueBriefing).toHaveBeenCalledTimes(1);
+  expect(getDailyIssueBriefing).toHaveBeenCalledWith({ limit: 10 });
   expect(result.current.isPending).toBe(true);
   expect(result.current.data).toBeUndefined();
   unmount();

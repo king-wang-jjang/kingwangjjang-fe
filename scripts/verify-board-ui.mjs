@@ -30,6 +30,7 @@ const activityScore = read('src/sections/home/activity/activity-score.ts');
 const homeTextHeader = read('src/layouts/home-text-header.tsx');
 const activityFormat = read('src/sections/home/activity/activity-format.ts');
 const activityStory = read('src/sections/home/activity/activity-story.tsx');
+const issueCloseup = read('src/sections/home/activity/issue-closeup.tsx');
 const asciiLogo = read('src/sections/home/activity/ascii-logo.tsx');
 const activityStoryStyles = read('src/sections/home/activity/activity-story.module.css');
 const crossCommunityStory = read('src/sections/home/activity/cross-community-story.tsx');
@@ -72,6 +73,7 @@ const redesignedFiles = [
   activityData,
   activityScore,
   activityStory,
+  issueCloseup,
   activityStoryStyles,
   crossCommunityStory,
   crossCommunityStoryStyles,
@@ -109,24 +111,30 @@ const mojibakePattern = new RegExp(
 );
 
 assert.match(
-  activityStory,
-  /issue\.sources[\s\S]*source\.siteLabel/,
+  issueCloseup,
+  /selectedIssue\.sources[\s\S]*source\.siteLabel/,
   'home should expose each issue’s actual source breakdown'
 );
 assert.match(
-  activityStory,
-  /<ol[\s\S]*issues\.map[\s\S]*<article[\s\S]*issue\.summary[\s\S]*<details[\s\S]*href=\{post\.url\}/,
-  'issue rankings must contain readable summaries and accessible original source links'
+  issueCloseup,
+  /<article[\s\S]*selectedIssue\.summary[\s\S]*<details[\s\S]*href=\{post\.url\}/,
+  'the selected issue closeup must contain its summary and accessible source links'
 );
 assert.match(
   activityStory,
-  /<AsciiLogo\s+motionEnabled=/,
-  'home should render an ASCII logo with the shared motion control'
+  /<IssueCloseup[\s\S]*motionEnabled=\{motionEnabled\}/,
+  'home should render the issue closeup with the shared motion control'
 );
 assert.doesNotMatch(
-  [homeView, homeTextHeader, activityStory, asciiLogo, crossCommunityStory, trendingPostFeed].join(
-    '\n'
-  ),
+  [
+    homeView,
+    homeTextHeader,
+    activityStory,
+    issueCloseup,
+    asciiLogo,
+    crossCommunityStory,
+    trendingPostFeed,
+  ].join('\n'),
   /<svg|<canvas|<img|component="img"|RoundedIcon|import\('animejs'\)|import\('d3-force'\)/,
   'home, including the logo, should use text instead of graphic assets'
 );

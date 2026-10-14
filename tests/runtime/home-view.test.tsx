@@ -1,8 +1,9 @@
 import userEvent from '@testing-library/user-event';
-import { render } from '@testing-library/react';
+import { act, render, within, fireEvent } from '@testing-library/react';
 import { vi, test, expect, describe, afterEach } from 'vitest';
 
 import { HomeView } from 'src/sections/home/view/home-view';
+import { IssueCloseup } from 'src/sections/home/activity/issue-closeup';
 
 const { useBriefing } = vi.hoisted(() => ({ useBriefing: vi.fn() }));
 
@@ -76,6 +77,26 @@ function briefingQuery() {
 
 useBriefing.mockImplementation(briefingQuery);
 
+function tenIssueQuery() {
+  const query = briefingQuery();
+  const example = query.data.issues[0];
+  return {
+    ...query,
+    data: {
+      ...query.data,
+      totalIssues: 10,
+      issues: Array.from({ length: 10 }, (_, index) => ({
+        ...example,
+        id: `issue-${index}`,
+        rank: index + 1,
+        title: `오늘의 사회 이슈 ${index + 1}`,
+        summary: `${index + 1}번째 이슈의 실제 요약입니다.`,
+        posts: [{ ...example.posts[0], url: `https://example.com/issue/${index + 1}` }],
+      })),
+    },
+  };
+}
+
 vi.mock('src/hooks/use-top-boards', () => ({
   useTopBoards: () => ({
     data: [
@@ -116,13 +137,14 @@ vi.mock('src/hooks/use-top-boards', () => ({
 describe('HomeView', () => {
   afterEach(() => {
     useBriefing.mockImplementation(briefingQuery);
+    vi.useRealTimers();
   });
 
   test('shows today’s leading social issue summary, counts and original sources', async () => {
     const user = userEvent.setup();
     const { getByRole, getByText, queryByText } = render(<HomeView />);
 
-    expect(getByRole('heading', { name: '# 오늘의 사회 이슈' })).toBeTruthy();
+    expect(getByText(/^CLOSEUP/)).toBeTruthy();
     expect(getByRole('heading', { name: '서울 지하철 파업 예고' })).toBeTruthy();
     expect(getByText('노조가 파업을 예고해 출근길 운행 차질이 예상됩니다.')).toBeTruthy();
     expect(getByText('게시글 8개')).toBeTruthy();
@@ -131,7 +153,7 @@ describe('HomeView', () => {
     expect(queryByText('[01] 태그 순위')).toBeNull();
     expect(getByRole('heading', { name: '[02] 인기글 순위 변화' })).toBeTruthy();
     expect(getByRole('heading', { name: '[03] 오늘의 인기글' })).toBeTruthy();
-    await user.click(getByText('[관련 원문 보기]'));
+    await user.click(getByText('[관련 원문 보기 ↗]'));
     expect(getByRole('link', { name: '[더쿠] 파업 예고 원문' }).getAttribute('href')).toBe(
       'https://example.com/strike'
     );
@@ -155,6 +177,81 @@ describe('HomeView', () => {
       '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
     );
     expect(getByRole('heading', { name: '서울 지하철 파업 예고' })).toBeTruthy();
+  });
+
+  test('keeps ten titles in the board and closeups the selected issue with its own source', async () => {
+    const user = userEvent.setup();
+    useBriefing.mockReturnValue(tenIssueQuery());
+    const { getByRole, getByText, queryByRole } = render(<HomeView />);
+    const board = getByRole('list', { name: '[01] 오늘의 이슈' });
+    expect(within(board).getAllByRole('button')).toHaveLength(10);
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 1');
+
+    await user.click(getByRole('button', { name: '10위 이슈 클로즈업: 오늘의 사회 이슈 10' }));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 10');
+    expect(getByText('10번째 이슈의 실제 요약입니다.')).toBeTruthy();
+    expect(queryByRole('heading', { name: '오늘의 사회 이슈 1' })).toBeNull();
+    expect(getByRole('button', { name: '이슈 자동 넘김' }).getAttribute('aria-pressed')).toBe(
+      'false'
+    );
+    await user.click(getByText('[관련 원문 보기 ↗]'));
+    expect(getByRole('link', { name: '[더쿠] 파업 예고 원문' }).getAttribute('href')).toBe(
+      'https://example.com/issue/10'
+    );
+
+    await user.click(getByRole('button', { name: '다음 이슈' }));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 1');
+    await user.click(getByRole('button', { name: '이전 이슈' }));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 10');
+    expect(within(board).getAllByRole('button')).toHaveLength(10);
+  });
+
+  test('preserves the selected issue by identity when a refresh reorders the board', async () => {
+    const user = userEvent.setup();
+    const query = tenIssueQuery();
+    useBriefing.mockReturnValue(query);
+    const { getByRole, rerender } = render(<HomeView />);
+    await user.click(getByRole('button', { name: '2위 이슈 클로즈업: 오늘의 사회 이슈 2' }));
+    useBriefing.mockReturnValue({
+      ...query,
+      data: { ...query.data, issues: [...query.data.issues].reverse() },
+    });
+    rerender(<HomeView />);
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 2');
+    expect(
+      getByRole('button', { name: '9위 이슈 클로즈업: 오늘의 사회 이슈 2' }).getAttribute(
+        'aria-pressed'
+      )
+    ).toBe('true');
+  });
+
+  test('automatically advances, pauses while reading, and respects reduced motion', async () => {
+    vi.useFakeTimers();
+    const issues = tenIssueQuery().data.issues.slice(0, 2);
+    const { getByRole, container, rerender } = render(
+      <IssueCloseup issues={issues} motionEnabled isMotionReduced={false} />
+    );
+    await act(async () => vi.advanceTimersByTimeAsync(12_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 2');
+    fireEvent.pointerEnter(container.firstChild!);
+    await act(async () => vi.advanceTimersByTimeAsync(24_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 2');
+    fireEvent.pointerLeave(container.firstChild!);
+    await act(async () => vi.advanceTimersByTimeAsync(12_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 1');
+    fireEvent.click(getByRole('button', { name: '다음 이슈' }));
+    await act(async () => vi.advanceTimersByTimeAsync(24_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 2');
+    fireEvent.focus(getByRole('button', { name: '이슈 자동 넘김' }));
+    fireEvent.click(getByRole('button', { name: '이슈 자동 넘김' }));
+    await act(async () => vi.advanceTimersByTimeAsync(12_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 1');
+    rerender(<IssueCloseup issues={issues} motionEnabled isMotionReduced />);
+    await act(async () => vi.advanceTimersByTimeAsync(24_000));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 1');
+    expect((getByRole('button', { name: '이슈 자동 넘김' }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
   });
 
   test('lets visitors preview another Top 10 story before opening it', async () => {

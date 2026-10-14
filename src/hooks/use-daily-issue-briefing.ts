@@ -23,7 +23,7 @@ export function useDailyIssueBriefing() {
 
   return useQuery({
     queryKey: ['boards', 'issues', 'briefing', date],
-    queryFn: () => getDailyIssueBriefing(),
+    queryFn: () => getDailyIssueBriefing({ limit: 10 }),
     staleTime: 60_000,
     refetchInterval: 2 * 60_000,
     refetchIntervalInBackground: false,
