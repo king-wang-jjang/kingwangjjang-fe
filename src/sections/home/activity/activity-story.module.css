@@ -11,6 +11,23 @@
   flex-wrap: wrap;
   gap: 0 12px;
 }
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.logoPanel {
+  flex: 0 0 180px;
+  min-width: 0;
+  max-width: 100%;
+}
+.logoPanel [data-ascii-logo] {
+  aspect-ratio: 1;
+}
+.logoPanel [data-logo-frame] {
+  font-size: 4px;
+}
 .story .brandLabel {
   margin: 0;
   font-size: 18px;
@@ -108,6 +125,7 @@
   line-height: 1.5;
   letter-spacing: -0.04em;
   overflow-wrap: anywhere;
+  word-break: keep-all;
   text-wrap: pretty;
 }
 .story .issueSummary {
@@ -115,6 +133,12 @@
   font-size: 15px;
   line-height: 1.95;
   overflow-wrap: anywhere;
+}
+.story .summaryLabel {
+  margin: 0 0 8px;
+  color: var(--home-muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 .story .issueMeta {
   display: flex;
@@ -314,6 +338,15 @@
   }
 }
 @media (max-width: 767.95px) {
+  .masthead {
+    align-items: flex-start;
+  }
+  .logoPanel {
+    flex-basis: 144px;
+  }
+  .logoPanel [data-logo-frame] {
+    font-size: 3.2px;
+  }
   .closeupLayout {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;

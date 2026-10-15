@@ -76,6 +76,9 @@ export function HourlyPostRankings({ rankings = [], isLoading, isError, isRefres
       : buckets.length - 1
   );
   const activeBucket = buckets[activeIndex];
+  const selectedPosts = activePost
+    ? posts
+    : (activeBucket?.posts ?? []).toSorted((a, b) => a.rank - b.rank).slice(0, 10);
   const hasData = availablePosts.length > 0;
   const hasHistory = buckets.some((bucket) => !bucket.isLive && bucket.capturedAt !== null);
 
@@ -169,7 +172,7 @@ export function HourlyPostRankings({ rankings = [], isLoading, isError, isRefres
               value={activePost}
               onChange={(event) => setSelectedPost(event.target.value)}
             >
-              <option value="">최근 Top 10 전체</option>
+              <option value="">Top 10 전체</option>
               {availablePosts.map((post) => (
                 <option key={post.boardId} value={post.boardId}>
                   {post.title} · {post.siteLabel}
@@ -275,9 +278,11 @@ export function HourlyPostRankings({ rankings = [], isLoading, isError, isRefres
             />
           </label>
           <ul className={styles.legend} aria-label="선택한 시간의 인기글 순위">
-            {series.map((item) => {
-              const entry = activeBucket.posts.find((post) => post.boardId === item.post.boardId);
-              const post = entry ?? item.post;
+            {selectedPosts.map((selected) => {
+              const entry = activeBucket.posts.find((post) => post.boardId === selected.boardId);
+              const post = entry ?? selected;
+              const colorIndex =
+                availablePosts.findIndex((item) => item.boardId === post.boardId) % 10;
               const href = sourceUrl(post.url);
               return (
                 <li key={post.boardId}>
@@ -288,10 +293,10 @@ export function HourlyPostRankings({ rankings = [], isLoading, isError, isRefres
                   >
                     <span
                       className={styles.swatch}
-                      style={{ color: item.color }}
+                      style={{ color: `var(--rank-color-${colorIndex + 1})` }}
                       aria-hidden="true"
                     >
-                      {item.dash ? '- -' : '---'}
+                      {DASHES[colorIndex] ? '- -' : '---'}
                     </span>
                     <strong>{post.title}</strong>
                   </a>
@@ -307,6 +312,13 @@ export function HourlyPostRankings({ rankings = [], isLoading, isError, isRefres
               );
             })}
           </ul>
+          {!selectedPosts.length && (
+            <p className={styles.note} role="status">
+              {activeBucket.capturedAt === null
+                ? '선택한 시간의 순위 기록이 없습니다.'
+                : '선택한 시간에 표시할 인기글이 없습니다.'}
+            </p>
+          )}
           <p className={styles.note}>
             {activeBucket.capturedAt
               ? `마지막 확인: ${formatActivityTime(activeBucket.capturedAt)} / `

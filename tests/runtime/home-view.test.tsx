@@ -145,6 +145,9 @@ describe('HomeView', () => {
     const { getByRole, getByText, queryByText } = render(<HomeView />);
 
     expect(getByText(/^CLOSEUP/)).toBeTruthy();
+    expect(
+      getByRole('img', { name: '마약 프로젝트 ASCII 로고: 입체 사각형, 구, 삼각기둥' })
+    ).toBeTruthy();
     expect(getByRole('heading', { name: '서울 지하철 파업 예고' })).toBeTruthy();
     expect(getByText('노조가 파업을 예고해 출근길 운행 차질이 예상됩니다.')).toBeTruthy();
     expect(getByText('게시글 8개')).toBeTruthy();
@@ -165,8 +168,9 @@ describe('HomeView', () => {
       ...query,
       data: { ...query.data, issues: [], totalPosts: 0, totalIssues: 0, sourceCount: 0 },
     });
-    const { getByText, queryByText } = render(<HomeView />);
+    const { getByRole, getByText, queryByText } = render(<HomeView />);
     expect(getByText(/아직 오늘의 사회 이슈를 요약할 게시글이 없습니다/)).toBeTruthy();
+    expect(getByRole('img', { name: /마약 프로젝트 ASCII 로고/ })).toBeTruthy();
     expect(queryByText('오늘 가장 많이 언급')).toBeNull();
   });
 
@@ -177,6 +181,64 @@ describe('HomeView', () => {
       '집계 갱신에 실패해 마지막 데이터를 표시합니다.'
     );
     expect(getByRole('heading', { name: '서울 지하철 파업 예고' })).toBeTruthy();
+  });
+
+  test('keeps the logo during initial loading and errors, independently of issue availability', () => {
+    const query = briefingQuery();
+    useBriefing.mockReturnValue({ ...query, data: undefined, isPending: true });
+    const { getByRole, rerender } = render(<HomeView />);
+    expect(getByRole('img', { name: /마약 프로젝트 ASCII 로고/ })).toBeTruthy();
+    useBriefing.mockReturnValue({ ...query, data: undefined, isError: true });
+    rerender(<HomeView />);
+    expect(getByRole('img', { name: /마약 프로젝트 ASCII 로고/ })).toBeTruthy();
+    expect(getByRole('alert').textContent).toContain('오늘의 사회 이슈를 불러오지 못했습니다.');
+  });
+
+  test('closeups real source excerpts while AI is unavailable and does not label them as AI summaries', async () => {
+    const user = userEvent.setup();
+    const query = briefingQuery();
+    useBriefing.mockReturnValue({
+      ...query,
+      data: {
+        ...query.data,
+        issues: [
+          {
+            ...query.data.issues[0],
+            summary: '원문에서 발췌한 실제 내용',
+            summarySource: 'source_excerpt',
+          },
+        ],
+      },
+    });
+    const { getByRole, getByText, queryByText } = render(<HomeView />);
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('서울 지하철 파업 예고');
+    expect(getByText('원문 발췌 · AI 분석 대기 중')).toBeTruthy();
+    expect(getByText('원문에서 발췌한 실제 내용')).toBeTruthy();
+    expect(queryByText('AI 요약', { exact: true })).toBeNull();
+    await user.click(getByText('[관련 원문 보기 ↗]'));
+    expect(getByRole('link', { name: '[더쿠] 파업 예고 원문' }).getAttribute('href')).toBe(
+      'https://example.com/strike'
+    );
+  });
+
+  test('keeps title selection usable when an image-only post has no summary or source excerpt', () => {
+    const query = tenIssueQuery();
+    useBriefing.mockReturnValue({
+      ...query,
+      data: {
+        ...query.data,
+        issues: query.data.issues.map((issue) => ({
+          ...issue,
+          summary: '',
+          summarySource: 'pending',
+        })),
+      },
+    });
+    const { getByRole, getByText } = render(<HomeView />);
+    expect(getByText('AI 요약 준비 중')).toBeTruthy();
+    fireEvent.click(getByRole('button', { name: '10위 이슈 클로즈업: 오늘의 사회 이슈 10' }));
+    expect(getByRole('heading', { level: 1 }).textContent).toBe('오늘의 사회 이슈 10');
+    expect(getByText(/아직 AI 요약이 준비되지 않았습니다/)).toBeTruthy();
   });
 
   test('keeps ten titles in the board and closeups the selected issue with its own source', async () => {

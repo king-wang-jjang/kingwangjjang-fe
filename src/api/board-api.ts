@@ -132,6 +132,7 @@ export type DailyIssue = {
   rank: number;
   title: string;
   summary: string;
+  summarySource?: 'ai' | 'source_excerpt' | 'pending';
   postCount: number;
   sourceCount: number;
   sources: { site: string; siteLabel: string; postCount: number }[];
@@ -162,6 +163,7 @@ type DailyIssueBriefingRest = {
     rank: number;
     title: string;
     summary: string;
+    summary_source?: 'ai' | 'source_excerpt' | 'pending';
     post_count: number;
     source_count: number;
     sources: { site: string; site_label: string; post_count: number }[];
@@ -512,6 +514,7 @@ export async function getDailyIssueBriefing({
       rank: issue.rank,
       title: issue.title,
       summary: issue.summary,
+      summarySource: issue.summary_source ?? (issue.summary.trim() ? 'ai' : 'pending'),
       postCount: issue.post_count,
       sourceCount: issue.source_count,
       sources: issue.sources.map((source) => ({

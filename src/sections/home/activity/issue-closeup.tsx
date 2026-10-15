@@ -25,10 +25,14 @@ export function IssueCloseup({ issues, motionEnabled, isMotionReduced }: Props) 
   const [isFocused, setIsFocused] = useState(false);
   const [isInView, setIsInView] = useState(true);
   const [isDocumentVisible, setIsDocumentVisible] = useState(true);
-  const selectedIndex = Math.max(0, issues.findIndex((issue) => issue.id === selectedId));
+  const selectedIndex = Math.max(
+    0,
+    issues.findIndex((issue) => issue.id === selectedId)
+  );
   const selectedIssue = issues[selectedIndex];
   const canPlay = motionEnabled && !isMotionReduced && issues.length > 1;
-  const isAdvancing = canPlay && isPlaying && !isHovered && !isFocused && isInView && isDocumentVisible;
+  const isAdvancing =
+    canPlay && isPlaying && !isHovered && !isFocused && isInView && isDocumentVisible;
 
   useEffect(() => {
     const syncVisibility = () => setIsDocumentVisible(!document.hidden);
@@ -59,6 +63,8 @@ export function IssueCloseup({ issues, motionEnabled, isMotionReduced }: Props) 
   };
 
   if (!selectedIssue) return null;
+  const summarySource =
+    selectedIssue.summarySource ?? (selectedIssue.summary.trim() ? 'ai' : 'pending');
 
   return (
     <div
@@ -86,13 +92,24 @@ export function IssueCloseup({ issues, motionEnabled, isMotionReduced }: Props) 
           key={selectedIssue.id}
           id="daily-issue-closeup"
           className={styles.closeupArticle}
+          data-summary-source={summarySource}
           data-motion={motionEnabled && !isMotionReduced ? 'running' : 'paused'}
           aria-labelledby="pulse-title"
           aria-live={isAdvancing ? 'off' : 'polite'}
           aria-atomic="true"
         >
           <h1 id="pulse-title">{selectedIssue.title}</h1>
-          <p className={styles.issueSummary}>{selectedIssue.summary}</p>
+          <p className={styles.summaryLabel}>
+            {summarySource === 'ai'
+              ? 'AI 요약'
+              : summarySource === 'source_excerpt'
+                ? '원문 발췌 · AI 분석 대기 중'
+                : 'AI 요약 준비 중'}
+          </p>
+          <p className={styles.issueSummary}>
+            {selectedIssue.summary ||
+              '아직 AI 요약이 준비되지 않았습니다. 아래 관련 원문에서 내용을 확인할 수 있습니다.'}
+          </p>
           <p className={styles.issueMeta}>
             <span>게시글 {formatActivityCount(selectedIssue.postCount)}개</span>
             <span>커뮤니티 {formatActivityCount(selectedIssue.sourceCount)}곳</span>

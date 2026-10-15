@@ -125,6 +125,11 @@ assert.match(
   /<IssueCloseup[\s\S]*motionEnabled=\{motionEnabled\}/,
   'home should render the issue closeup with the shared motion control'
 );
+assert.match(
+  activityStory,
+  /<AsciiLogo\s+motionEnabled=\{motionEnabled && !isMotionReduced\}/,
+  'the original ASCII logo must remain visible independently of briefing data'
+);
 assert.doesNotMatch(
   [
     homeView,

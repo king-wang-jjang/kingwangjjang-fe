@@ -49,6 +49,7 @@ test('maps real daily summaries, day boundaries and evidence links without tag r
     issues: [
       {
         rank: 1,
+        summarySource: 'ai',
         summary: '노조가 파업을 예고했습니다.',
         postCount: 3,
         sourceCount: 2,
@@ -57,6 +58,28 @@ test('maps real daily summaries, day boundaries and evidence links without tag r
       },
     ],
   });
+});
+
+test('preserves source excerpts and pending summary provenance from the real briefing contract', async () => {
+  vi.mocked(apiFetch).mockResolvedValueOnce({
+    ...response,
+    issues: [
+      {
+        ...response.issues[0],
+        summary: '원문에서 실제로 발췌한 내용입니다.',
+        summary_source: 'source_excerpt',
+      },
+      { ...response.issues[0], id: 'pending', summary: '', summary_source: 'pending' },
+    ],
+  });
+  const briefing = await getDailyIssueBriefing({ limit: 10 });
+  expect(briefing.issues.map((issue) => issue.summarySource)).toEqual([
+    'source_excerpt',
+    'pending',
+  ]);
+  expect(briefing.issues[0].summary).toBe('원문에서 실제로 발췌한 내용입니다.');
+  expect(briefing.issues[1].summary).toBe('');
+  expect(briefing.issues[1].posts[0].url).toBe('https://example.com/strike');
 });
 
 test('preserves an empty day without borrowing yesterday’s tags or popular posts', async () => {

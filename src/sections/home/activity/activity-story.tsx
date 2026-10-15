@@ -5,6 +5,7 @@ import type { DailyIssueBriefing } from 'src/api/board-api';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
+import { AsciiLogo } from './ascii-logo';
 import { IssueCloseup } from './issue-closeup';
 import { UpdateStatus } from './update-status';
 import { formatActivityTime, formatActivityCount } from './activity-format';
@@ -58,22 +59,31 @@ export function ActivityStory({
             [{isMotionReduced ? '모션 감소' : motionEnabled ? '움직임 켜짐' : '움직임 꺼짐'}]
           </button>
         </div>
-        <p className={styles.note}>
-          {data?.date && <time dateTime={data.date}>{data.date}</time>}
-          {data?.date && ' / '}
-          한국 시간 00:00부터 집계
-          {' / '}갱신:{' '}
-          {updated ? (
-            <time dateTime={data?.generatedAt}>{updated}</time>
-          ) : isLoading ? (
-            '불러오는 중...'
-          ) : (
-            '집계 시각 없음'
-          )}
-        </p>
+        <div className={styles.masthead}>
+          <p className={styles.note}>
+            {data?.date && <time dateTime={data.date}>{data.date}</time>}
+            {data?.date && ' / '}
+            한국 시간 00:00부터 집계
+            {' / '}갱신:{' '}
+            {updated ? (
+              <time dateTime={data?.generatedAt}>{updated}</time>
+            ) : isLoading ? (
+              '불러오는 중...'
+            ) : (
+              '집계 시각 없음'
+            )}
+          </p>
+          <div className={styles.logoPanel}>
+            <AsciiLogo motionEnabled={motionEnabled && !isMotionReduced} />
+          </div>
+        </div>
       </header>
 
-      <section id="today-issues" className={styles.closeupSection} aria-label="오늘의 이슈 클로즈업">
+      <section
+        id="today-issues"
+        className={styles.closeupSection}
+        aria-label="오늘의 이슈 클로즈업"
+      >
         <UpdateStatus
           status={isError ? 'error' : isLoading || isRefreshing ? 'pending' : 'idle'}
           messages={{
@@ -97,7 +107,8 @@ export function ActivityStory({
             <h1 id="pulse-title">오늘의 이슈</h1>
             {!isLoading && !isError && (
               <p role="status">
-                아직 오늘의 사회 이슈를 요약할 게시글이 없습니다. 분석이 완료되면 자동으로 반영됩니다.
+                아직 오늘의 사회 이슈를 요약할 게시글이 없습니다. 분석이 완료되면 자동으로
+                반영됩니다.
               </p>
             )}
             <Link href="/board">[게시판 보기 &gt;]</Link>
@@ -124,8 +135,8 @@ export function ActivityStory({
         </nav>
       </div>
       <p className={styles.note}>
-        요약은 관련 게시글의 AI 분석에서 모았습니다. 언급량은 수집한 커뮤니티 게시글 기준이며,
-        사회적 중요도나 사실 확인을 뜻하지 않습니다.
+        AI 분석이 완료된 글은 요약을, 분석 대기 중인 글은 원문 발췌를 표시합니다. 언급량은 수집한
+        커뮤니티 게시글 기준이며, 사회적 중요도나 사실 확인을 뜻하지 않습니다.
       </p>
     </section>
   );
